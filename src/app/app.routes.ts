@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { directorGuard } from './auth/director.guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -9,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'ingresar',
     loadComponent: () =>
-      import('./pages').then((m) => m.LoginPage)
+      import('./auth/login.page').then((m) => m.LoginPage)
   },
   {
     path: 'registro',
@@ -18,6 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'app',
+    canActivate: [directorGuard],
     children: [
       {
         path: '',
