@@ -5,14 +5,19 @@
       <span>CHOIR<span class="brand-dot">.</span><small>PLATAFORMA PARA DIRECTORES</small></span>
     </a>
 
-    <nav class="main-nav" aria-label="Navegación principal">
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
-      <a routerLink="/app/coro" routerLinkActive="active">Mi coro</a>
-      <a routerLink="/app/conciertos" routerLinkActive="active">Conciertos</a>
-      <a routerLink="/app/formaciones" routerLinkActive="active">Formaciones</a>
-    </nav>
-
-    <a class="login-link" routerLink="/ingresar">Ingresar <span aria-hidden="true">↗</span></a>
+    @if (isWorkspace()) {
+      <nav class="main-nav" aria-label="Navegación del espacio de trabajo">
+        <a routerLink="/app/coro" routerLinkActive="active">Mi coro</a>
+        <a routerLink="/app/conciertos" routerLinkActive="active">Conciertos</a>
+        <a routerLink="/app/formaciones" routerLinkActive="active">Formaciones</a>
+      </nav>
+      <a class="login-link" routerLink="/">Sitio público <span aria-hidden="true">↗</span></a>
+    } @else {
+      <nav class="main-nav" aria-label="Navegación pública">
+        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
+      </nav>
+      <a class="login-link" routerLink="/ingresar">Ingresar <span aria-hidden="true">↗</span></a>
+    }
   </header>
 
   <main id="main-content">
