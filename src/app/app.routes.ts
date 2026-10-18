@@ -1,5 +1,7 @@
 import { Routes } from '@angular/router';
 
+import { directorGuard } from './auth/director.guard';
+
 export const routes: Routes = [
   {
     path: '',
@@ -18,6 +20,7 @@ export const routes: Routes = [
   },
   {
     path: 'app',
+    canActivate: [directorGuard],
     children: [
       {
         path: '',
