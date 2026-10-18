@@ -11,7 +11,7 @@ export const routes: Routes = [
   {
     path: 'ingresar',
     loadComponent: () =>
-      import('./pages').then((m) => m.LoginPage)
+      import('./auth/login.page').then((m) => m.LoginPage)
   },
   {
     path: 'registro',

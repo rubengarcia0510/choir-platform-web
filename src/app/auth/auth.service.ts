@@ -92,6 +92,10 @@ export class AuthService {
     );
   }
 
+  clearSession(): void {
+    this.setDirector(null);
+  }
+
   private setDirector(director: DirectorSession | null): void {
     this.currentDirector.set(director);
     this.isAuthenticated.set(director !== null);

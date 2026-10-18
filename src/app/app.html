@@ -5,20 +5,38 @@
       <span>CHOIR<span class="brand-dot">.</span><small>PLATAFORMA PARA DIRECTORES</small></span>
     </a>
 
-    @if (isWorkspace()) {
+    @if (isWorkspace() && auth.isAuthenticated()) {
       <nav class="main-nav" aria-label="Navegación del espacio de trabajo">
         <a routerLink="/app/coro" routerLinkActive="active">Mi coro</a>
         <a routerLink="/app/conciertos" routerLinkActive="active">Conciertos</a>
         <a routerLink="/app/formaciones" routerLinkActive="active">Formaciones</a>
       </nav>
-      <a class="login-link" routerLink="/">Sitio público <span aria-hidden="true">↗</span></a>
+      <div class="session-actions">
+        <a class="login-link" routerLink="/">Sitio público <span aria-hidden="true">↗</span></a>
+        <button
+          class="logout-button"
+          type="button"
+          [disabled]="isLoggingOut()"
+          (click)="logout()"
+        >
+          {{ isLoggingOut() ? 'Saliendo…' : 'Cerrar sesión' }}
+        </button>
+      </div>
     } @else {
       <nav class="main-nav" aria-label="Navegación pública">
         <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Inicio</a>
       </nav>
-      <a class="login-link" routerLink="/ingresar">Ingresar <span aria-hidden="true">↗</span></a>
+      @if (auth.isAuthenticated()) {
+        <a class="login-link" routerLink="/app/coro">Mi espacio <span aria-hidden="true">↗</span></a>
+      } @else {
+        <a class="login-link" routerLink="/ingresar">Ingresar <span aria-hidden="true">↗</span></a>
+      }
     }
   </header>
+
+  @if (logoutError()) {
+    <p class="session-message" role="alert">{{ logoutError() }}</p>
+  }
 
   <main id="main-content">
     <router-outlet />

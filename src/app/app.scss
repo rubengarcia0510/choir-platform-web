@@ -657,3 +657,42 @@
   .footer { flex-wrap: wrap; justify-content: flex-start; padding: 20px 0; }
   .footer > span:nth-child(2) { flex-basis: calc(100% - 90px); }
 }
+
+.session-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logout-button {
+  min-height: 42px;
+  padding: 0 14px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.logout-button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+.session-message {
+  width: min(1180px, calc(100% - 48px));
+  margin: 12px auto 0;
+  color: #a12c2c;
+  font-size: 13px;
+}
+
+@media (max-width: 850px) {
+  .session-actions {
+    order: 4;
+    width: 100%;
+    justify-content: space-between;
+  }
+}
