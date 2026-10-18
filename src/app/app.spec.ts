@@ -8,6 +8,8 @@ import { AuthService, DirectorSession } from './auth/auth.service';
 
 describe('App shell - CHOIR-11 / CHOIR-64', () => {
   let session: DirectorSession | null;
+  let sessionToRestore: DirectorSession | null;
+  let loadSessionCalls: number;
 
   const testDirector: DirectorSession = {
     id: 1,
@@ -17,6 +19,8 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
 
   beforeEach(async () => {
     session = null;
+    sessionToRestore = null;
+    loadSessionCalls = 0;
 
     await TestBed.configureTestingModule({
       imports: [App],
@@ -25,10 +29,22 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
         {
           provide: AuthService,
           useValue: {
-            loadSession: () => of(session),
+            loadSession: () => {
+              loadSessionCalls++;
+
+              if (sessionToRestore !== null) {
+                session = sessionToRestore;
+              }
+
+              return of(session);
+            },
             currentDirector: () => session,
             isAuthenticated: () => session !== null,
-            isLoading: () => false
+            isLoading: () => false,
+            logout: () => of(undefined),
+            clearSession: () => {
+              session = null;
+            }
           }
         }
       ]
@@ -42,6 +58,21 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
     expect(fixture.nativeElement.querySelector('header.topbar')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('main#main-content')).toBeTruthy();
     expect(fixture.nativeElement.querySelector('footer.footer')).toBeTruthy();
+  });
+
+  it('restores a valid director session on the public page', () => {
+    sessionToRestore = testDirector;
+
+    const fixture = TestBed.createComponent(App);
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(loadSessionCalls).toBeGreaterThan(0);
+    expect(element.querySelector('.login-link')?.textContent)
+      .toContain('Mi espacio');
+    expect(element.querySelector('.login-link')?.getAttribute('href'))
+      .toBe('/app/coro');
   });
 
   it('shows public navigation outside the workspace', async () => {

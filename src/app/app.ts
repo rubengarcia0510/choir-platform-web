@@ -1,4 +1,5 @@
-import { Component, signal } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, PLATFORM_ID, signal, inject } from '@angular/core';
 import {
   NavigationEnd,
   Router,
@@ -22,6 +23,8 @@ export class App {
   readonly isLoggingOut = signal(false);
   readonly logoutError = signal('');
 
+  private readonly platformId = inject(PLATFORM_ID);
+
   constructor(
     private readonly router: Router,
     readonly auth: AuthService
@@ -31,6 +34,12 @@ export class App {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
       .subscribe((event) => this.updateLayout(event.urlAfterRedirects));
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.auth.loadSession().subscribe(() => {
+        this.updateLayout(this.router.url);
+      });
+    }
   }
 
   logout(): void {
