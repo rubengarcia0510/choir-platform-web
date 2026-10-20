@@ -152,6 +152,39 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     expect(loadSingers).toHaveBeenCalledWith(10);
   });
 
+  it('agrupa la distribución inicial por sección y distingue sus colores', () => {
+    singersByChoir.set({
+      '10': [
+        singers[0],
+        {
+          ...singers[0],
+          id: 9,
+          displayName: 'Carla Prueba'
+        },
+        singers[1]
+      ]
+    });
+    fixture.detectChanges();
+
+    const people = component.stageSingers();
+    const ana = people.find(person => person.id === 7)!;
+    const carla = people.find(person => person.id === 9)!;
+    const bea = people.find(person => person.id === 8)!;
+
+    expect(ana.sectionHue).toBe(carla.sectionHue);
+    expect(ana.sectionHue).not.toBe(bea.sectionHue);
+
+    // Soprano ocupa el primer grupo y Contralto el siguiente.
+    expect(ana.x).toBeLessThan(bea.x);
+    expect(carla.x).toBeLessThan(bea.x);
+
+    const anaElement = (fixture.nativeElement as HTMLElement)
+      .querySelector<HTMLElement>('.stage-person');
+
+    expect(anaElement?.style.getPropertyValue('--section-hue'))
+      .toBe(String(ana.sectionHue));
+  });
+
   it('actualiza la posición del integrante durante el arrastre', () => {
     const { stage, person } = stageAndSinger();
 

@@ -4,6 +4,17 @@ import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
 import { SingersStore } from './singers/singers.store';
 
+function getSectionHue(key: string): number {
+  let hash = 0;
+
+  for (let index = 0; index < key.length; index++) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+
+  return hash % 360;
+}
+
+
 @Component({
   standalone: true,
   imports: [RouterLink],
@@ -269,6 +280,7 @@ export class ConcertsPage {}
                       [class.stage-person-dragging]="dragSession()?.singerId === person.id"
                       [style.left.%]="person.x"
                       [style.top.%]="person.y"
+                      [style.--section-hue]="person.sectionHue"
                       [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + '. Arrastrar para cambiar la posición.'"
                       (pointerdown)="startDrag($event, person.id)"
                       (pointermove)="moveSinger($event)"
@@ -379,9 +391,9 @@ export class ConcertsPage {}
   gap: 3px;
   width: 86px;
   padding: 5px 3px;
-  border: 1px solid #e3d8c5;
+  border: 1px solid hsl(var(--section-hue) 42% 65%);
   border-radius: 12px;
-  background: #fffdf8;
+  background: hsl(var(--section-hue) 65% 96%);
   color: var(--ink);
   box-shadow: 0 3px 9px #29271b12;
   transform: translate(-50%, -50%);
@@ -408,8 +420,8 @@ export class ConcertsPage {}
   width: 31px;
   height: 31px;
   border-radius: 50%;
-  background: var(--accent-soft);
-  color: var(--accent);
+  background: hsl(var(--section-hue) 68% 84%);
+  color: hsl(var(--section-hue) 52% 28%);
   font-size: 13px;
   font-weight: 800;
 }
@@ -427,7 +439,7 @@ export class ConcertsPage {}
 .stage-person-section {
   max-width: 100%;
   overflow: hidden;
-  color: var(--muted);
+  color: hsl(var(--section-hue) 48% 30%);
   font-size: 9px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -501,20 +513,69 @@ export class FormationsPage {
   readonly stageSingers = computed(() => {
     const singers = this.selectedSingers();
     const positions = this.singerPositions();
-    const columns = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(singers.length * 1.5))));
+    const groups = new Map<string, (typeof singers)[number][]>();
 
-    return singers.map((singer, index) => {
-      const row = Math.floor(index / columns);
-      const column = index % columns;
-      const rowCount = Math.ceil(singers.length / columns);
-      const rowLength = Math.min(columns, singers.length - row * columns);
+    for (const singer of singers) {
+      const voicePart = singer.voicePart?.trim().toLocaleLowerCase() || '';
+      const key = singer.voiceSectionId !== null
+        ? `section:${singer.voiceSectionId}`
+        : `voice:${voicePart || 'unknown'}`;
+      const group = groups.get(key) ?? [];
+      group.push(singer);
+      groups.set(key, group);
+    }
+
+    const groupEntries = Array.from(groups.entries());
+    const groupColumns = Math.min(
+      3,
+      Math.max(1, Math.ceil(Math.sqrt(groupEntries.length)))
+    );
+    const groupRows = Math.ceil(groupEntries.length / groupColumns);
+    const cellWidth = 76 / groupColumns;
+    const cellHeight = 64 / groupRows;
+    const initialPositions = new Map<number, { x: number; y: number }>();
+
+    groupEntries.forEach(([, members], groupIndex) => {
+      const groupRow = Math.floor(groupIndex / groupColumns);
+      const groupColumn = groupIndex % groupColumns;
+      const memberColumns = Math.min(
+        3,
+        Math.max(1, Math.ceil(Math.sqrt(members.length)))
+      );
+      const memberRows = Math.ceil(members.length / memberColumns);
+
+      members.forEach((singer, memberIndex) => {
+        const row = Math.floor(memberIndex / memberColumns);
+        const column = memberIndex % memberColumns;
+        const rowLength = Math.min(
+          memberColumns,
+          members.length - row * memberColumns
+        );
+
+        initialPositions.set(singer.id, {
+          x: 12 + groupColumn * cellWidth
+            + (column + 0.5) * cellWidth / rowLength,
+          y: 18 + groupRow * cellHeight
+            + (row + 0.5) * cellHeight / memberRows
+        });
+      });
+    });
+
+    return singers.map((singer) => {
+      const initial = initialPositions.get(singer.id)!;
       const position = positions[singer.id];
+      const sectionLabel = singer.voicePart?.trim()
+        || 'Sección sin especificar';
+      const sectionKey = singer.voiceSectionId !== null
+        ? `section:${singer.voiceSectionId}`
+        : `voice:${singer.voicePart?.trim().toLocaleLowerCase() || 'unknown'}`;
 
       return {
         ...singer,
-        x: position?.x ?? 12 + (column + 0.5) * 76 / rowLength,
-        y: position?.y ?? 18 + (row + 0.5) * 64 / rowCount,
-        sectionLabel: singer.voicePart?.trim() || 'Sección sin especificar'
+        x: position?.x ?? initial.x,
+        y: position?.y ?? initial.y,
+        sectionLabel,
+        sectionHue: getSectionHue(sectionKey)
       };
     });
   });
