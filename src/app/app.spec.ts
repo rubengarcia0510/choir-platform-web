@@ -159,7 +159,8 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
     expect(element.querySelector('.stage')).toBeTruthy();
     expect(
       element.querySelector('.stage-skeleton') ||
-      element.querySelector('.stage-center')
+      element.querySelector('.stage-empty') ||
+      element.querySelector('.stage-person')
     ).toBeTruthy();
   });
 });

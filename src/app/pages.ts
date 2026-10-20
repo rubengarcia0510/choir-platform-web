@@ -255,10 +255,33 @@ export class ConcertsPage {}
                 </div>
               </div>
             } @else {
-              <div class="stage-center">
-                <span>♪</span>
-                <p>El editor visual de posiciones<br>se implementará en el siguiente paso<br>Editor visual pendiente de implementación.</p>
-              </div>
+              @if (stageSingers().length === 0) {
+                <div class="stage-empty">
+                  <span>♪</span>
+                  <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
+                </div>
+              } @else {
+                <div class="stage-people" aria-label="Integrantes posicionados en el escenario">
+                  @for (person of stageSingers(); track person.id) {
+                    <button
+                      type="button"
+                      class="stage-person"
+                      [class.stage-person-dragging]="dragSession()?.singerId === person.id"
+                      [style.left.%]="person.x"
+                      [style.top.%]="person.y"
+                      [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + '. Arrastrar para cambiar la posición.'"
+                      (pointerdown)="startDrag($event, person.id)"
+                      (pointermove)="moveSinger($event)"
+                      (pointerup)="endDrag($event)"
+                      (pointercancel)="endDrag($event)"
+                      (lostpointercapture)="endDrag($event)">
+                      <span class="stage-person-avatar" aria-hidden="true">{{ person.displayName.charAt(0).toUpperCase() }}</span>
+                      <span class="stage-person-name">{{ person.displayName }}</span>
+                      <span class="stage-person-section">{{ person.sectionLabel }}</span>
+                    </button>
+                  }
+                </div>
+              }
             }
 
             <div class="stage-front"></div>
@@ -361,6 +384,37 @@ export class FormationsPage {
     () => this.singersStore.singersByChoir()[this.choirKey()] ?? []
   );
 
+  readonly singerPositions = signal<Record<number, { x: number; y: number }>>({});
+  readonly dragSession = signal<{
+    singerId: number;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+
+  readonly stageSingers = computed(() => {
+    const singers = this.selectedSingers();
+    const positions = this.singerPositions();
+    const columns = Math.min(5, Math.max(1, Math.ceil(Math.sqrt(singers.length * 1.5))));
+
+    return singers.map((singer, index) => {
+      const row = Math.floor(index / columns);
+      const column = index % columns;
+      const rowCount = Math.ceil(singers.length / columns);
+      const rowLength = Math.min(columns, singers.length - row * columns);
+      const position = positions[singer.id];
+
+      return {
+        ...singer,
+        x: position?.x ?? 12 + (column + 0.5) * 76 / rowLength,
+        y: position?.y ?? 18 + (row + 0.5) * 64 / rowCount,
+        sectionLabel: singer.voicePart?.trim() || 'Sección sin especificar'
+      };
+    });
+  });
+
   constructor() {
     this.loadChoirs();
   }
@@ -406,6 +460,65 @@ export class FormationsPage {
     const choirId = this.selectedChoirId();
     if (choirId !== null) {
       this.singersStore.loadSingers(choirId, true);
+    }
+  }
+
+  startDrag(event: PointerEvent, singerId: number): void {
+    const person = this.stageSingers().find((singer) => singer.id === singerId);
+    const stage = (event.currentTarget as HTMLElement).closest('.stage');
+
+    if (!person || !(stage instanceof HTMLElement)) {
+      return;
+    }
+
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+
+    this.dragSession.set({
+      singerId,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: person.x,
+      originY: person.y
+    });
+  }
+
+  moveSinger(event: PointerEvent): void {
+    const drag = this.dragSession();
+
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const stage = (event.currentTarget as HTMLElement).closest('.stage');
+
+    if (!(stage instanceof HTMLElement)) {
+      return;
+    }
+
+    const bounds = stage.getBoundingClientRect();
+
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      return;
+    }
+
+    const x = Math.max(5, Math.min(95,
+      drag.originX + (event.clientX - drag.startX) / bounds.width * 100));
+    const y = Math.max(8, Math.min(92,
+      drag.originY + (event.clientY - drag.startY) / bounds.height * 100));
+
+    this.singerPositions.update((positions) => ({
+      ...positions,
+      [drag.singerId]: { x, y }
+    }));
+  }
+
+  endDrag(event: PointerEvent): void {
+    const drag = this.dragSession();
+
+    if (drag && drag.pointerId === event.pointerId) {
+      this.dragSession.set(null);
     }
   }
 
