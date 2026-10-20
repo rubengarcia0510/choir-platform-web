@@ -152,6 +152,56 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     expect(loadSingers).toHaveBeenCalledWith(10);
   });
 
+  it('muestra skeletons mientras carga el elenco, sin simular integrantes', () => {
+    loadingByChoir.set({ '10': true });
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.stage')).toBeTruthy();
+    expect(element.querySelector('.stage-skeleton')).toBeTruthy();
+    expect(element.querySelector('.stage-person')).toBeNull();
+    expect(element.querySelector('.stage-empty')).toBeNull();
+    expect(element.querySelector('.stage')?.getAttribute('aria-busy'))
+      .toBe('true');
+  });
+
+  it('muestra el error en el escenario y permite reintentar', () => {
+    loadingByChoir.set({ '10': false });
+    errorsByChoir.set({ '10': 'No se pudo cargar el elenco.' });
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.stage-error[role="alert"]')).toBeTruthy();
+    expect(element.querySelector('.stage-skeleton')).toBeNull();
+    expect(element.querySelector('.stage-person')).toBeNull();
+    expect(element.querySelector('.stage-empty')).toBeNull();
+
+    loadSingers.mockClear();
+
+    const retry = element.querySelector<HTMLButtonElement>(
+      '.stage-error button'
+    );
+    expect(retry).toBeTruthy();
+    retry!.click();
+
+    expect(loadSingers).toHaveBeenCalledWith(10, true);
+  });
+
+  it('muestra el estado vacío cuando la carga termina sin integrantes', () => {
+    singersByChoir.set({ '10': [] });
+    loadingByChoir.set({ '10': false });
+    errorsByChoir.set({ '10': null });
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.stage-empty')).toBeTruthy();
+    expect(element.querySelector('.stage-skeleton')).toBeNull();
+    expect(element.querySelector('.stage-person')).toBeNull();
+  });
+
   it('agrupa la distribución inicial por sección y distingue sus colores', () => {
     singersByChoir.set({
       '10': [

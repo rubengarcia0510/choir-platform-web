@@ -265,6 +265,17 @@ export class ConcertsPage {}
                   }
                 </div>
               </div>
+            } @else if (
+              selectedChoirId() !== null &&
+              singersStore.errorsByChoir()[choirKey()]
+            ) {
+              <div class="stage-error" role="alert">
+                <p>No pudimos cargar el elenco.</p>
+                <button
+                  class="button button-primary"
+                  type="button"
+                  (click)="retrySingers()">Reintentar</button>
+              </div>
             } @else {
               @if (stageSingers().length === 0) {
                 <div class="stage-empty">
@@ -443,6 +454,22 @@ export class ConcertsPage {}
   font-size: 9px;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.stage-error {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 280px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stage-error p {
+  margin: 0;
+  color: #a12c2c;
+  font-size: 12px;
+  line-height: 1.6;
 }
 
 .stage-empty {
