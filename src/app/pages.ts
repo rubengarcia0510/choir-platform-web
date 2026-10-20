@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Choir } from './choirs/choir.model';
+import { ChoirsApiService } from './choirs/choirs-api.service';
+import { SingersStore } from './singers/singers.store';
 
 @Component({
   standalone: true,
@@ -180,48 +183,175 @@ export class ConcertsPage {}
       <div class="page-heading">
         <div>
           <h1>Formaciones</h1>
-          <p class="page-lead">Pensá la distribución escénica y prepará distintas versiones.</p>
+          <p class="page-lead">
+            Elegí el coro para consultar su elenco y preparar la distribución escénica.
+          </p>
         </div>
-        <span class="pill-status">BASE PARA EDITOR VISUAL</span>
+        <span class="pill-status">EDITOR EN DESARROLLO</span>
       </div>
+
+      @if (choirsLoading()) {
+        <div class="panel" role="status">
+          <h2>Cargando tus coros…</h2>
+        </div>
+      } @else if (choirsError()) {
+        <div class="panel" role="alert">
+          <h2>No pudimos cargar tus coros.</h2>
+          <p>Revisá la conexión e intentá nuevamente.</p>
+          <button class="button button-primary" type="button" (click)="loadChoirs()">
+            Reintentar
+          </button>
+        </div>
+      } @else if (choirs().length === 0) {
+        <div class="panel empty-state">
+          <span class="empty-illustration">♫</span>
+          <h2>Todavía no tenés coros disponibles.</h2>
+          <p>Cuando tengas un coro asociado a tu cuenta, vas a poder consultar su elenco acá.</p>
+        </div>
+      } @else {
+        <section class="panel choir-selector">
+          <label for="choir-selector">Coro</label>
+          <select
+            id="choir-selector"
+            [value]="selectedChoirId() ?? ''"
+            (change)="selectChoir($event)">
+            <option value="" disabled>Elegí un coro</option>
+            @for (choir of choirs(); track choir.id) {
+              <option [value]="choir.id">{{ choir.name }}</option>
+            }
+          </select>
+        </section>
+      }
 
       <div class="formation-layout">
         <article class="panel formation-panel">
           <div class="formation-toolbar">
             <div>
               <span class="panel-kicker">VISTA PREVIA DEL ESCENARIO</span>
-              <h2>Tu formación</h2>
+              <h2>{{ selectedChoirName() || 'Escenario' }}</h2>
             </div>
             <span class="stage-tag">ESCENARIO</span>
           </div>
 
-          <div class="stage" aria-label="Vista previa ilustrativa de un escenario vacío">
+          <div class="stage" aria-label="Vista previa ilustrativa del escenario">
             <div class="stage-back"></div>
             <div class="stage-center">
               <span>♪</span>
-              <p>El espacio de diseño<br>se construirá acá</p>
+              <p>El editor visual de posiciones<br>se implementará en el siguiente paso<br>Editor visual pendiente de implementación.</p>
             </div>
             <div class="stage-front"></div>
           </div>
-          <p class="muted-label">Vista conceptual. No representa una formación guardada.</p>
         </article>
 
         <aside class="panel formation-details">
-          <span class="panel-kicker">PRÓXIMOS PASOS</span>
-          <h2>Diseñá con tu criterio.</h2>
-          <p>La futura herramienta permitirá trabajar sobre la distribución de cantantes y revisar alternativas ante cambios de último momento.</p>
-          <ul>
-            <li><span>01</span> Distribución visual de voces</li>
-            <li><span>02</span> Cambios entre formaciones</li>
-            <li><span>03</span> Preparación ante ausencias</li>
-          </ul>
-          <span class="muted-label">Editor visual pendiente de implementación.</span>
+          <span class="panel-kicker">ELENCO DEL CORO</span>
+          <h2>Integrantes</h2>
+          @if (selectedChoirId() === null) {
+            <p>Elegí un coro para consultar su elenco.</p>
+          } @else if (singersStore.loadingByChoir()[choirKey()]) {
+            <p role="status">Cargando elenco…</p>
+          } @else if (singersStore.errorsByChoir()[choirKey()]) {
+            <p role="alert">{{ singersStore.errorsByChoir()[choirKey()] }}</p>
+            <button
+              class="button button-primary"
+              type="button"
+              (click)="retrySingers()">Reintentar</button>
+          } @else {
+            <p>
+              {{ selectedSingers().length }}
+              {{ selectedSingers().length === 1 ? 'integrante cargado' : 'integrantes cargados' }}.
+            </p>
+            @if (selectedSingers().length === 0) {
+              <p class="muted-label">Este coro no tiene integrantes activos para mostrar.</p>
+            } @else {
+              <ul class="singer-list">
+                @for (singer of selectedSingers(); track singer.id) {
+                  <li>
+                    <strong>{{ singer.displayName }}</strong>
+                    <span>{{ singer.voicePart || 'Voz sin especificar' }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+          <p class="muted-label">
+            Las voces se muestran según los datos del backend; no se presupone un catálogo fijo.
+          </p>
         </aside>
       </div>
     </section>
   `
 })
-export class FormationsPage {}
+export class FormationsPage {
+  private readonly choirsApi = inject(ChoirsApiService);
+  readonly singersStore = inject(SingersStore);
+
+  readonly choirs = signal<Choir[]>([]);
+  readonly choirsLoading = signal(true);
+  readonly choirsError = signal(false);
+  readonly selectedChoirId = signal<number | null>(null);
+
+  readonly choirKey = computed(() => String(this.selectedChoirId() ?? ''));
+  readonly selectedChoirName = computed(
+    () => this.choirs().find(choir => choir.id === this.selectedChoirId())?.name ?? ''
+  );
+  readonly selectedSingers = computed(
+    () => this.singersStore.singersByChoir()[this.choirKey()] ?? []
+  );
+
+  constructor() {
+    this.loadChoirs();
+  }
+
+  loadChoirs(): void {
+    this.choirsLoading.set(true);
+    this.choirsError.set(false);
+
+    this.choirsApi.list().subscribe({
+      next: choirs => {
+        this.choirs.set(choirs);
+        this.choirsLoading.set(false);
+
+        const currentId = this.selectedChoirId();
+        if (currentId !== null && choirs.some(choir => choir.id === currentId)) {
+          this.singersStore.loadSingers(currentId);
+        } else if (choirs.length === 1) {
+          this.chooseChoir(choirs[0].id);
+        } else {
+          this.selectedChoirId.set(null);
+        }
+      },
+      error: () => {
+        this.choirsError.set(true);
+        this.choirsLoading.set(false);
+      }
+    });
+  }
+
+  selectChoir(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    const choirId = Number(value);
+
+    if (!Number.isSafeInteger(choirId) || choirId <= 0) {
+      this.selectedChoirId.set(null);
+      return;
+    }
+
+    this.chooseChoir(choirId);
+  }
+
+  retrySingers(): void {
+    const choirId = this.selectedChoirId();
+    if (choirId !== null) {
+      this.singersStore.loadSingers(choirId, true);
+    }
+  }
+
+  private chooseChoir(choirId: number): void {
+    this.selectedChoirId.set(choirId);
+    this.singersStore.loadSingers(choirId);
+  }
+}
 
 @Component({
   standalone: true,
