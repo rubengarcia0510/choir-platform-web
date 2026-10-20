@@ -699,9 +699,9 @@
 
 
 /* CHOIR-21 loading skeletons: estáticos para evitar movimiento */
-.stage-skeleton{width:min(100%,430px);padding:22px}
+.stage-skeleton{padding:22px}
 .stage-skeleton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 14px;justify-items:center}
-.stage-skeleton-person{display:grid;justify-items:center;gap:8px;width:100%}
+.stage-skeleton-person{display:grid;justify-items:center;gap:8px}
 .stage-skeleton-avatar,.singer-skeleton-avatar{display:block;border-radius:50%;background:#e3ded3}
 .stage-skeleton-avatar{width:32px;aspect-ratio:1;border:4px solid #f1ede4}
 .stage-skeleton-line,.skeleton-line{display:block;height:7px;border-radius:999px;background:#e3ded3}
