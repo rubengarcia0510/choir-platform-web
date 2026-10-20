@@ -1,8 +1,9 @@
-import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { computed, inject } from '@angular/core';
 import {
   patchState,
   signalStore,
+  withComputed,
   withMethods,
   withState
 } from '@ngrx/signals';
@@ -12,14 +13,16 @@ import { Singer } from './singer.model';
 import { SingersApiService } from './singers-api.service';
 
 interface SingersState {
-  singersByChoir: Record<string, Singer[]>;
+  singersById: Record<string, Singer>;
+  singerIdsByChoir: Record<string, number[]>;
   loadedChoirIds: Record<string, boolean>;
   loadingByChoir: Record<string, boolean>;
   errorsByChoir: Record<string, string | null>;
 }
 
 const initialState: SingersState = {
-  singersByChoir: {},
+  singersById: {},
+  singerIdsByChoir: {},
   loadedChoirIds: {},
   loadingByChoir: {},
   errorsByChoir: {}
@@ -36,6 +39,21 @@ function errorMessage(error: unknown): string {
 export const SingersStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
+  withComputed((store) => ({
+    singersByChoir: computed(() => {
+      const singersById = store.singersById();
+      const singerIdsByChoir = store.singerIdsByChoir();
+      const result: Record<string, Singer[]> = {};
+
+      for (const [choirKey, singerIds] of Object.entries(singerIdsByChoir)) {
+        result[choirKey] = singerIds
+          .map((singerId) => singersById[String(singerId)])
+          .filter((singer): singer is Singer => singer !== undefined);
+      }
+
+      return result;
+    })
+  })),
   withMethods((store) => {
     const api = inject(SingersApiService);
 
@@ -69,16 +87,36 @@ export const SingersStore = signalStore(
 
         api.list(choirId).pipe(
           tap((singers) => {
-            patchState(store, (state) => ({
-              singersByChoir: {
-                ...state.singersByChoir,
-                [key]: singers
-              },
-              loadedChoirIds: {
-                ...state.loadedChoirIds,
-                [key]: true
+            patchState(store, (state) => {
+              const nextSingersById = { ...state.singersById };
+              const previousIds = state.singerIdsByChoir[key] ?? [];
+              const nextIds = singers.map((singer) => singer.id);
+              const nextIdSet = new Set(nextIds);
+
+              // Retirar entidades que ya no pertenecen al elenco recibido.
+              for (const previousId of previousIds) {
+                if (!nextIdSet.has(previousId)) {
+                  delete nextSingersById[String(previousId)];
+                }
               }
-            }));
+
+              // Actualizar los datos por ID y conservar el orden de la API.
+              for (const singer of singers) {
+                nextSingersById[String(singer.id)] = singer;
+              }
+
+              return {
+                singersById: nextSingersById,
+                singerIdsByChoir: {
+                  ...state.singerIdsByChoir,
+                  [key]: nextIds
+                },
+                loadedChoirIds: {
+                  ...state.loadedChoirIds,
+                  [key]: true
+                }
+              };
+            });
           }),
           catchError((error: unknown) => {
             patchState(store, (state) => ({

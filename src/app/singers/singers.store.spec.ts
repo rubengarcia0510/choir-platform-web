@@ -49,6 +49,8 @@ describe('SingersStore', () => {
 
     request.flush([singer]);
 
+    expect(store.singersById()['7']).toEqual(singer);
+    expect(store.singerIdsByChoir()['10']).toEqual([7]);
     expect(store.singersByChoir()['10']).toEqual([singer]);
     expect(store.loadedChoirIds()['10']).toBe(true);
     expect(store.loadingByChoir()['10']).toBe(false);
@@ -58,14 +60,23 @@ describe('SingersStore', () => {
   });
 
   it('keeps the cache isolated between choirs', () => {
+    const otherSinger: Singer = {
+      ...singer,
+      id: 8,
+      choirId: 20,
+      displayName: 'Otro integrante'
+    };
+
     store.loadSingers(10);
     store.loadSingers(20);
 
     http.expectOne('/api/choirs/10/singers').flush([singer]);
-    http.expectOne('/api/choirs/20/singers').flush([]);
+    http.expectOne('/api/choirs/20/singers').flush([otherSinger]);
 
+    expect(store.singerIdsByChoir()['10']).toEqual([7]);
+    expect(store.singerIdsByChoir()['20']).toEqual([8]);
     expect(store.singersByChoir()['10']).toEqual([singer]);
-    expect(store.singersByChoir()['20']).toEqual([]);
+    expect(store.singersByChoir()['20']).toEqual([otherSinger]);
   });
 
   it('does not send duplicate concurrent requests for the same choir', () => {
@@ -76,6 +87,36 @@ describe('SingersStore', () => {
     expect(requests.length).toBe(1);
 
     requests[0].flush([singer]);
+  });
+
+  it('updates normalized entities when a choir is reloaded', () => {
+    store.loadSingers(10);
+    http.expectOne('/api/choirs/10/singers').flush([singer]);
+
+    const updatedSinger: Singer = {
+      ...singer,
+      displayName: 'Nombre actualizado',
+      voicePart: 'Contralto'
+    };
+
+    store.loadSingers(10, true);
+    http.expectOne('/api/choirs/10/singers').flush([updatedSinger]);
+
+    expect(store.singersById()['7']).toEqual(updatedSinger);
+    expect(store.singersByChoir()['10']).toEqual([updatedSinger]);
+    expect(store.singerIdsByChoir()['10']).toEqual([7]);
+  });
+
+  it('removes entities no longer returned by a choir reload', () => {
+    store.loadSingers(10);
+    http.expectOne('/api/choirs/10/singers').flush([singer]);
+
+    store.loadSingers(10, true);
+    http.expectOne('/api/choirs/10/singers').flush([]);
+
+    expect(store.singerIdsByChoir()['10']).toEqual([]);
+    expect(store.singersByChoir()['10']).toEqual([]);
+    expect(store.singersById()['7']).toBeUndefined();
   });
 
   it('records a loading error and allows retrying', () => {
@@ -91,9 +132,9 @@ describe('SingersStore', () => {
     expect(store.loadedChoirIds()['10']).toBeUndefined();
 
     store.loadSingers(10);
-
     http.expectOne('/api/choirs/10/singers').flush([singer]);
 
+    expect(store.singersById()['7']).toEqual(singer);
     expect(store.singersByChoir()['10']).toEqual([singer]);
     expect(store.errorsByChoir()['10']).toBeNull();
   });
@@ -103,6 +144,8 @@ describe('SingersStore', () => {
     store.loadSingers(-1);
 
     http.expectNone((request) => request.url.includes('/singers'));
+    expect(store.singersById()).toEqual({});
+    expect(store.singerIdsByChoir()).toEqual({});
     expect(store.singersByChoir()).toEqual({});
   });
 });
