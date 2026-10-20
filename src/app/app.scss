@@ -698,14 +698,13 @@
 }
 
 
-/* CHOIR-21 loading skeletons */
+/* CHOIR-21 loading skeletons: estáticos para evitar movimiento */
 .stage-skeleton{width:min(100%,430px);padding:22px}
-.stage-skeleton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(12px,3vw,25px) 14px;justify-items:center;align-items:center}
+.stage-skeleton-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:20px 14px;justify-items:center}
 .stage-skeleton-person{display:grid;justify-items:center;gap:8px;width:100%}
-.stage-skeleton-avatar,.singer-skeleton-avatar,.stage-skeleton-line,.skeleton-line{display:block;background:#e3ded3;animation:choir-skeleton-pulse 1.4s ease-in-out infinite}
-.stage-skeleton-avatar,.singer-skeleton-avatar{border-radius:50%}
-.stage-skeleton-avatar{width:clamp(25px,4vw,39px);aspect-ratio:1;border:4px solid #f1ede4}
-.stage-skeleton-line,.skeleton-line{height:7px;border-radius:999px}
+.stage-skeleton-avatar,.singer-skeleton-avatar{display:block;border-radius:50%;background:#e3ded3}
+.stage-skeleton-avatar{width:32px;aspect-ratio:1;border:4px solid #f1ede4}
+.stage-skeleton-line,.skeleton-line{display:block;height:7px;border-radius:999px;background:#e3ded3}
 .stage-skeleton-line{width:70%;max-width:43px}
 .singer-list-skeleton{display:grid;gap:18px;margin-top:27px}
 .singer-skeleton-row{display:flex;align-items:center;gap:12px}
@@ -713,6 +712,3 @@
 .singer-skeleton-copy{display:grid;flex:1;gap:8px}
 .skeleton-line-primary{width:68%;height:9px}
 .skeleton-line-secondary{width:43%}
-@keyframes choir-skeleton-pulse{0%,100%{opacity:.55}50%{opacity:1}}
-@media(prefers-reduced-motion:reduce){.stage-skeleton-avatar,.singer-skeleton-avatar,.stage-skeleton-line,.skeleton-line{animation:none}}
-@media(max-width:560px){.stage-skeleton{padding:18px 10px}.stage-skeleton-grid{gap:16px 8px}}
