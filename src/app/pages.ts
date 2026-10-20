@@ -233,12 +233,34 @@ export class ConcertsPage {}
             <span class="stage-tag">ESCENARIO</span>
           </div>
 
-          <div class="stage" aria-label="Vista previa ilustrativa del escenario">
+          <div
+            class="stage"
+            aria-label="Vista previa del escenario"
+            [attr.aria-busy]="choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])">
             <div class="stage-back"></div>
-            <div class="stage-center">
-              <span>♪</span>
-              <p>El editor visual de posiciones<br>se implementará en el siguiente paso<br>Editor visual pendiente de implementación.</p>
-            </div>
+
+            @if (choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])) {
+              <div
+                class="stage-skeleton"
+                role="status"
+                aria-label="Cargando vista previa del escenario"
+                aria-busy="true">
+                <div class="stage-skeleton-grid" aria-hidden="true">
+                  @for (placeholder of [1, 2, 3, 4, 5, 6, 7, 8]; track placeholder) {
+                    <span class="stage-skeleton-person">
+                      <span class="stage-skeleton-avatar"></span>
+                      <span class="stage-skeleton-line"></span>
+                    </span>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="stage-center">
+                <span>♪</span>
+                <p>El editor visual de posiciones<br>se implementará en el siguiente paso<br>Editor visual pendiente de implementación.</p>
+              </div>
+            }
+
             <div class="stage-front"></div>
           </div>
         </article>
@@ -249,7 +271,47 @@ export class ConcertsPage {}
           @if (selectedChoirId() === null) {
             <p>Elegí un coro para consultar su elenco.</p>
           } @else if (singersStore.loadingByChoir()[choirKey()]) {
-            <p role="status">Cargando elenco…</p>
+            <div
+              class="singer-list-skeleton"
+              role="status"
+              aria-label="Cargando elenco"
+              aria-busy="true">
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+            </div>
           } @else if (singersStore.errorsByChoir()[choirKey()]) {
             <p role="alert">{{ singersStore.errorsByChoir()[choirKey()] }}</p>
             <button
