@@ -365,7 +365,111 @@ export class ConcertsPage {}
         </aside>
       </div>
     </section>
-  `
+  `,
+  styles: [`
+.stage-people {
+  position: absolute;
+  inset: 12px 8px;
+}
+
+.stage-person {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  width: 86px;
+  padding: 5px 3px;
+  border: 1px solid #e3d8c5;
+  border-radius: 12px;
+  background: #fffdf8;
+  color: var(--ink);
+  box-shadow: 0 3px 9px #29271b12;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.stage-person:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.stage-person-dragging {
+  z-index: 5;
+  cursor: grabbing;
+  box-shadow: 0 8px 20px #29271b24;
+}
+
+.stage-person-avatar {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stage-person-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-person-section {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 240px;
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.stage-empty > span {
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.stage-empty p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .stage-person {
+    width: 70px;
+    padding: 4px 2px;
+  }
+
+  .stage-person-avatar {
+    width: 27px;
+    height: 27px;
+  }
+
+  .stage-person-name { font-size: 9px; }
+  .stage-person-section { font-size: 8px; }
+}
+  `]
 })
 export class FormationsPage {
   private readonly choirsApi = inject(ChoirsApiService);
