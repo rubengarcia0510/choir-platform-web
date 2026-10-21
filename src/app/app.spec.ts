@@ -157,7 +157,10 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
     expect(element.textContent).toContain('Formaciones');
     expect(element.querySelector('.formation-layout')).toBeTruthy();
     expect(element.querySelector('.stage')).toBeTruthy();
-    expect(element.textContent)
-      .toContain('Editor visual pendiente de implementación.');
+    expect(
+      element.querySelector('.stage-skeleton') ||
+      element.querySelector('.stage-empty') ||
+      element.querySelector('.stage-person')
+    ).toBeTruthy();
   });
 });

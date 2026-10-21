@@ -1,5 +1,19 @@
-import { Component } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Choir } from './choirs/choir.model';
+import { ChoirsApiService } from './choirs/choirs-api.service';
+import { SingersStore } from './singers/singers.store';
+
+function getSectionHue(key: string): number {
+  let hash = 0;
+
+  for (let index = 0; index < key.length; index++) {
+    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
+  }
+
+  return hash % 360;
+}
+
 
 @Component({
   standalone: true,
@@ -180,48 +194,531 @@ export class ConcertsPage {}
       <div class="page-heading">
         <div>
           <h1>Formaciones</h1>
-          <p class="page-lead">Pensá la distribución escénica y prepará distintas versiones.</p>
+          <p class="page-lead">
+            Elegí el coro para consultar su elenco y preparar la distribución escénica.
+          </p>
         </div>
-        <span class="pill-status">BASE PARA EDITOR VISUAL</span>
+        <span class="pill-status">EDITOR EN DESARROLLO</span>
       </div>
+
+      @if (choirsLoading()) {
+        <div class="panel" role="status">
+          <h2>Cargando tus coros…</h2>
+        </div>
+      } @else if (choirsError()) {
+        <div class="panel" role="alert">
+          <h2>No pudimos cargar tus coros.</h2>
+          <p>Revisá la conexión e intentá nuevamente.</p>
+          <button class="button button-primary" type="button" (click)="loadChoirs()">
+            Reintentar
+          </button>
+        </div>
+      } @else if (choirs().length === 0) {
+        <div class="panel empty-state">
+          <span class="empty-illustration">♫</span>
+          <h2>Todavía no tenés coros disponibles.</h2>
+          <p>Cuando tengas un coro asociado a tu cuenta, vas a poder consultar su elenco acá.</p>
+        </div>
+      } @else {
+        <section class="panel choir-selector">
+          <label for="choir-selector">Coro</label>
+          <select
+            id="choir-selector"
+            [value]="selectedChoirId() ?? ''"
+            (change)="selectChoir($event)">
+            <option value="" disabled>Elegí un coro</option>
+            @for (choir of choirs(); track choir.id) {
+              <option [value]="choir.id">{{ choir.name }}</option>
+            }
+          </select>
+        </section>
+      }
 
       <div class="formation-layout">
         <article class="panel formation-panel">
           <div class="formation-toolbar">
             <div>
               <span class="panel-kicker">VISTA PREVIA DEL ESCENARIO</span>
-              <h2>Tu formación</h2>
+              <h2>{{ selectedChoirName() || 'Escenario' }}</h2>
             </div>
             <span class="stage-tag">ESCENARIO</span>
           </div>
 
-          <div class="stage" aria-label="Vista previa ilustrativa de un escenario vacío">
+          <div
+            class="stage"
+            aria-label="Vista previa del escenario"
+            [attr.aria-busy]="choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])">
             <div class="stage-back"></div>
-            <div class="stage-center">
-              <span>♪</span>
-              <p>El espacio de diseño<br>se construirá acá</p>
-            </div>
+
+            @if (choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])) {
+              <div
+                class="stage-skeleton"
+                role="status"
+                aria-label="Cargando vista previa del escenario"
+                aria-busy="true">
+                <div class="stage-skeleton-grid" aria-hidden="true">
+                  @for (placeholder of [1, 2, 3, 4, 5, 6, 7, 8]; track placeholder) {
+                    <span class="stage-skeleton-person">
+                      <span class="stage-skeleton-avatar"></span>
+                      <span class="stage-skeleton-line"></span>
+                    </span>
+                  }
+                </div>
+              </div>
+            } @else if (
+              selectedChoirId() !== null &&
+              singersStore.errorsByChoir()[choirKey()]
+            ) {
+              <div class="stage-error" role="alert">
+                <p>No pudimos cargar el elenco.</p>
+                <button
+                  class="button button-primary"
+                  type="button"
+                  (click)="retrySingers()">Reintentar</button>
+              </div>
+            } @else {
+              @if (stageSingers().length === 0) {
+                <div class="stage-empty">
+                  <span>♪</span>
+                  <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
+                </div>
+              } @else {
+                <div class="stage-people" aria-label="Integrantes posicionados en el escenario">
+                  @for (person of stageSingers(); track person.id) {
+                    <button
+                      type="button"
+                      class="stage-person"
+                      [class.stage-person-dragging]="dragSession()?.singerId === person.id"
+                      [style.left.%]="person.x"
+                      [style.top.%]="person.y"
+                      [style.--section-hue]="person.sectionHue"
+                      [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + '. Arrastrar para cambiar la posición.'"
+                      (pointerdown)="startDrag($event, person.id)"
+                      (pointermove)="moveSinger($event)"
+                      (pointerup)="endDrag($event)"
+                      (pointercancel)="endDrag($event)"
+                      (lostpointercapture)="endDrag($event)">
+                      <span class="stage-person-avatar" aria-hidden="true">{{ person.displayName.charAt(0).toUpperCase() }}</span>
+                      <span class="stage-person-name">{{ person.displayName }}</span>
+                      <span class="stage-person-section">{{ person.sectionLabel }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            }
+
             <div class="stage-front"></div>
           </div>
-          <p class="muted-label">Vista conceptual. No representa una formación guardada.</p>
         </article>
 
         <aside class="panel formation-details">
-          <span class="panel-kicker">PRÓXIMOS PASOS</span>
-          <h2>Diseñá con tu criterio.</h2>
-          <p>La futura herramienta permitirá trabajar sobre la distribución de cantantes y revisar alternativas ante cambios de último momento.</p>
-          <ul>
-            <li><span>01</span> Distribución visual de voces</li>
-            <li><span>02</span> Cambios entre formaciones</li>
-            <li><span>03</span> Preparación ante ausencias</li>
-          </ul>
-          <span class="muted-label">Editor visual pendiente de implementación.</span>
+          <span class="panel-kicker">ELENCO DEL CORO</span>
+          <h2>Integrantes</h2>
+          @if (selectedChoirId() === null) {
+            <p>Elegí un coro para consultar su elenco.</p>
+          } @else if (singersStore.loadingByChoir()[choirKey()]) {
+            <div
+              class="singer-list-skeleton"
+              role="status"
+              aria-label="Cargando elenco"
+              aria-busy="true">
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+              <span class="singer-skeleton-row" aria-hidden="true">
+                <span class="singer-skeleton-avatar"></span>
+                <span class="singer-skeleton-copy">
+                  <span class="skeleton-line skeleton-line-primary"></span>
+                  <span class="skeleton-line skeleton-line-secondary"></span>
+                </span>
+              </span>
+            </div>
+          } @else if (singersStore.errorsByChoir()[choirKey()]) {
+            <p role="alert">{{ singersStore.errorsByChoir()[choirKey()] }}</p>
+            <button
+              class="button button-primary"
+              type="button"
+              (click)="retrySingers()">Reintentar</button>
+          } @else {
+            <p>
+              {{ selectedSingers().length }}
+              {{ selectedSingers().length === 1 ? 'integrante cargado' : 'integrantes cargados' }}.
+            </p>
+            @if (selectedSingers().length === 0) {
+              <p class="muted-label">Este coro no tiene integrantes activos para mostrar.</p>
+            } @else {
+              <ul class="singer-list">
+                @for (singer of selectedSingers(); track singer.id) {
+                  <li>
+                    <strong>{{ singer.displayName }}</strong>
+                    <span>{{ singer.voicePart || 'Voz sin especificar' }}</span>
+                  </li>
+                }
+              </ul>
+            }
+          }
+          <p class="muted-label">
+            Las voces se muestran según los datos del backend; no se presupone un catálogo fijo.
+          </p>
         </aside>
       </div>
     </section>
-  `
+  `,
+  styles: [`
+.stage-people {
+  position: absolute;
+  inset: 12px 8px;
+}
+
+.stage-person {
+  position: absolute;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  width: 86px;
+  padding: 5px 3px;
+  border: 1px solid hsl(var(--section-hue) 42% 65%);
+  border-radius: 12px;
+  background: hsl(var(--section-hue) 65% 96%);
+  color: var(--ink);
+  box-shadow: 0 3px 9px #29271b12;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.stage-person:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.stage-person-dragging {
+  z-index: 5;
+  cursor: grabbing;
+  box-shadow: 0 8px 20px #29271b24;
+}
+
+.stage-person-avatar {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border-radius: 50%;
+  background: hsl(var(--section-hue) 68% 84%);
+  color: hsl(var(--section-hue) 52% 28%);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stage-person-name {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-person-section {
+  max-width: 100%;
+  overflow: hidden;
+  color: hsl(var(--section-hue) 48% 30%);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stage-error {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  max-width: 280px;
+  padding: 20px;
+  text-align: center;
+}
+
+.stage-error p {
+  margin: 0;
+  color: #a12c2c;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.stage-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  max-width: 240px;
+  padding: 20px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.stage-empty > span {
+  color: var(--accent);
+  font-family: Georgia, serif;
+  font-size: 34px;
+}
+
+.stage-empty p {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .stage-person {
+    width: 70px;
+    padding: 4px 2px;
+  }
+
+  .stage-person-avatar {
+    width: 27px;
+    height: 27px;
+  }
+
+  .stage-person-name { font-size: 9px; }
+  .stage-person-section { font-size: 8px; }
+}
+  `]
 })
-export class FormationsPage {}
+export class FormationsPage {
+  private readonly choirsApi = inject(ChoirsApiService);
+  readonly singersStore = inject(SingersStore);
+
+  readonly choirs = signal<Choir[]>([]);
+  readonly choirsLoading = signal(true);
+  readonly choirsError = signal(false);
+  readonly selectedChoirId = signal<number | null>(null);
+
+  readonly choirKey = computed(() => String(this.selectedChoirId() ?? ''));
+  readonly selectedChoirName = computed(
+    () => this.choirs().find(choir => choir.id === this.selectedChoirId())?.name ?? ''
+  );
+  readonly selectedSingers = computed(
+    () => this.singersStore.singersByChoir()[this.choirKey()] ?? []
+  );
+
+  readonly singerPositions = signal<Record<number, { x: number; y: number }>>({});
+  readonly dragSession = signal<{
+    singerId: number;
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
+
+  readonly stageSingers = computed(() => {
+    const singers = this.selectedSingers();
+    const positions = this.singerPositions();
+    const groups = new Map<string, (typeof singers)[number][]>();
+
+    for (const singer of singers) {
+      const voicePart = singer.voicePart?.trim().toLocaleLowerCase() || '';
+      const key = singer.voiceSectionId !== null
+        ? `section:${singer.voiceSectionId}`
+        : `voice:${voicePart || 'unknown'}`;
+      const group = groups.get(key) ?? [];
+      group.push(singer);
+      groups.set(key, group);
+    }
+
+    const groupEntries = Array.from(groups.entries());
+    const groupColumns = Math.min(
+      3,
+      Math.max(1, Math.ceil(Math.sqrt(groupEntries.length)))
+    );
+    const groupRows = Math.ceil(groupEntries.length / groupColumns);
+    const cellWidth = 76 / groupColumns;
+    const cellHeight = 64 / groupRows;
+    const initialPositions = new Map<number, { x: number; y: number }>();
+
+    groupEntries.forEach(([, members], groupIndex) => {
+      const groupRow = Math.floor(groupIndex / groupColumns);
+      const groupColumn = groupIndex % groupColumns;
+      const memberColumns = Math.min(
+        3,
+        Math.max(1, Math.ceil(Math.sqrt(members.length)))
+      );
+      const memberRows = Math.ceil(members.length / memberColumns);
+
+      members.forEach((singer, memberIndex) => {
+        const row = Math.floor(memberIndex / memberColumns);
+        const column = memberIndex % memberColumns;
+        const rowLength = Math.min(
+          memberColumns,
+          members.length - row * memberColumns
+        );
+
+        initialPositions.set(singer.id, {
+          x: 12 + groupColumn * cellWidth
+            + (column + 0.5) * cellWidth / rowLength,
+          y: 18 + groupRow * cellHeight
+            + (row + 0.5) * cellHeight / memberRows
+        });
+      });
+    });
+
+    return singers.map((singer) => {
+      const initial = initialPositions.get(singer.id)!;
+      const position = positions[singer.id];
+      const sectionLabel = singer.voicePart?.trim()
+        || 'Sección sin especificar';
+      const sectionKey = singer.voiceSectionId !== null
+        ? `section:${singer.voiceSectionId}`
+        : `voice:${singer.voicePart?.trim().toLocaleLowerCase() || 'unknown'}`;
+
+      return {
+        ...singer,
+        x: position?.x ?? initial.x,
+        y: position?.y ?? initial.y,
+        sectionLabel,
+        sectionHue: getSectionHue(sectionKey)
+      };
+    });
+  });
+
+  constructor() {
+    this.loadChoirs();
+  }
+
+  loadChoirs(): void {
+    this.choirsLoading.set(true);
+    this.choirsError.set(false);
+
+    this.choirsApi.list().subscribe({
+      next: choirs => {
+        this.choirs.set(choirs);
+        this.choirsLoading.set(false);
+
+        const currentId = this.selectedChoirId();
+        if (currentId !== null && choirs.some(choir => choir.id === currentId)) {
+          this.singersStore.loadSingers(currentId);
+        } else if (choirs.length === 1) {
+          this.chooseChoir(choirs[0].id);
+        } else {
+          this.selectedChoirId.set(null);
+        }
+      },
+      error: () => {
+        this.choirsError.set(true);
+        this.choirsLoading.set(false);
+      }
+    });
+  }
+
+  selectChoir(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    const choirId = Number(value);
+
+    if (!Number.isSafeInteger(choirId) || choirId <= 0) {
+      this.selectedChoirId.set(null);
+      return;
+    }
+
+    this.chooseChoir(choirId);
+  }
+
+  retrySingers(): void {
+    const choirId = this.selectedChoirId();
+    if (choirId !== null) {
+      this.singersStore.loadSingers(choirId, true);
+    }
+  }
+
+  startDrag(event: PointerEvent, singerId: number): void {
+    const person = this.stageSingers().find((singer) => singer.id === singerId);
+    const stage = (event.currentTarget as HTMLElement).closest('.stage');
+
+    if (!person || !(stage instanceof HTMLElement)) {
+      return;
+    }
+
+    event.preventDefault();
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
+
+    this.dragSession.set({
+      singerId,
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: person.x,
+      originY: person.y
+    });
+  }
+
+  moveSinger(event: PointerEvent): void {
+    const drag = this.dragSession();
+
+    if (!drag || drag.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const stage = (event.currentTarget as HTMLElement).closest('.stage');
+
+    if (!(stage instanceof HTMLElement)) {
+      return;
+    }
+
+    const bounds = stage.getBoundingClientRect();
+
+    if (bounds.width <= 0 || bounds.height <= 0) {
+      return;
+    }
+
+    const x = Math.max(5, Math.min(95,
+      drag.originX + (event.clientX - drag.startX) / bounds.width * 100));
+    const y = Math.max(8, Math.min(92,
+      drag.originY + (event.clientY - drag.startY) / bounds.height * 100));
+
+    this.singerPositions.update((positions) => ({
+      ...positions,
+      [drag.singerId]: { x, y }
+    }));
+  }
+
+  endDrag(event: PointerEvent): void {
+    const drag = this.dragSession();
+
+    if (drag && drag.pointerId === event.pointerId) {
+      this.dragSession.set(null);
+    }
+  }
+
+  private chooseChoir(choirId: number): void {
+    this.selectedChoirId.set(choirId);
+    this.singersStore.loadSingers(choirId);
+  }
+}
 
 @Component({
   standalone: true,
