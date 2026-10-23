@@ -727,3 +727,96 @@
     transform: none;
   }
 }
+
+
+/* CHOIR-21: gestión de coros */
+.choir-management-grid {
+  display: grid;
+  grid-template-columns: minmax(260px, .8fr) minmax(0, 1.2fr);
+  align-items: start;
+  gap: 18px;
+}
+.choir-management-grid h2 { margin-top: 10px; }
+.choir-field {
+  display: grid;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.choir-field input, .choir-field textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+}
+.choir-field textarea { resize: vertical; }
+.choir-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+}
+.choir-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.choir-count {
+  display: grid;
+  place-items: center;
+  min-width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+}
+.choir-list {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 20px 0 0;
+  list-style: none;
+}
+.choir-item {
+  display: grid;
+  gap: 12px;
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.choir-item h3 { margin: 0; overflow-wrap: anywhere; }
+.choir-item p { margin: 7px 0 0; overflow-wrap: anywhere; }
+.choir-item-archived { opacity: .7; }
+.choir-archived-label {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: #eeeae2;
+  color: #6b6255;
+  font-size: 10px;
+  font-weight: 750;
+}
+.choir-empty { padding: 20px 0; }
+.choir-empty h3 { margin-bottom: 8px; }
+.choir-message, .choir-error {
+  padding: 12px;
+  border: 1px solid #e8c9c5;
+  border-radius: 10px;
+  background: #fff7f5;
+  color: #922f2f;
+  font-size: 12px;
+}
+.choir-message { margin-bottom: 16px; }
+.choir-message .button { margin-left: 8px; }
+.button-danger { color: #fff; background: #9c3737; }
+.button:disabled { opacity: .55; cursor: wait; }
+@media (max-width: 850px) {
+  .choir-management-grid { grid-template-columns: 1fr; }
+}

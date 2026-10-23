@@ -139,6 +139,7 @@ export class LoginPage {}
 })
 export class RegisterPage {}
 
+
 @Component({
   standalone: true,
   template: `
@@ -147,29 +148,244 @@ export class RegisterPage {}
       <div class="page-heading">
         <div>
           <h1>Mi coro</h1>
-          <p class="page-lead">La información central de tu agrupación, en un solo lugar.</p>
+          <p class="page-lead">Administrá los datos de tus agrupaciones.</p>
         </div>
-        <span class="pill-status">MÓDULO EN PREPARACIÓN</span>
+        <span class="pill-status">GESTIÓN DE COROS</span>
       </div>
-      <div class="dashboard-grid">
-        <article class="panel panel-large">
-          <span class="panel-kicker">AGRUPACIÓN</span>
-          <div class="empty-illustration">♫</div>
-          <h2>Tu próximo capítulo empieza acá.</h2>
-          <p>Este espacio reunirá los datos del coro, sus integrantes y la información necesaria para organizar el trabajo.</p>
-          <span class="muted-label">Los datos se mostrarán cuando se integre la API.</span>
-        </article>
-        <article class="panel">
-          <span class="panel-kicker">ACCESO RÁPIDO</span>
-          <h2>Seguí planificando</h2>
-          <a class="quick-link" href="/app/conciertos">Conciertos <span>↗</span></a>
-          <a class="quick-link" href="/app/formaciones">Formaciones <span>↗</span></a>
-        </article>
-      </div>
+
+      @if (loading()) {
+        <div class="panel" role="status"><h2>Cargando tus coros…</h2></div>
+      } @else {
+        @if (error()) {
+          <div class="choir-message" role="alert">
+            {{ error() }}
+            <button class="button button-secondary" type="button" (click)="loadChoirs()">Reintentar</button>
+          </div>
+        }
+
+        <div class="choir-management-grid">
+          <section class="panel">
+            <span class="panel-kicker">{{ editingId() === null ? 'NUEVA AGRUPACIÓN' : 'EDITAR AGRUPACIÓN' }}</span>
+            <h2>{{ editingId() === null ? 'Crear un coro' : 'Editar coro' }}</h2>
+
+            <form (submit)="save($event)">
+              <label class="choir-field">
+                Nombre del coro
+                <input name="name" required maxlength="160"
+                  [value]="name()" (input)="setName($event)">
+              </label>
+
+              <label class="choir-field">
+                Descripción
+                <textarea name="description" rows="4" maxlength="1000"
+                  [value]="description()" (input)="setDescription($event)"></textarea>
+              </label>
+
+              @if (formError()) {
+                <p class="choir-error" role="alert">{{ formError() }}</p>
+              }
+
+              <div class="choir-actions">
+                <button class="button button-primary" type="submit"
+                  [disabled]="saving() || !name().trim()">
+                  {{ saving() ? 'Guardando…' : (editingId() === null ? 'Crear coro' : 'Guardar cambios') }}
+                </button>
+                @if (editingId() !== null) {
+                  <button class="button button-secondary" type="button"
+                    [disabled]="saving()" (click)="cancelEdit()">Cancelar</button>
+                }
+              </div>
+            </form>
+          </section>
+
+          <section class="panel">
+            <div class="choir-list-heading">
+              <div><span class="panel-kicker">TUS AGRUPACIONES</span><h2>Coros</h2></div>
+              <span class="choir-count">{{ choirs().length }}</span>
+            </div>
+
+            @if (choirs().length === 0) {
+              <div class="choir-empty">
+                <span class="empty-illustration">♫</span>
+                <h3>Todavía no hay coros</h3>
+                <p>Creá tu primera agrupación con el formulario.</p>
+              </div>
+            } @else {
+              <ul class="choir-list">
+                @for (choir of choirs(); track choir.id) {
+                  <li class="choir-item" [class.choir-item-archived]="choir.archived">
+                    <div>
+                      <div class="choir-list-heading">
+                        <h3>{{ choir.name }}</h3>
+                        @if (choir.archived) {
+                          <span class="choir-archived-label">Archivado</span>
+                        }
+                      </div>
+                      <p>{{ choir.description || 'Sin descripción.' }}</p>
+                    </div>
+
+                    @if (!choir.archived) {
+                      <div class="choir-actions">
+                        <button class="button button-secondary" type="button"
+                          (click)="beginEdit(choir)">Editar</button>
+
+                        @if (archiveConfirmationId() === choir.id) {
+                          <span>¿Archivar este coro?</span>
+                          <button class="button button-danger" type="button"
+                            [disabled]="archivingId() === choir.id"
+                            (click)="confirmArchive(choir)">
+                            {{ archivingId() === choir.id ? 'Archivando…' : 'Confirmar' }}
+                          </button>
+                          <button class="button button-secondary" type="button"
+                            (click)="cancelArchive()">Cancelar</button>
+                        } @else {
+                          <button class="button button-secondary" type="button"
+                            (click)="requestArchive(choir.id)">Archivar</button>
+                        }
+                      </div>
+                    }
+                  </li>
+                }
+              </ul>
+            }
+          </section>
+        </div>
+      }
     </section>
-  `
+  `,
+  styles: [':host { display: block; }']
 })
-export class ChoirPage {}
+export class ChoirPage {
+  private readonly api = inject(ChoirsApiService);
+
+  readonly choirs = signal<Choir[]>([]);
+  readonly loading = signal(false);
+  readonly saving = signal(false);
+  readonly error = signal<string | null>(null);
+  readonly formError = signal<string | null>(null);
+  readonly name = signal('');
+  readonly description = signal('');
+  readonly editingId = signal<number | null>(null);
+  readonly archiveConfirmationId = signal<number | null>(null);
+  readonly archivingId = signal<number | null>(null);
+
+  constructor() {
+    this.loadChoirs();
+  }
+
+  setName(event: Event): void {
+    this.name.set((event.target as HTMLInputElement).value);
+    this.formError.set(null);
+  }
+
+  setDescription(event: Event): void {
+    this.description.set((event.target as HTMLTextAreaElement).value);
+    this.formError.set(null);
+  }
+
+  loadChoirs(): void {
+    this.loading.set(true);
+    this.error.set(null);
+
+    this.api.list(true).subscribe({
+      next: items => {
+        this.choirs.set([...items].sort((a, b) =>
+          Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)
+        ));
+        this.loading.set(false);
+      },
+      error: () => {
+        this.error.set('No pudimos cargar los coros. Revisá la conexión e intentá nuevamente.');
+        this.loading.set(false);
+      }
+    });
+  }
+
+  beginEdit(choir: Choir): void {
+    if (choir.archived) return;
+    this.editingId.set(choir.id);
+    this.name.set(choir.name);
+    this.description.set(choir.description ?? '');
+    this.formError.set(null);
+  }
+
+  cancelEdit(): void {
+    this.editingId.set(null);
+    this.name.set('');
+    this.description.set('');
+    this.formError.set(null);
+  }
+
+  save(event?: Event): void {
+    event?.preventDefault();
+
+    const name = this.name().trim();
+    const description = this.description().trim();
+
+    if (!name) {
+      this.formError.set('El nombre del coro es obligatorio.');
+      return;
+    }
+    if (name.length > 160 || description.length > 1000) {
+      this.formError.set('El nombre admite hasta 160 caracteres y la descripción hasta 1000.');
+      return;
+    }
+
+    this.saving.set(true);
+    this.formError.set(null);
+
+    const request = { name, description: description || null };
+    const id = this.editingId();
+    const operation = id === null
+      ? this.api.create(request)
+      : this.api.update(id, request);
+
+    operation.subscribe({
+      next: saved => {
+        this.choirs.update(items => [...items.filter(item => item.id !== saved.id), saved]
+          .sort((a, b) => Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)));
+        this.saving.set(false);
+        this.cancelEdit();
+      },
+      error: () => {
+        this.saving.set(false);
+        this.formError.set('No pudimos guardar los datos. Intentá nuevamente.');
+      }
+    });
+  }
+
+  requestArchive(id: number): void {
+    this.archiveConfirmationId.set(id);
+  }
+
+  cancelArchive(): void {
+    this.archiveConfirmationId.set(null);
+  }
+
+  confirmArchive(choir: Choir): void {
+    if (choir.archived || this.archiveConfirmationId() !== choir.id) return;
+
+    this.archivingId.set(choir.id);
+    this.error.set(null);
+
+    this.api.archive(choir.id).subscribe({
+      next: () => {
+        this.choirs.update(items => items.map(item =>
+          item.id === choir.id ? { ...item, archived: true } : item
+        ).sort((a, b) => Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)));
+        this.archivingId.set(null);
+        this.archiveConfirmationId.set(null);
+        if (this.editingId() === choir.id) this.cancelEdit();
+      },
+      error: () => {
+        this.archivingId.set(null);
+        this.archiveConfirmationId.set(null);
+        this.error.set('No pudimos archivar el coro. Intentá nuevamente.');
+      }
+    });
+  }
+}
+
 
 @Component({
   standalone: true,
