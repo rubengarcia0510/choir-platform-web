@@ -169,6 +169,19 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     return { stage, person };
   }
 
+  it('representa al director sin contarlo como integrante ni permitir arrastrarlo', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const director = element.querySelector<HTMLElement>('.stage-director');
+
+    expect(director).toBeTruthy();
+    expect(director?.getAttribute('role')).toBe('img');
+    expect(director?.getAttribute('aria-label')).toBe('Director del coro');
+    expect(director?.textContent).toContain('Dirección');
+    expect(director?.classList.contains('stage-person')).toBe(false);
+    expect(element.querySelectorAll('.stage-person')).toHaveLength(2);
+    expect(getComputedStyle(director!).pointerEvents).toBe('none');
+  });
+
   it('muestra integrantes reales y sus secciones vocales', () => {
     const element = fixture.nativeElement as HTMLElement;
     const people = Array.from(

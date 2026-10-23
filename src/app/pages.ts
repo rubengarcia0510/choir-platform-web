@@ -362,6 +362,14 @@ export class ConcertsPage {}
             [attr.aria-busy]="choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])">
             <div class="stage-back"></div>
 
+            <div
+              class="stage-director"
+              role="img"
+              aria-label="Director del coro">
+              <span class="stage-director-avatar" aria-hidden="true">D</span>
+              <span class="stage-director-label">Dirección</span>
+            </div>
+
             @if (choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])) {
               <div
                 class="stage-skeleton"
@@ -502,6 +510,42 @@ export class ConcertsPage {}
     </section>
   `,
   styles: [`
+.stage-director {
+  position: absolute;
+  z-index: 2;
+  top: 5%;
+  left: 50%;
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  width: 76px;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.stage-director-avatar {
+  display: grid;
+  place-items: center;
+  width: 31px;
+  height: 31px;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--ink);
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.stage-director-label {
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: white;
+  font-size: 9px;
+  font-weight: 750;
+}
+
 .stage-people {
   position: absolute;
   inset: 12px 8px;
