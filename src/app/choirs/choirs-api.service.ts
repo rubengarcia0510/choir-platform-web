@@ -16,6 +16,7 @@ export class ChoirsApiService {
 
   list(): Observable<Choir[]> {
     return this.http.get<Choir[]>(this.baseUrl, {
+      params: { includeArchived: true },
       withCredentials: true
     });
   }
