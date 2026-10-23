@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { of, throwError } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { ChoirsApiService } from '../choirs/choirs-api.service';
@@ -296,6 +296,85 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     expect(component.workflowError()).toBeNull();
     expect(component.selectedDraft()?.draftVersionId).toBe(50);
     expect(component.draftLoading()).toBe(false);
+  });
+
+
+  it('ignora el error de repertorio de un concierto que ya no está seleccionado', () => {
+    const staleRequest = new Subject<any>();
+    listConcertRepertoire
+      .mockReturnValueOnce(staleRequest)
+      .mockReturnValue(of([{
+        concertId: 21,
+        repertoireItemId: 31,
+        orderIndex: 1,
+        durationMinutes: 4,
+        stageRequirements: null,
+        title: 'Obra actual',
+        composer: 'Compositor',
+        arranger: null
+      }]));
+
+    component.selectConcert(selection('20'));
+    component.selectConcert(selection('21'));
+    staleRequest.error(new Error('Error de red tardío'));
+
+    expect(component.selectedConcertId()).toBe(21);
+    expect(component.repertoire()[0]?.title).toBe('Obra actual');
+    expect(component.workflowError()).toBeNull();
+    expect(component.repertoireLoading()).toBe(false);
+  });
+
+  it('ignora el error de formaciones de una obra que ya no está seleccionada', () => {
+    const staleRequest = new Subject<any>();
+    listFormations
+      .mockReturnValueOnce(staleRequest)
+      .mockReturnValue(of([{
+        id: 41,
+        name: 'Formación actual',
+        description: null
+      }]));
+
+    component.selectConcert(selection('20'));
+    component.selectRepertoireItem(selection('30'));
+    component.selectRepertoireItem(selection('31'));
+    staleRequest.error(new Error('Error de red tardío'));
+
+    expect(component.selectedRepertoireItemId()).toBe(31);
+    expect(component.formations().map(item => item.id)).toEqual([41]);
+    expect(component.workflowError()).toBeNull();
+    expect(component.formationsLoading()).toBe(false);
+  });
+
+  it('ignora el error de borrador de una formación anterior', () => {
+    const staleRequest = new Subject<any>();
+    getDraft
+      .mockReturnValueOnce(staleRequest)
+      .mockReturnValue(of(draft()));
+
+    component.selectConcert(selection('20'));
+    component.selectRepertoireItem(selection('30'));
+    component.selectFormation(selection('40'));
+    component.selectFormation(selection('41'));
+    staleRequest.error(new Error('Error de red tardío'));
+
+    expect(component.selectedFormationId()).toBe(41);
+    expect(component.selectedDraft()).not.toBeNull();
+    expect(component.workflowError()).toBeNull();
+    expect(component.draftLoading()).toBe(false);
+  });
+
+  it('ignora el error de guardado de una formación anterior', () => {
+    const staleRequest = new Subject<any>();
+    saveDraftPositions.mockReturnValue(staleRequest);
+
+    selectFormationFlow();
+    component.savePositions();
+    component.selectFormation(selection('41'));
+    staleRequest.error(new Error('Error de red tardío'));
+
+    expect(component.selectedFormationId()).toBe(41);
+    expect(component.saveError()).toBeNull();
+    expect(component.savingDraft()).toBe(false);
   });
 
 });

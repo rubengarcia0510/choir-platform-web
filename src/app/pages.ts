@@ -793,6 +793,10 @@ export class FormationsPage {
     this.selectedRepertoireItemId.set(null);
     this.selectedFormationId.set(null);
     this.selectedDraft.set(null);
+    this.repertoireLoading.set(false);
+    this.formationsLoading.set(false);
+    this.draftLoading.set(false);
+    this.savingDraft.set(false);
     this.repertoire.set([]);
     this.formations.set([]);
     this.singerPositions.set({});
@@ -815,7 +819,8 @@ export class FormationsPage {
           this.repertoireLoading.set(false);
         },
         error: () => {
-          if (this.selectedConcertId() !== concertId) {
+          if (this.selectedChoirId() !== choirId
+            || this.selectedConcertId() !== concertId) {
             return;
           }
           this.repertoireLoading.set(false);
@@ -829,6 +834,9 @@ export class FormationsPage {
     this.selectedRepertoireItemId.set(repertoireItemId);
     this.selectedFormationId.set(null);
     this.selectedDraft.set(null);
+    this.formationsLoading.set(false);
+    this.draftLoading.set(false);
+    this.savingDraft.set(false);
     this.formations.set([]);
     this.singerPositions.set({});
     this.clearWorkflowMessages();
@@ -854,7 +862,9 @@ export class FormationsPage {
         this.formationsLoading.set(false);
       },
       error: () => {
-        if (this.selectedRepertoireItemId() !== repertoireItemId) {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId) {
           return;
         }
         this.formationsLoading.set(false);
@@ -867,6 +877,8 @@ export class FormationsPage {
     const formationId = this.parseSelection(event);
     this.selectedFormationId.set(formationId);
     this.selectedDraft.set(null);
+    this.draftLoading.set(false);
+    this.savingDraft.set(false);
     this.singerPositions.set({});
     this.clearWorkflowMessages();
 
@@ -931,6 +943,13 @@ export class FormationsPage {
         this.saveSuccess.set(true);
       },
       error: () => {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId
+          || this.selectedFormationId() !== formationId) {
+          return;
+        }
+
         this.savingDraft.set(false);
         this.saveError.set(
           'No se pudieron guardar las posiciones. Tus cambios siguen en pantalla; podés reintentar.'
@@ -1086,7 +1105,10 @@ export class FormationsPage {
         this.draftLoading.set(false);
       },
       error: () => {
-        if (this.selectedFormationId() !== formationId) {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId
+          || this.selectedFormationId() !== formationId) {
           return;
         }
         this.draftLoading.set(false);
