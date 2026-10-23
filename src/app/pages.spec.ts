@@ -7,6 +7,7 @@ import { ChoirsApiService } from './choirs/choirs-api.service';
 import { FormationsPage } from './pages';
 import { Singer } from './singers/singer.model';
 import { SingersStore } from './singers/singers.store';
+import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
 
 describe('FormationsPage - editor de escenario CHOIR-21', () => {
   let fixture: ReturnType<typeof TestBed.createComponent<FormationsPage>>;
@@ -60,6 +61,36 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     await TestBed.configureTestingModule({
       imports: [FormationsPage],
       providers: [
+        {
+          provide: FormationDraftsApiService,
+          useValue: {
+            listConcerts: () => of([]),
+            listConcertRepertoire: () => of([]),
+            listFormations: () => of([]),
+            getDraft: () => of({
+              formationId: 40,
+              name: 'Formación de prueba',
+              description: null,
+              draftVersionId: 50,
+              versionNumber: 1,
+              status: 'DRAFT',
+              notes: null,
+              createdAt: null,
+              positions: []
+            }),
+            saveDraftPositions: () => of({
+              formationId: 40,
+              name: 'Formación de prueba',
+              description: null,
+              draftVersionId: 50,
+              versionNumber: 1,
+              status: 'DRAFT',
+              notes: null,
+              createdAt: null,
+              positions: []
+            })
+          }
+        },
         {
           provide: ChoirsApiService,
           useValue: {
@@ -137,6 +168,19 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
 
     return { stage, person };
   }
+
+  it('representa al director sin contarlo como integrante ni permitir arrastrarlo', () => {
+    const element = fixture.nativeElement as HTMLElement;
+    const director = element.querySelector<HTMLElement>('.stage-director');
+
+    expect(director).toBeTruthy();
+    expect(director?.getAttribute('role')).toBe('img');
+    expect(director?.getAttribute('aria-label')).toBe('Director del coro');
+    expect(director?.textContent).toContain('Dirección');
+    expect(director?.classList.contains('stage-person')).toBe(false);
+    expect(element.querySelectorAll('.stage-person')).toHaveLength(2);
+    expect(getComputedStyle(director!).pointerEvents).toBe('none');
+  });
 
   it('muestra integrantes reales y sus secciones vocales', () => {
     const element = fixture.nativeElement as HTMLElement;
