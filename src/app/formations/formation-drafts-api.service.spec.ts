@@ -95,6 +95,7 @@ describe('FormationDraftsApiService', () => {
     );
 
     expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
 
     request.flush({
       formationId: 40,
@@ -130,6 +131,7 @@ describe('FormationDraftsApiService', () => {
     );
 
     expect(request.request.method).toBe('PUT');
+    expect(request.request.withCredentials).toBe(true);
     expect(request.request.body).toEqual(body);
 
     request.flush({
