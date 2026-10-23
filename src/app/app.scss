@@ -712,3 +712,18 @@
 .singer-skeleton-copy{display:grid;flex:1;gap:8px}
 .skeleton-line-primary{width:68%;height:9px}
 .skeleton-line-secondary{width:43%}
+
+
+@media (prefers-reduced-motion: reduce) {
+  .main-nav a,
+  .login-link,
+  .button,
+  .feature-card {
+    transition: none;
+  }
+
+  .button:hover,
+  .feature-card:hover {
+    transform: none;
+  }
+}
