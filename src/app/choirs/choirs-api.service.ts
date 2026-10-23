@@ -16,9 +16,9 @@ export class ChoirsApiService {
   private readonly auth = inject(AuthService);
   private readonly baseUrl = '/api/choirs';
 
-  list(): Observable<Choir[]> {
+  list(includeArchived = false): Observable<Choir[]> {
     return this.http.get<Choir[]>(this.baseUrl, {
-      params: { includeArchived: true },
+      params: { includeArchived },
       withCredentials: true
     });
   }

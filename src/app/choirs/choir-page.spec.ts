@@ -42,6 +42,7 @@ describe('ChoirPage', () => {
   });
 
   it('lista los coros activos antes que los archivados', () => {
+    expect(api.list).toHaveBeenCalledWith(true);
     expect(component.choirs().map(item => item.id)).toEqual([1, 2]);
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Coro Aurora');
     expect((fixture.nativeElement as HTMLElement).textContent).toContain('Archivado');

@@ -38,10 +38,27 @@ describe('ChoirsApiService', () => {
 
   afterEach(() => http.verify());
 
-  it('lista todos los coros incluyendo los archivados', () => {
+  it('lista solo los coros activos por defecto', () => {
     let result: Choir[] | undefined;
 
     service.list().subscribe(value => result = value);
+
+    const request = http.expectOne(
+      req => req.url === '/api/choirs'
+        && req.params.get('includeArchived') === 'false'
+    );
+
+    expect(request.request.method).toBe('GET');
+    expect(request.request.withCredentials).toBe(true);
+    request.flush([choir]);
+
+    expect(result).toEqual([choir]);
+  });
+
+  it('incluye los coros archivados cuando se solicita explícitamente', () => {
+    let result: Choir[] | undefined;
+
+    service.list(true).subscribe(value => result = value);
 
     const request = http.expectOne(
       req => req.url === '/api/choirs'

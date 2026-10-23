@@ -287,7 +287,7 @@ export class ChoirPage {
     this.loading.set(true);
     this.error.set(null);
 
-    this.api.list().subscribe({
+    this.api.list(true).subscribe({
       next: items => {
         this.choirs.set([...items].sort((a, b) =>
           Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)
