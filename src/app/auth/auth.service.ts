@@ -40,7 +40,7 @@ export class AuthService {
   login(email: string, password: string): Observable<DirectorSession> {
     this.isLoading.set(true);
 
-    return this.fetchCsrfToken().pipe(
+    return this.getCsrfToken().pipe(
       switchMap(token =>
         this.http.post<DirectorSession>(
           `${this.apiUrl}/login`,
@@ -59,7 +59,7 @@ export class AuthService {
   logout(): Observable<void> {
     this.isLoading.set(true);
 
-    return this.fetchCsrfToken().pipe(
+    return this.getCsrfToken().pipe(
       switchMap(token =>
         this.http.post<void>(
           `${this.apiUrl}/logout`,
@@ -79,7 +79,7 @@ export class AuthService {
     );
   }
 
-  private fetchCsrfToken(): Observable<string> {
+  getCsrfToken(): Observable<string> {
     return this.http.get<CsrfResponse>(`${this.apiUrl}/csrf`, {
       withCredentials: true
     }).pipe(

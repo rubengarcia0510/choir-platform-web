@@ -1,7 +1,8 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 
+import { AuthService } from '../auth/auth.service';
 import { Choir } from './choir.model';
 
 export interface ChoirRequest {
@@ -12,6 +13,7 @@ export interface ChoirRequest {
 @Injectable({ providedIn: 'root' })
 export class ChoirsApiService {
   private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
   private readonly baseUrl = '/api/choirs';
 
   list(): Observable<Choir[]> {
@@ -22,20 +24,36 @@ export class ChoirsApiService {
   }
 
   create(request: ChoirRequest): Observable<Choir> {
-    return this.http.post<Choir>(this.baseUrl, request, {
-      withCredentials: true
-    });
+    return this.auth.getCsrfToken().pipe(
+      switchMap(token => this.http.post<Choir>(this.baseUrl, request, {
+        headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
+        withCredentials: true
+      }))
+    );
   }
 
   update(choirId: number, request: ChoirRequest): Observable<Choir> {
-    return this.http.put<Choir>(`${this.baseUrl}/${choirId}`, request, {
-      withCredentials: true
-    });
+    return this.auth.getCsrfToken().pipe(
+      switchMap(token => this.http.put<Choir>(
+        `${this.baseUrl}/${choirId}`,
+        request,
+        {
+          headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
+          withCredentials: true
+        }
+      ))
+    );
   }
 
   archive(choirId: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/${choirId}`, {
-      withCredentials: true
-    });
+    return this.auth.getCsrfToken().pipe(
+      switchMap(token => this.http.delete<void>(
+        `${this.baseUrl}/${choirId}`,
+        {
+          headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
+          withCredentials: true
+        }
+      ))
+    );
   }
 }
