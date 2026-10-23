@@ -3,6 +3,13 @@ import { RouterLink } from '@angular/router';
 import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
 import { SingersStore } from './singers/singers.store';
+import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
+import {
+  Concert,
+  ConcertRepertoireEntry,
+  FormationDraft,
+  FormationSummary
+} from './formations/formation-draft.model';
 
 function getSectionHue(key: string): number {
   let hash = 0;
@@ -231,6 +238,111 @@ export class ConcertsPage {}
               <option [value]="choir.id">{{ choir.name }}</option>
             }
           </select>
+        </section>
+      }
+
+      @if (selectedChoirId() !== null && !choirsLoading() && !choirsError()) {
+        <section class="panel formation-workflow">
+          <span class="panel-kicker">PLANIFICACIÓN ESCÉNICA</span>
+          <h2>Elegir qué formación editar</h2>
+
+          <div class="formation-selectors">
+            <label>
+              Concierto
+              <select
+                aria-label="Concierto"
+                [value]="selectedConcertId() ?? ''"
+                [disabled]="concertsLoading() || concerts().length === 0"
+                (change)="selectConcert($event)">
+                <option value="">Elegí un concierto</option>
+                @for (concert of concerts(); track concert.id) {
+                  <option [value]="concert.id">
+                    {{ concert.title }} · {{ concert.concertDate }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label>
+              Obra del repertorio
+              <select
+                aria-label="Obra del repertorio"
+                [value]="selectedRepertoireItemId() ?? ''"
+                [disabled]="!selectedConcertId() || repertoireLoading() || repertoire().length === 0"
+                (change)="selectRepertoireItem($event)">
+                <option value="">Elegí una obra</option>
+                @for (entry of repertoire(); track entry.repertoireItemId) {
+                  <option [value]="entry.repertoireItemId">
+                    {{ entry.title }}
+                  </option>
+                }
+              </select>
+            </label>
+
+            <label>
+              Formación
+              <select
+                aria-label="Formación"
+                [value]="selectedFormationId() ?? ''"
+                [disabled]="!selectedRepertoireItemId() || formationsLoading() || formations().length === 0"
+                (change)="selectFormation($event)">
+                <option value="">Elegí una formación</option>
+                @for (formation of formations(); track formation.id) {
+                  <option [value]="formation.id">{{ formation.name }}</option>
+                }
+              </select>
+            </label>
+          </div>
+
+          @if (concertsLoading() || repertoireLoading() || formationsLoading() || draftLoading()) {
+            <p role="status">Cargando datos de planificación…</p>
+          }
+
+          @if (workflowError()) {
+            <div role="alert" class="formation-workflow-error">
+              <p>{{ workflowError() }}</p>
+              <button
+                class="button button-secondary"
+                type="button"
+                (click)="retryWorkflow()">Reintentar</button>
+            </div>
+          }
+
+          @if (selectedChoirId() !== null && !concertsLoading() && !workflowError() && concerts().length === 0) {
+            <p>No hay conciertos disponibles para este coro.</p>
+          }
+
+          @if (selectedConcertId() !== null && !repertoireLoading() && repertoire().length === 0) {
+            <p>Este concierto no tiene obras de repertorio disponibles.</p>
+          }
+
+          @if (selectedRepertoireItemId() !== null && !formationsLoading() && formations().length === 0) {
+            <p>Esta obra todavía no tiene formaciones guardadas.</p>
+          }
+
+          @if (selectedDraft(); as draft) {
+            <p>
+              Editando <strong>{{ draft.name }}</strong>
+              · versión {{ draft.versionNumber }}
+              · estado {{ draft.status }}
+            </p>
+          }
+
+          @if (saveError()) {
+            <p role="alert">{{ saveError() }}</p>
+          }
+
+          @if (saveSuccess()) {
+            <p role="status">Las posiciones se guardaron correctamente.</p>
+          }
+
+          <button
+            class="button button-primary"
+            type="button"
+            [disabled]="!canSaveDraft() || savingDraft() || draftLoading()"
+            (click)="savePositions()">
+            {{ savingDraft() ? 'Guardando posiciones…' : 'Guardar posiciones' }}
+          </button>
         </section>
       }
 
@@ -512,7 +624,33 @@ export class ConcertsPage {}
 })
 export class FormationsPage {
   private readonly choirsApi = inject(ChoirsApiService);
+  private readonly formationDraftsApi = inject(FormationDraftsApiService);
   readonly singersStore = inject(SingersStore);
+
+  readonly concerts = signal<Concert[]>([]);
+  readonly repertoire = signal<ConcertRepertoireEntry[]>([]);
+  readonly formations = signal<FormationSummary[]>([]);
+  readonly selectedConcertId = signal<number | null>(null);
+  readonly selectedRepertoireItemId = signal<number | null>(null);
+  readonly selectedFormationId = signal<number | null>(null);
+  readonly selectedDraft = signal<FormationDraft | null>(null);
+
+  readonly concertsLoading = signal(false);
+  readonly repertoireLoading = signal(false);
+  readonly formationsLoading = signal(false);
+  readonly draftLoading = signal(false);
+  readonly savingDraft = signal(false);
+  readonly workflowError = signal<string | null>(null);
+  readonly saveError = signal<string | null>(null);
+  readonly saveSuccess = signal(false);
+
+  readonly canSaveDraft = computed(
+    () => this.selectedDraft() !== null
+      && this.selectedFormationId() !== null
+      && this.selectedConcertId() !== null
+      && this.selectedRepertoireItemId() !== null
+      && this.selectedChoirId() !== null
+  );
 
   readonly choirs = signal<Choir[]>([]);
   readonly choirsLoading = signal(true);
@@ -642,10 +780,192 @@ export class FormationsPage {
 
     if (!Number.isSafeInteger(choirId) || choirId <= 0) {
       this.selectedChoirId.set(null);
+      this.resetWorkflow();
       return;
     }
 
     this.chooseChoir(choirId);
+  }
+
+  selectConcert(event: Event): void {
+    const concertId = this.parseSelection(event);
+    this.selectedConcertId.set(concertId);
+    this.selectedRepertoireItemId.set(null);
+    this.selectedFormationId.set(null);
+    this.selectedDraft.set(null);
+    this.repertoire.set([]);
+    this.formations.set([]);
+    this.singerPositions.set({});
+    this.clearWorkflowMessages();
+
+    const choirId = this.selectedChoirId();
+    if (choirId === null || concertId === null) {
+      return;
+    }
+
+    this.repertoireLoading.set(true);
+    this.formationDraftsApi.listConcertRepertoire(choirId, concertId)
+      .subscribe({
+        next: entries => {
+          if (this.selectedChoirId() !== choirId
+            || this.selectedConcertId() !== concertId) {
+            return;
+          }
+          this.repertoire.set(entries);
+          this.repertoireLoading.set(false);
+        },
+        error: () => {
+          if (this.selectedConcertId() !== concertId) {
+            return;
+          }
+          this.repertoireLoading.set(false);
+          this.workflowError.set('No se pudo cargar el repertorio del concierto.');
+        }
+      });
+  }
+
+  selectRepertoireItem(event: Event): void {
+    const repertoireItemId = this.parseSelection(event);
+    this.selectedRepertoireItemId.set(repertoireItemId);
+    this.selectedFormationId.set(null);
+    this.selectedDraft.set(null);
+    this.formations.set([]);
+    this.singerPositions.set({});
+    this.clearWorkflowMessages();
+
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+
+    if (choirId === null || concertId === null || repertoireItemId === null) {
+      return;
+    }
+
+    this.formationsLoading.set(true);
+    this.formationDraftsApi.listFormations(
+      choirId, concertId, repertoireItemId
+    ).subscribe({
+      next: formations => {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId) {
+          return;
+        }
+        this.formations.set(formations);
+        this.formationsLoading.set(false);
+      },
+      error: () => {
+        if (this.selectedRepertoireItemId() !== repertoireItemId) {
+          return;
+        }
+        this.formationsLoading.set(false);
+        this.workflowError.set('No se pudieron cargar las formaciones de esta obra.');
+      }
+    });
+  }
+
+  selectFormation(event: Event): void {
+    const formationId = this.parseSelection(event);
+    this.selectedFormationId.set(formationId);
+    this.selectedDraft.set(null);
+    this.singerPositions.set({});
+    this.clearWorkflowMessages();
+
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+
+    if (choirId === null || concertId === null
+      || repertoireItemId === null || formationId === null) {
+      return;
+    }
+
+    this.loadSelectedDraft(
+      choirId, concertId, repertoireItemId, formationId
+    );
+  }
+
+  savePositions(): void {
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+    const formationId = this.selectedFormationId();
+    const draft = this.selectedDraft();
+
+    if (choirId === null || concertId === null
+      || repertoireItemId === null || formationId === null || draft === null
+      || this.savingDraft()) {
+      return;
+    }
+
+    const request = {
+      positions: this.stageSingers().map(person => ({
+        singerId: person.id,
+        x: person.x,
+        y: person.y
+      }))
+    };
+
+    this.savingDraft.set(true);
+    this.saveError.set(null);
+    this.saveSuccess.set(false);
+
+    this.formationDraftsApi.saveDraftPositions(
+      choirId,
+      concertId,
+      repertoireItemId,
+      formationId,
+      draft.draftVersionId,
+      request
+    ).subscribe({
+      next: savedDraft => {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId
+          || this.selectedFormationId() !== formationId) {
+          return;
+        }
+
+        this.selectedDraft.set(savedDraft);
+        this.applyDraftPositions(savedDraft);
+        this.savingDraft.set(false);
+        this.saveSuccess.set(true);
+      },
+      error: () => {
+        this.savingDraft.set(false);
+        this.saveError.set(
+          'No se pudieron guardar las posiciones. Tus cambios siguen en pantalla; podés reintentar.'
+        );
+      }
+    });
+  }
+
+  retryWorkflow(): void {
+    this.workflowError.set(null);
+
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+    const formationId = this.selectedFormationId();
+
+    if (choirId === null) {
+      return;
+    }
+
+    if (concertId === null) {
+      this.loadConcerts(choirId);
+    } else if (repertoireItemId === null) {
+      this.selectConcert({
+        target: { value: String(concertId) }
+      } as unknown as Event);
+    } else if (formationId === null) {
+      this.selectRepertoireItem({
+        target: { value: String(repertoireItemId) }
+      } as unknown as Event);
+    } else {
+      this.loadSelectedDraft(
+        choirId, concertId, repertoireItemId, formationId
+      );
+    }
   }
 
   retrySingers(): void {
@@ -716,7 +1036,106 @@ export class FormationsPage {
 
   private chooseChoir(choirId: number): void {
     this.selectedChoirId.set(choirId);
+    this.resetWorkflow();
     this.singersStore.loadSingers(choirId);
+    this.loadConcerts(choirId);
+  }
+
+  private loadConcerts(choirId: number): void {
+    this.concertsLoading.set(true);
+    this.workflowError.set(null);
+
+    this.formationDraftsApi.listConcerts(choirId).subscribe({
+      next: concerts => {
+        if (this.selectedChoirId() !== choirId) {
+          return;
+        }
+        this.concerts.set(concerts);
+        this.concertsLoading.set(false);
+      },
+      error: () => {
+        if (this.selectedChoirId() !== choirId) {
+          return;
+        }
+        this.concertsLoading.set(false);
+        this.workflowError.set('No se pudieron cargar los conciertos del coro.');
+      }
+    });
+  }
+
+  private loadSelectedDraft(
+    choirId: number,
+    concertId: number,
+    repertoireItemId: number,
+    formationId: number
+  ): void {
+    this.draftLoading.set(true);
+
+    this.formationDraftsApi.getDraft(
+      choirId, concertId, repertoireItemId, formationId
+    ).subscribe({
+      next: draft => {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId
+          || this.selectedFormationId() !== formationId) {
+          return;
+        }
+        this.selectedDraft.set(draft);
+        this.applyDraftPositions(draft);
+        this.draftLoading.set(false);
+      },
+      error: () => {
+        if (this.selectedFormationId() !== formationId) {
+          return;
+        }
+        this.draftLoading.set(false);
+        this.workflowError.set('No se pudo cargar el borrador de la formación.');
+      }
+    });
+  }
+
+  private applyDraftPositions(draft: FormationDraft): void {
+    const positions: Record<number, { x: number; y: number }> = {};
+
+    for (const position of draft.positions) {
+      positions[position.singerId] = {
+        x: position.x,
+        y: position.y
+      };
+    }
+
+    this.singerPositions.set(positions);
+  }
+
+  private parseSelection(event: Event): number | null {
+    const value = (event.target as HTMLSelectElement).value;
+    const id = Number(value);
+    return value !== '' && Number.isSafeInteger(id) && id > 0 ? id : null;
+  }
+
+  private clearWorkflowMessages(): void {
+    this.workflowError.set(null);
+    this.saveError.set(null);
+    this.saveSuccess.set(false);
+  }
+
+  private resetWorkflow(): void {
+    this.concerts.set([]);
+    this.repertoire.set([]);
+    this.formations.set([]);
+    this.selectedConcertId.set(null);
+    this.selectedRepertoireItemId.set(null);
+    this.selectedFormationId.set(null);
+    this.selectedDraft.set(null);
+    this.singerPositions.set({});
+    this.concertsLoading.set(false);
+    this.repertoireLoading.set(false);
+    this.formationsLoading.set(false);
+    this.draftLoading.set(false);
+    this.savingDraft.set(false);
+    this.clearWorkflowMessages();
+    this.workflowError.set(null);
   }
 }
 
