@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { AuthService } from './auth/auth.service';
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { vi } from 'vitest';
@@ -50,17 +51,32 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     '10': null
   });
 
+  const currentDirector = signal({
+    id: 25,
+    displayName: 'Rosa Directora',
+    email: 'rosa@example.test'
+  });
+
   const loadSingers = vi.fn();
 
   beforeEach(async () => {
     singersByChoir.set({ '10': singers });
     loadingByChoir.set({ '10': false });
     errorsByChoir.set({ '10': null });
+    currentDirector.set({
+      id: 25,
+      displayName: 'Rosa Directora',
+      email: 'rosa@example.test'
+    });
     loadSingers.mockClear();
 
     await TestBed.configureTestingModule({
       imports: [FormationsPage],
       providers: [
+        {
+          provide: AuthService,
+          useValue: { currentDirector }
+        },
         {
           provide: FormationDraftsApiService,
           useValue: {
@@ -175,8 +191,12 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
 
     expect(director).toBeTruthy();
     expect(director?.getAttribute('role')).toBe('img');
-    expect(director?.getAttribute('aria-label')).toBe('Director del coro');
+    expect(director?.getAttribute('aria-label'))
+      .toBe('Director del coro: Rosa Directora');
     expect(director?.textContent).toContain('Dirección');
+    expect(director?.textContent).toContain('Rosa Directora');
+    expect(director?.querySelector('.stage-director-avatar')?.textContent?.trim())
+      .toBe('R');
     expect(director?.classList.contains('stage-person')).toBe(false);
     expect(element.querySelectorAll('.stage-person')).toHaveLength(2);
     expect(getComputedStyle(director!).pointerEvents).toBe('none');

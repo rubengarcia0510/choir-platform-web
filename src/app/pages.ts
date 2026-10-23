@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from './auth/auth.service';
 import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
 import { SingersStore } from './singers/singers.store';
@@ -365,9 +366,12 @@ export class ConcertsPage {}
             <div
               class="stage-director"
               role="img"
-              aria-label="Director del coro">
-              <span class="stage-director-avatar" aria-hidden="true">D</span>
+              [attr.aria-label]="'Director del coro: ' + (auth.currentDirector()?.displayName || 'sin sesión identificada')">
+              <span class="stage-director-avatar" aria-hidden="true">{{ auth.currentDirector()?.displayName?.trim()?.charAt(0)?.toLocaleUpperCase() || 'D' }}</span>
               <span class="stage-director-label">Dirección</span>
+              @if (auth.currentDirector(); as director) {
+                <span class="stage-director-name">{{ director.displayName }}</span>
+              }
             </div>
 
             @if (choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])) {
@@ -546,6 +550,16 @@ export class ConcertsPage {}
   font-weight: 750;
 }
 
+.stage-director-name {
+  max-width: 110px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .stage-people {
   position: absolute;
   inset: 12px 8px;
@@ -667,6 +681,7 @@ export class ConcertsPage {}
   `]
 })
 export class FormationsPage {
+  readonly auth = inject(AuthService);
   private readonly choirsApi = inject(ChoirsApiService);
   private readonly formationDraftsApi = inject(FormationDraftsApiService);
   readonly singersStore = inject(SingersStore);
