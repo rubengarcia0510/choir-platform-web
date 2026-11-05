@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from './auth/auth.service';
@@ -21,7 +22,6 @@ function getSectionHue(key: string): number {
 
   return hash % 360;
 }
-
 
 @Component({
   standalone: true,
@@ -549,6 +549,10 @@ export class ConcertsPage {}
             <p role="alert">{{ saveError() }}</p>
           }
 
+          @if (positionLockError()) {
+            <p role="alert">{{ positionLockError() }}</p>
+          }
+
           @if (saveSuccess()) {
             <p role="status">Las posiciones se guardaron correctamente.</p>
           }
@@ -556,7 +560,7 @@ export class ConcertsPage {}
           <button
             class="button button-primary"
             type="button"
-            [disabled]="!canSaveDraft() || savingDraft() || draftLoading()"
+            [disabled]="!canSaveDraft() || savingDraft() || draftLoading() || hasPendingPositionLocks()"
             (click)="savePositions()">
             {{ savingDraft() ? 'Guardando posiciones…' : 'Guardar posiciones' }}
           </button>
@@ -625,23 +629,39 @@ export class ConcertsPage {}
               } @else {
                 <div class="stage-people" aria-label="Integrantes posicionados en el escenario">
                   @for (person of stageSingers(); track person.id) {
-                    <button
-                      type="button"
-                      class="stage-person"
-                      [class.stage-person-dragging]="dragSession()?.singerId === person.id"
+                    <div
+                      class="stage-person-wrapper"
+                      [class.stage-person-locked]="person.locked"
                       [style.left.%]="person.x"
                       [style.top.%]="person.y"
-                      [style.--section-hue]="person.sectionHue"
-                      [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + '. Arrastrar para cambiar la posición.'"
-                      (pointerdown)="startDrag($event, person.id)"
-                      (pointermove)="moveSinger($event)"
-                      (pointerup)="endDrag($event)"
-                      (pointercancel)="endDrag($event)"
-                      (lostpointercapture)="endDrag($event)">
-                      <span class="stage-person-avatar" aria-hidden="true">{{ person.displayName.charAt(0).toUpperCase() }}</span>
-                      <span class="stage-person-name">{{ person.displayName }}</span>
-                      <span class="stage-person-section">{{ person.sectionLabel }}</span>
-                    </button>
+                      [style.--section-hue]="person.sectionHue">
+                      <button
+                        type="button"
+                        class="stage-person"
+                        [class.stage-person-dragging]="dragSession()?.singerId === person.id"
+                        [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + (person.locked ? '. Posición bloqueada; no se puede arrastrar.' : '. Arrastrar para cambiar la posición.')"
+                        (pointerdown)="startDrag($event, person.id)"
+                        (pointermove)="moveSinger($event)"
+                        (pointerup)="endDrag($event)"
+                        (pointercancel)="endDrag($event)"
+                        (lostpointercapture)="endDrag($event)">
+                        <span class="stage-person-avatar" aria-hidden="true">{{ person.displayName.charAt(0).toUpperCase() }}</span>
+                        <span class="stage-person-name">{{ person.displayName }}</span>
+                        <span class="stage-person-section">{{ person.sectionLabel }}</span>
+                        @if (person.locked) {
+                          <span class="stage-person-lock-state">🔒 Bloqueada</span>
+                        }
+                      </button>
+                      <button
+                        type="button"
+                        class="stage-person-lock-action"
+                        [disabled]="person.positionId === null || !canSaveDraft() || savingDraft() || draftLoading() || isLockMutationPending(person.positionId)"
+                        [attr.aria-label]="(person.locked ? 'Desbloquear' : 'Bloquear') + ' posición de ' + person.displayName"
+                        [attr.aria-busy]="person.positionId !== null && isLockMutationPending(person.positionId)"
+                        (click)="togglePositionLock(person)">
+                        <span aria-hidden="true">{{ person.locked ? '🔓' : '🔒' }}</span>
+                      </button>
+                    </div>
                   }
                 </div>
               }
@@ -782,7 +802,6 @@ export class ConcertsPage {}
 }
 
 .stage-person {
-  position: absolute;
   display: grid;
   justify-items: center;
   gap: 3px;
@@ -793,11 +812,37 @@ export class ConcertsPage {}
   background: hsl(var(--section-hue) 65% 96%);
   color: var(--ink);
   box-shadow: 0 3px 9px #29271b12;
-  transform: translate(-50%, -50%);
   cursor: grab;
   touch-action: none;
   user-select: none;
   z-index: 1;
+}
+
+.stage-person-wrapper {
+  position: absolute;
+  width: 86px;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.stage-person-wrapper.stage-person-locked {
+  z-index: 2;
+}
+
+.stage-person-wrapper.stage-person-locked .stage-person {
+  cursor: not-allowed;
+  border-width: 2px;
+  border-style: dashed;
+}
+
+.stage-person-wrapper .stage-person-dragging {
+  z-index: 5;
+}
+
+.stage-person-lock-state {
+  color: var(--ink);
+  font-size: 9px;
+  font-weight: 800;
 }
 
 .stage-person:focus-visible {
@@ -806,7 +851,6 @@ export class ConcertsPage {}
 }
 
 .stage-person-dragging {
-  z-index: 5;
   cursor: grabbing;
   box-shadow: 0 8px 20px #29271b24;
 }
@@ -881,6 +925,10 @@ export class ConcertsPage {}
 }
 
 @media (max-width: 560px) {
+  .stage-person-wrapper {
+    width: 70px;
+  }
+
   .stage-person {
     width: 70px;
     padding: 4px 2px;
@@ -917,7 +965,12 @@ export class FormationsPage {
   readonly savingDraft = signal(false);
   readonly workflowError = signal<string | null>(null);
   readonly saveError = signal<string | null>(null);
+  readonly positionLockError = signal<string | null>(null);
   readonly saveSuccess = signal(false);
+  readonly pendingPositionLocks = signal<Record<number, boolean>>({});
+  readonly hasPendingPositionLocks = computed(
+    () => Object.keys(this.pendingPositionLocks()).length > 0
+  );
 
   readonly canSaveDraft = computed(
     () => this.selectedDraft() !== null
@@ -953,6 +1006,10 @@ export class FormationsPage {
   readonly stageSingers = computed(() => {
     const singers = this.selectedSingers();
     const positions = this.singerPositions();
+    const draftPositions = new Map(
+      (this.selectedDraft()?.positions ?? [])
+        .map(position => [position.singerId, position] as const)
+    );
     const groups = new Map<string, (typeof singers)[number][]>();
 
     for (const singer of singers) {
@@ -1009,9 +1066,12 @@ export class FormationsPage {
       const sectionKey = singer.voiceSectionId !== null
         ? `section:${singer.voiceSectionId}`
         : `voice:${singer.voicePart?.trim().toLocaleLowerCase() || 'unknown'}`;
+      const draftPosition = draftPositions.get(singer.id);
 
       return {
         ...singer,
+        positionId: draftPosition?.id ?? null,
+        locked: draftPosition?.locked ?? false,
         x: position?.x ?? initial.x,
         y: position?.y ?? initial.y,
         sectionLabel,
@@ -1019,6 +1079,125 @@ export class FormationsPage {
       };
     });
   });
+
+  isLockMutationPending(positionId: number | null): boolean {
+    return positionId !== null
+      && this.pendingPositionLocks()[positionId] === true;
+  }
+
+  togglePositionLock(person: ReturnType<FormationsPage['stageSingers']>[number]): void {
+    if (person.positionId === null
+      || this.isLockMutationPending(person.positionId)) {
+      return;
+    }
+
+    this.setPositionLocked(person, !person.locked);
+  }
+
+  private setPositionLocked(
+    person: ReturnType<FormationsPage['stageSingers']>[number],
+    locked: boolean
+  ): void {
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+    const formationId = this.selectedFormationId();
+    const draft = this.selectedDraft();
+    const positionId = person.positionId;
+
+    if (choirId === null || concertId === null
+      || repertoireItemId === null || formationId === null || draft === null
+      || positionId === null || this.draftLoading() || this.savingDraft()) {
+      return;
+    }
+
+    const position = draft.positions.find(candidate =>
+      candidate.id === positionId && candidate.singerId === person.id);
+    if (!position || position.locked === locked) {
+      return;
+    }
+
+    this.pendingPositionLocks.update(pending => ({
+      ...pending,
+      [positionId]: true
+    }));
+    this.positionLockError.set(null);
+
+    const operation = locked
+      ? this.formationDraftsApi.lockPosition(
+        choirId, concertId, repertoireItemId,
+        formationId, draft.draftVersionId, positionId
+      )
+      : this.formationDraftsApi.unlockPosition(
+        choirId, concertId, repertoireItemId,
+        formationId, draft.draftVersionId, positionId
+      );
+
+    operation.subscribe({
+      next: () => {
+        if (!this.isSelectedDraft(
+          choirId, concertId, repertoireItemId,
+          formationId, draft.draftVersionId
+        )) {
+          return;
+        }
+
+        this.selectedDraft.update(current => current === null
+          ? null
+          : {
+            ...current,
+            positions: current.positions.map(candidate =>
+              candidate.id === positionId
+                ? { ...candidate, locked }
+                : candidate
+            )
+          });
+        this.clearPendingPositionLock(positionId);
+      },
+      error: error => {
+        if (!this.isSelectedDraft(
+          choirId, concertId, repertoireItemId,
+          formationId, draft.draftVersionId
+        )) {
+          return;
+        }
+
+        this.clearPendingPositionLock(positionId);
+        this.positionLockError.set(this.positionLockErrorMessage(error));
+      }
+    });
+  }
+
+  private isSelectedDraft(
+    choirId: number,
+    concertId: number,
+    repertoireItemId: number,
+    formationId: number,
+    versionId: number
+  ): boolean {
+    return this.selectedChoirId() === choirId
+      && this.selectedConcertId() === concertId
+      && this.selectedRepertoireItemId() === repertoireItemId
+      && this.selectedFormationId() === formationId
+      && this.selectedDraft()?.draftVersionId === versionId;
+  }
+
+  private clearPendingPositionLock(positionId: number): void {
+    this.pendingPositionLocks.update(pending => {
+      const { [positionId]: _pending, ...remaining } = pending;
+      return remaining;
+    });
+  }
+
+  private positionLockErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse && error.status === 403) {
+      return 'No estás autorizado para cambiar el bloqueo de esta posición.';
+    }
+    if (error instanceof HttpErrorResponse && error.status === 409) {
+      return 'La versión ya no permite cambiar el bloqueo. Recargá el borrador e intentá nuevamente.';
+    }
+    return 'No se pudo cambiar el bloqueo de la posición. El estado no fue modificado; podés reintentar.';
+  }
 
   constructor() {
     this.loadChoirs();
@@ -1180,7 +1359,7 @@ export class FormationsPage {
 
     if (choirId === null || concertId === null
       || repertoireItemId === null || formationId === null || draft === null
-      || this.savingDraft()) {
+      || this.savingDraft() || this.hasPendingPositionLocks()) {
       return;
     }
 
@@ -1273,7 +1452,7 @@ export class FormationsPage {
     const person = this.stageSingers().find((singer) => singer.id === singerId);
     const stage = (event.currentTarget as HTMLElement).closest('.stage');
 
-    if (!person || !(stage instanceof HTMLElement)) {
+    if (!person || person.locked || !(stage instanceof HTMLElement)) {
       return;
     }
 
@@ -1414,6 +1593,8 @@ export class FormationsPage {
   private clearWorkflowMessages(): void {
     this.workflowError.set(null);
     this.saveError.set(null);
+    this.positionLockError.set(null);
+    this.pendingPositionLocks.set({});
     this.saveSuccess.set(false);
   }
 

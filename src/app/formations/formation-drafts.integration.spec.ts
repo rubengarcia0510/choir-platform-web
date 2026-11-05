@@ -170,7 +170,8 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
       divisionNumberSnapshot: null,
       positionLabel: 'Centro',
       x: 31,
-      y: 42
+      y: 42,
+      locked: true
     }])));
 
     selectFormationFlow();
@@ -183,6 +184,8 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     const ana = component.stageSingers().find(person => person.id === 7);
     expect(ana?.x).toBe(31);
     expect(ana?.y).toBe(42);
+    expect(ana?.positionId).toBe(60);
+    expect(ana?.locked).toBe(true);
     expect(component.draftLoading()).toBe(false);
   });
 

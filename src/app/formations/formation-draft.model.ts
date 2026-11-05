@@ -46,6 +46,7 @@ export interface FormationDraftPosition {
   positionLabel: string | null;
   x: number;
   y: number;
+  locked: boolean;
 }
 
 export interface FormationDraft {

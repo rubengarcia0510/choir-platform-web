@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AuthService } from './auth/auth.service';
 import { TestBed } from '@angular/core/testing';
-import { of } from 'rxjs';
+import { Observable, of, Subject, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { ChoirsApiService } from './choirs/choirs-api.service';
@@ -58,6 +59,8 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
   });
 
   const loadSingers = vi.fn();
+  const lockPosition = vi.fn((): Observable<void> => of(undefined));
+  const unlockPosition = vi.fn((): Observable<void> => of(undefined));
 
   beforeEach(async () => {
     singersByChoir.set({ '10': singers });
@@ -69,6 +72,10 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
       email: 'rosa@example.test'
     });
     loadSingers.mockClear();
+    lockPosition.mockReset();
+    lockPosition.mockReturnValue(of(undefined));
+    unlockPosition.mockReset();
+    unlockPosition.mockReturnValue(of(undefined));
 
     await TestBed.configureTestingModule({
       imports: [FormationsPage],
@@ -104,7 +111,9 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
               notes: null,
               createdAt: null,
               positions: []
-            })
+            }),
+            lockPosition,
+            unlockPosition
           }
         },
         {
@@ -183,6 +192,52 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     person.setPointerCapture = vi.fn();
 
     return { stage, person };
+  }
+
+  function setSelectedDraft(locked = false): void {
+    component.selectedChoirId.set(10);
+    component.selectedConcertId.set(20);
+    component.selectedRepertoireItemId.set(30);
+    component.selectedFormationId.set(40);
+    component.selectedDraft.set({
+      formationId: 40,
+      name: 'Formación de prueba',
+      description: null,
+      draftVersionId: 50,
+      versionNumber: 1,
+      status: 'DRAFT',
+      notes: null,
+      createdAt: null,
+      positions: [
+        {
+          id: 60,
+          singerId: 7,
+          singerNameSnapshot: 'Ana Prueba',
+          voicePartSnapshot: 'Soprano',
+          voiceSectionIdSnapshot: 1,
+          voiceSectionNameSnapshot: 'Soprano',
+          divisionNumberSnapshot: null,
+          positionLabel: null,
+          x: 30,
+          y: 40,
+          locked
+        },
+        {
+          id: 61,
+          singerId: 8,
+          singerNameSnapshot: 'Bea Prueba',
+          voicePartSnapshot: 'Contralto',
+          voiceSectionIdSnapshot: 2,
+          voiceSectionNameSnapshot: 'Contralto',
+          divisionNumberSnapshot: null,
+          positionLabel: null,
+          x: 70,
+          y: 40,
+          locked: false
+        }
+      ]
+    });
+    fixture.detectChanges();
   }
 
   it('representa al director sin contarlo como integrante ni permitir arrastrarlo', () => {
@@ -297,6 +352,107 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
 
     expect(anaElement?.style.getPropertyValue('--section-hue'))
       .toBe(String(ana.sectionHue));
+  });
+
+  it('representa las posiciones bloqueadas y ofrece acciones accesibles', () => {
+    setSelectedDraft(true);
+
+    const element = fixture.nativeElement as HTMLElement;
+    const people = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('.stage-person')
+    );
+    const lockActions = Array.from(
+      element.querySelectorAll<HTMLButtonElement>('.stage-person-lock-action')
+    );
+
+    expect(people[0].textContent).toContain('Bloqueada');
+    expect(people[0].getAttribute('aria-label'))
+      .toContain('Posición bloqueada');
+    expect(people[1].textContent).not.toContain('Bloqueada');
+    expect(lockActions[0].getAttribute('aria-label'))
+      .toBe('Desbloquear posición de Ana Prueba');
+    expect(lockActions[1].getAttribute('aria-label'))
+      .toBe('Bloquear posición de Bea Prueba');
+    expect(lockActions[0].disabled).toBe(false);
+    expect(lockActions[1].disabled).toBe(false);
+  });
+
+  it('actualiza el bloqueo y desbloqueo solo después de la respuesta exitosa', () => {
+    setSelectedDraft();
+    const lockResponse = new Subject<void>();
+    lockPosition.mockReturnValue(lockResponse);
+
+    const element = fixture.nativeElement as HTMLElement;
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Bloquear posición de Ana Prueba"]'
+    )!.click();
+
+    expect(lockPosition).toHaveBeenCalledWith(10, 20, 30, 40, 50, 60);
+    expect(component.stageSingers()[0].locked).toBe(false);
+    expect(component.isLockMutationPending(60)).toBe(true);
+
+    lockResponse.next();
+    lockResponse.complete();
+    fixture.detectChanges();
+
+    expect(component.stageSingers()[0].locked).toBe(true);
+    expect(component.isLockMutationPending(60)).toBe(false);
+
+    const unlockResponse = new Subject<void>();
+    unlockPosition.mockReturnValue(unlockResponse);
+    fixture.detectChanges();
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Desbloquear posición de Ana Prueba"]'
+    )!.click();
+
+    expect(unlockPosition).toHaveBeenCalledWith(10, 20, 30, 40, 50, 60);
+    expect(component.stageSingers()[0].locked).toBe(true);
+
+    unlockResponse.next();
+    unlockResponse.complete();
+    fixture.detectChanges();
+
+    expect(component.stageSingers()[0].locked).toBe(false);
+  });
+
+  it('preserva el estado confirmado y muestra errores 403 y 409', () => {
+    setSelectedDraft();
+    lockPosition.mockReturnValue(throwError(
+      () => new HttpErrorResponse({ status: 403, statusText: 'Forbidden' })
+    ));
+
+    component.togglePositionLock(component.stageSingers()[0]);
+    fixture.detectChanges();
+
+    expect(component.stageSingers()[0].locked).toBe(false);
+    expect(component.isLockMutationPending(60)).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).textContent)
+      .toContain('No estás autorizado para cambiar el bloqueo');
+
+    setSelectedDraft(true);
+    unlockPosition.mockReturnValue(throwError(
+      () => new HttpErrorResponse({ status: 409, statusText: 'Conflict' })
+    ));
+
+    component.togglePositionLock(component.stageSingers()[0]);
+    fixture.detectChanges();
+
+    expect(component.stageSingers()[0].locked).toBe(true);
+    expect(component.isLockMutationPending(60)).toBe(false);
+    expect((fixture.nativeElement as HTMLElement).textContent)
+      .toContain('La versión ya no permite cambiar el bloqueo');
+  });
+
+  it('no inicia un arrastre sobre una posición bloqueada', () => {
+    setSelectedDraft(true);
+    const { person } = stageAndSinger();
+    const event = pointerEvent(person, 51, 100, 100);
+
+    component.startDrag(event, singers[0].id);
+
+    expect(component.dragSession()).toBeNull();
+    expect(event.preventDefault).not.toHaveBeenCalled();
+    expect(person.setPointerCapture).not.toHaveBeenCalled();
   });
 
   it('actualiza la posición del integrante durante el arrastre', () => {
