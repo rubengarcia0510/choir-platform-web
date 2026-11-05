@@ -192,6 +192,8 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
   it('guarda las posiciones locales con el identificador de versión del borrador', () => {
     selectFormationFlow();
 
+    component.toggleSingerInFormation(7);
+    component.toggleSingerInFormation(8);
     component.singerPositions.set({
       7: { x: 22, y: 33 },
       8: { x: 67, y: 71 }
@@ -217,8 +219,60 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     expect(component.saveError()).toBeNull();
   });
 
+  it('guarda y vuelve a cargar una formación vacía, permitiendo reincorporar integrantes', () => {
+    selectFormationFlow();
+    fixture.detectChanges();
+
+    expect(component.stageSingers()).toEqual([]);
+    expect((fixture.nativeElement as HTMLElement).textContent)
+      .toContain('Esta formación está vacía');
+    expect(Array.from(
+      (fixture.nativeElement as HTMLElement)
+        .querySelectorAll<HTMLButtonElement>('.singer-list-action')
+    ).map(button => button.textContent?.trim())).toEqual(['Agregar', 'Agregar']);
+
+    const element = fixture.nativeElement as HTMLElement;
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Agregar Ana Prueba a la formación"]'
+    )!.click();
+    fixture.detectChanges();
+    expect(component.stageSingers().map(singer => singer.id)).toEqual([7]);
+
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Agregar Bea Prueba a la formación"]'
+    )!.click();
+    fixture.detectChanges();
+    expect(component.stageSingers().map(singer => singer.id)).toEqual([7, 8]);
+
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Quitar Ana Prueba de la formación"]'
+    )!.click();
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Quitar Bea Prueba de la formación"]'
+    )!.click();
+    fixture.detectChanges();
+    expect(component.stageSingers()).toEqual([]);
+
+    component.savePositions();
+
+    expect(saveDraftPositions).toHaveBeenCalledWith(
+      10, 20, 30, 40, 50, { positions: [] }
+    );
+    expect(component.saveSuccess()).toBe(true);
+
+    component.selectFormation(selection('40'));
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.positions).toEqual([]);
+    expect(component.stageSingers()).toEqual([]);
+    expect((fixture.nativeElement as HTMLElement).textContent)
+      .toContain('Esta formación está vacía');
+  });
+
   it('conserva los cambios locales ante un error de guardado y permite reintentar', () => {
     selectFormationFlow();
+    component.toggleSingerInFormation(7);
+    component.toggleSingerInFormation(8);
 
     const localPositions = {
       7: { x: 19, y: 28 },

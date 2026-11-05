@@ -155,7 +155,7 @@ export class RegisterPage {}
 
       @if (loading()) {
         <div class="panel" role="status"><h2>Cargando tus coros…</h2></div>
-      } @else {
+              } @else {
         @if (error()) {
           <div class="choir-message" role="alert">
             {{ error() }}
@@ -621,10 +621,16 @@ export class ConcertsPage {}
                   (click)="retrySingers()">Reintentar</button>
               </div>
             } @else {
-              @if (stageSingers().length === 0) {
+              @if (selectedFormationId() !== null && draftLoading()) {
+                <p class="stage-empty" role="status">Cargando la formación…</p>
+              } @else if (stageSingers().length === 0) {
                 <div class="stage-empty">
                   <span>♪</span>
-                  <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
+                  @if (selectedDraft()) {
+                    <p>Esta formación está vacía. Agregá integrantes desde el elenco.</p>
+                  } @else {
+                    <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
+                  }
                 </div>
               } @else {
                 <div class="stage-people" aria-label="Integrantes posicionados en el escenario">
@@ -735,8 +741,20 @@ export class ConcertsPage {}
               <ul class="singer-list">
                 @for (singer of selectedSingers(); track singer.id) {
                   <li>
-                    <strong>{{ singer.displayName }}</strong>
-                    <span>{{ singer.voicePart || 'Voz sin especificar' }}</span>
+                    <div class="singer-list-copy">
+                      <strong>{{ singer.displayName }}</strong>
+                      <span>{{ singer.voicePart || 'Voz sin especificar' }}</span>
+                    </div>
+                    @if (selectedDraft()) {
+                      <button
+                        type="button"
+                        class="singer-list-action"
+                        [disabled]="savingDraft() || draftLoading()"
+                        [attr.aria-label]="(isSingerInFormation(singer.id) ? 'Quitar ' : 'Agregar ') + singer.displayName + (isSingerInFormation(singer.id) ? ' de' : ' a') + ' la formación'"
+                        (click)="toggleSingerInFormation(singer.id)">
+                        {{ isSingerInFormation(singer.id) ? 'Quitar' : 'Agregar' }}
+                      </button>
+                    }
                   </li>
                 }
               </ul>
@@ -972,6 +990,8 @@ export class FormationsPage {
     () => Object.keys(this.pendingPositionLocks()).length > 0
   );
 
+  readonly formationSingerIds = signal<number[] | null>(null);
+
   readonly canSaveDraft = computed(
     () => this.selectedDraft() !== null
       && this.selectedFormationId() !== null
@@ -1003,7 +1023,7 @@ export class FormationsPage {
     originY: number;
   } | null>(null);
 
-  readonly stageSingers = computed(() => {
+  private readonly rosterStageSingers = computed(() => {
     const singers = this.selectedSingers();
     const positions = this.singerPositions();
     const draftPositions = new Map(
@@ -1199,6 +1219,48 @@ export class FormationsPage {
     return 'No se pudo cambiar el bloqueo de la posición. El estado no fue modificado; podés reintentar.';
   }
 
+  readonly stageSingers = computed(() => {
+    const formationId = this.selectedFormationId();
+    const draft = this.selectedDraft();
+
+    if (formationId !== null && draft === null) {
+      return [];
+    }
+
+    const singerIds = this.formationSingerIds()
+      ?? draft?.positions.map(position => position.singerId)
+      ?? null;
+    const singers = this.rosterStageSingers();
+
+    return singerIds === null
+      ? singers
+      : singers.filter(singer => singerIds.includes(singer.id));
+  });
+
+  isSingerInFormation(singerId: number): boolean {
+    const singerIds = this.formationSingerIds()
+      ?? this.selectedDraft()?.positions.map(position => position.singerId)
+      ?? [];
+    return singerIds.includes(singerId);
+  }
+
+  toggleSingerInFormation(singerId: number): void {
+    const draft = this.selectedDraft();
+    if (!draft || this.savingDraft() || this.draftLoading()) {
+      return;
+    }
+
+    const singerIds = this.formationSingerIds()
+      ?? draft.positions.map(position => position.singerId);
+    this.formationSingerIds.set(
+      singerIds.includes(singerId)
+        ? singerIds.filter(id => id !== singerId)
+        : [...singerIds, singerId]
+    );
+    this.saveError.set(null);
+    this.saveSuccess.set(false);
+  }
+
   constructor() {
     this.loadChoirs();
   }
@@ -1254,6 +1316,7 @@ export class FormationsPage {
     this.repertoire.set([]);
     this.formations.set([]);
     this.singerPositions.set({});
+    this.formationSingerIds.set(null);
     this.clearWorkflowMessages();
 
     const choirId = this.selectedChoirId();
@@ -1293,6 +1356,7 @@ export class FormationsPage {
     this.savingDraft.set(false);
     this.formations.set([]);
     this.singerPositions.set({});
+    this.formationSingerIds.set(null);
     this.clearWorkflowMessages();
 
     const choirId = this.selectedChoirId();
@@ -1334,6 +1398,7 @@ export class FormationsPage {
     this.draftLoading.set(false);
     this.savingDraft.set(false);
     this.singerPositions.set({});
+    this.formationSingerIds.set(null);
     this.clearWorkflowMessages();
 
     const choirId = this.selectedChoirId();
@@ -1582,6 +1647,9 @@ export class FormationsPage {
     }
 
     this.singerPositions.set(positions);
+    this.formationSingerIds.set(
+      draft.positions.map(position => position.singerId)
+    );
   }
 
   private parseSelection(event: Event): number | null {
@@ -1607,6 +1675,7 @@ export class FormationsPage {
     this.selectedFormationId.set(null);
     this.selectedDraft.set(null);
     this.singerPositions.set({});
+    this.formationSingerIds.set(null);
     this.concertsLoading.set(false);
     this.repertoireLoading.set(false);
     this.formationsLoading.set(false);
