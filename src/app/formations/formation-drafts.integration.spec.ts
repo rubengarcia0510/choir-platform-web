@@ -219,6 +219,68 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     expect(component.saveError()).toBeNull();
   });
 
+  it('permite quitar una posición bloqueada, guardarla y volver a agregar al coreuta', () => {
+    const lockedDraft = draft([{
+      id: 60,
+      singerId: 7,
+      singerNameSnapshot: 'Ana Prueba',
+      voicePartSnapshot: 'Soprano',
+      voiceSectionIdSnapshot: 1,
+      voiceSectionNameSnapshot: 'Sopranos',
+      divisionNumberSnapshot: null,
+      positionLabel: 'Centro',
+      x: 31,
+      y: 42,
+      locked: true
+    }]);
+    getDraft
+      .mockReturnValueOnce(of(lockedDraft))
+      .mockReturnValueOnce(of(draft()));
+
+    selectFormationFlow();
+    fixture.detectChanges();
+
+    expect(component.stageSingers().map(singer => singer.id)).toEqual([7]);
+    expect(component.stageSingers()[0].locked).toBe(true);
+
+    const element = fixture.nativeElement as HTMLElement;
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Quitar Ana Prueba de la formación"]'
+    )!.click();
+    fixture.detectChanges();
+
+    expect(component.stageSingers()).toEqual([]);
+    expect(component.isSingerInFormation(7)).toBe(false);
+    expect(component.selectedDraft()?.positions[0].locked).toBe(true);
+    expect(component.dragSession()).toBeNull();
+    expect(element.querySelector<HTMLButtonElement>(
+      '[aria-label="Agregar Ana Prueba a la formación"]'
+    )).not.toBeNull();
+
+    component.savePositions();
+
+    expect(saveDraftPositions).toHaveBeenCalledWith(
+      10, 20, 30, 40, 50, { positions: [] }
+    );
+    expect(component.saveSuccess()).toBe(true);
+
+    component.selectFormation(selection('40'));
+    fixture.detectChanges();
+
+    expect(getDraft).toHaveBeenCalledTimes(2);
+    expect(component.stageSingers()).toEqual([]);
+    expect(element.querySelector<HTMLButtonElement>(
+      '[aria-label="Agregar Ana Prueba a la formación"]'
+    )).not.toBeNull();
+
+    element.querySelector<HTMLButtonElement>(
+      '[aria-label="Agregar Ana Prueba a la formación"]'
+    )!.click();
+    fixture.detectChanges();
+
+    expect(component.stageSingers().map(singer => singer.id)).toEqual([7]);
+  });
+
   it('guarda y vuelve a cargar una formación vacía, permitiendo reincorporar integrantes', () => {
     selectFormationFlow();
     fixture.detectChanges();
