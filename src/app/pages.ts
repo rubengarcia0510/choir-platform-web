@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
@@ -985,10 +986,11 @@ export class FormationsPage {
   readonly saveError = signal<string | null>(null);
   readonly positionLockError = signal<string | null>(null);
   readonly saveSuccess = signal(false);
-  readonly pendingPositionLocks = signal<Record<number, boolean>>({});
+  readonly pendingPositionLocks = signal<Record<number, number>>({});
   readonly hasPendingPositionLocks = computed(
     () => Object.keys(this.pendingPositionLocks()).length > 0
   );
+  private positionLockOperationSequence = 0;
 
   readonly formationSingerIds = signal<number[] | null>(null);
 
@@ -1102,7 +1104,7 @@ export class FormationsPage {
 
   isLockMutationPending(positionId: number | null): boolean {
     return positionId !== null
-      && this.pendingPositionLocks()[positionId] === true;
+      && this.pendingPositionLocks()[positionId] !== undefined;
   }
 
   togglePositionLock(person: ReturnType<FormationsPage['stageSingers']>[number]): void {
@@ -1137,9 +1139,10 @@ export class FormationsPage {
       return;
     }
 
+    const operationId = ++this.positionLockOperationSequence;
     this.pendingPositionLocks.update(pending => ({
       ...pending,
-      [positionId]: true
+      [positionId]: operationId
     }));
     this.positionLockError.set(null);
 
@@ -1153,7 +1156,9 @@ export class FormationsPage {
         formationId, draft.draftVersionId, positionId
       );
 
-    operation.subscribe({
+    operation.pipe(
+      finalize(() => this.clearPendingPositionLock(positionId, operationId))
+    ).subscribe({
       next: () => {
         if (!this.isSelectedDraft(
           choirId, concertId, repertoireItemId,
@@ -1172,7 +1177,6 @@ export class FormationsPage {
                 : candidate
             )
           });
-        this.clearPendingPositionLock(positionId);
       },
       error: error => {
         if (!this.isSelectedDraft(
@@ -1182,7 +1186,6 @@ export class FormationsPage {
           return;
         }
 
-        this.clearPendingPositionLock(positionId);
         this.positionLockError.set(this.positionLockErrorMessage(error));
       }
     });
@@ -1202,8 +1205,15 @@ export class FormationsPage {
       && this.selectedDraft()?.draftVersionId === versionId;
   }
 
-  private clearPendingPositionLock(positionId: number): void {
+  private clearPendingPositionLock(
+    positionId: number,
+    operationId: number
+  ): void {
     this.pendingPositionLocks.update(pending => {
+      if (pending[positionId] !== operationId) {
+        return pending;
+      }
+
       const { [positionId]: _pending, ...remaining } = pending;
       return remaining;
     });

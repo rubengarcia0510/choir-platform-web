@@ -61,6 +61,54 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
   const loadSingers = vi.fn();
   const lockPosition = vi.fn((): Observable<void> => of(undefined));
   const unlockPosition = vi.fn((): Observable<void> => of(undefined));
+  const getDraft = vi.fn();
+  const saveDraftPositions = vi.fn();
+
+  function draft(
+    formationId: number,
+    draftVersionId: number,
+    locked: boolean,
+    withPositions = true
+  ) {
+    return {
+      formationId,
+      name: 'Formación de prueba',
+      description: null,
+      draftVersionId,
+      versionNumber: 1,
+      status: 'DRAFT' as const,
+      notes: null,
+      createdAt: null,
+      positions: withPositions ? [
+        {
+          id: 60,
+          singerId: 7,
+          singerNameSnapshot: 'Ana Prueba',
+          voicePartSnapshot: 'Soprano',
+          voiceSectionIdSnapshot: 1,
+          voiceSectionNameSnapshot: 'Soprano',
+          divisionNumberSnapshot: null,
+          positionLabel: null,
+          x: 30,
+          y: 40,
+          locked
+        },
+        {
+          id: 61,
+          singerId: 8,
+          singerNameSnapshot: 'Bea Prueba',
+          voicePartSnapshot: 'Contralto',
+          voiceSectionIdSnapshot: 2,
+          voiceSectionNameSnapshot: 'Contralto',
+          divisionNumberSnapshot: null,
+          positionLabel: null,
+          x: 70,
+          y: 40,
+          locked: false
+        }
+      ] : []
+    };
+  }
 
   beforeEach(async () => {
     singersByChoir.set({ '10': singers });
@@ -76,6 +124,9 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     lockPosition.mockReturnValue(of(undefined));
     unlockPosition.mockReset();
     unlockPosition.mockReturnValue(of(undefined));
+    getDraft.mockReset().mockReturnValue(of(draft(40, 50, false, false)));
+    saveDraftPositions.mockReset()
+      .mockReturnValue(of(draft(40, 50, false, false)));
 
     await TestBed.configureTestingModule({
       imports: [FormationsPage],
@@ -90,28 +141,8 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
             listConcerts: () => of([]),
             listConcertRepertoire: () => of([]),
             listFormations: () => of([]),
-            getDraft: () => of({
-              formationId: 40,
-              name: 'Formación de prueba',
-              description: null,
-              draftVersionId: 50,
-              versionNumber: 1,
-              status: 'DRAFT',
-              notes: null,
-              createdAt: null,
-              positions: []
-            }),
-            saveDraftPositions: () => of({
-              formationId: 40,
-              name: 'Formación de prueba',
-              description: null,
-              draftVersionId: 50,
-              versionNumber: 1,
-              status: 'DRAFT',
-              notes: null,
-              createdAt: null,
-              positions: []
-            }),
+            getDraft,
+            saveDraftPositions,
             lockPosition,
             unlockPosition
           }
@@ -199,44 +230,16 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     component.selectedConcertId.set(20);
     component.selectedRepertoireItemId.set(30);
     component.selectedFormationId.set(40);
-    component.selectedDraft.set({
-      formationId: 40,
-      name: 'Formación de prueba',
-      description: null,
-      draftVersionId: 50,
-      versionNumber: 1,
-      status: 'DRAFT',
-      notes: null,
-      createdAt: null,
-      positions: [
-        {
-          id: 60,
-          singerId: 7,
-          singerNameSnapshot: 'Ana Prueba',
-          voicePartSnapshot: 'Soprano',
-          voiceSectionIdSnapshot: 1,
-          voiceSectionNameSnapshot: 'Soprano',
-          divisionNumberSnapshot: null,
-          positionLabel: null,
-          x: 30,
-          y: 40,
-          locked
-        },
-        {
-          id: 61,
-          singerId: 8,
-          singerNameSnapshot: 'Bea Prueba',
-          voicePartSnapshot: 'Contralto',
-          voiceSectionIdSnapshot: 2,
-          voiceSectionNameSnapshot: 'Contralto',
-          divisionNumberSnapshot: null,
-          positionLabel: null,
-          x: 70,
-          y: 40,
-          locked: false
-        }
-      ]
-    });
+    component.selectedDraft.set(draft(40, 50, locked));
+    fixture.detectChanges();
+  }
+
+  function selectFormation(formationId: number, locked: boolean): void {
+    const draftVersionId = formationId + 10;
+    getDraft.mockReturnValue(of(draft(formationId, draftVersionId, locked)));
+    component.selectFormation({
+      target: { value: String(formationId) }
+    } as unknown as Event);
     fixture.detectChanges();
   }
 
@@ -441,6 +444,123 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     expect(component.isLockMutationPending(60)).toBe(false);
     expect((fixture.nativeElement as HTMLElement).textContent)
       .toContain('La versión ya no permite cambiar el bloqueo');
+  });
+
+  it('finaliza un bloqueo tardío sin limpiar otra operación del mismo positionId', () => {
+    setSelectedDraft();
+    const oldResponse = new Subject<void>();
+    lockPosition.mockReturnValueOnce(oldResponse);
+    component.togglePositionLock(component.stageSingers()[0]);
+
+    selectFormation(41, false);
+    const currentResponse = new Subject<void>();
+    lockPosition.mockReturnValue(currentResponse);
+    component.togglePositionLock(component.stageSingers()[0]);
+
+    expect(component.isLockMutationPending(60)).toBe(true);
+
+    oldResponse.next();
+    oldResponse.complete();
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.draftVersionId).toBe(51);
+    expect(component.stageSingers()[0].locked).toBe(false);
+    expect(component.positionLockError()).toBeNull();
+    expect(component.isLockMutationPending(60)).toBe(true);
+
+    component.savePositions();
+    expect(saveDraftPositions).not.toHaveBeenCalled();
+
+    currentResponse.next();
+    currentResponse.complete();
+    fixture.detectChanges();
+
+    expect(component.stageSingers()[0].locked).toBe(true);
+    expect(component.isLockMutationPending(60)).toBe(false);
+
+    saveDraftPositions.mockReturnValue(of(draft(41, 51, true)));
+    component.savePositions();
+
+    expect(saveDraftPositions).toHaveBeenCalledWith(
+      10,
+      20,
+      30,
+      41,
+      51,
+      { positions: [
+        { singerId: 7, x: 30, y: 40 },
+        { singerId: 8, x: 70, y: 40 }
+      ] }
+    );
+  });
+
+  it('finaliza un bloqueo fallido tardío sin contaminar la formación nueva', () => {
+    setSelectedDraft();
+    const response = new Subject<void>();
+    lockPosition.mockReturnValue(response);
+    component.togglePositionLock(component.stageSingers()[0]);
+
+    selectFormation(41, false);
+    response.error(new HttpErrorResponse({
+      status: 409,
+      statusText: 'Conflict'
+    }));
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.draftVersionId).toBe(51);
+    expect(component.stageSingers()[0].locked).toBe(false);
+    expect(component.positionLockError()).toBeNull();
+    expect(component.isLockMutationPending(60)).toBe(false);
+
+    component.savePositions();
+
+    expect(saveDraftPositions).toHaveBeenCalledWith(
+      10,
+      20,
+      30,
+      41,
+      51,
+      { positions: [
+        { singerId: 7, x: 30, y: 40 },
+        { singerId: 8, x: 70, y: 40 }
+      ] }
+    );
+  });
+
+  it('ignora el desbloqueo exitoso tardío para la formación nueva', () => {
+    setSelectedDraft(true);
+    const response = new Subject<void>();
+    unlockPosition.mockReturnValue(response);
+    component.togglePositionLock(component.stageSingers()[0]);
+
+    selectFormation(41, true);
+    response.next();
+    response.complete();
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.draftVersionId).toBe(51);
+    expect(component.stageSingers()[0].locked).toBe(true);
+    expect(component.positionLockError()).toBeNull();
+    expect(component.isLockMutationPending(60)).toBe(false);
+  });
+
+  it('ignora el error de desbloqueo tardío para la formación nueva', () => {
+    setSelectedDraft(true);
+    const response = new Subject<void>();
+    unlockPosition.mockReturnValue(response);
+    component.togglePositionLock(component.stageSingers()[0]);
+
+    selectFormation(41, true);
+    response.error(new HttpErrorResponse({
+      status: 403,
+      statusText: 'Forbidden'
+    }));
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.draftVersionId).toBe(51);
+    expect(component.stageSingers()[0].locked).toBe(true);
+    expect(component.positionLockError()).toBeNull();
+    expect(component.isLockMutationPending(60)).toBe(false);
   });
 
   it('no inicia un arrastre sobre una posición bloqueada', () => {
