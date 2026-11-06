@@ -177,7 +177,7 @@ describe('FormationDraftsApiService', () => {
     expect(request.request.body).toBeNull();
 
     request.flush(null, { status: 204, statusText: 'No Content' });
-    expect(response).toBeUndefined();
+    expect(response).toBeNull();
   });
 
   it('desbloquea una posición usando DELETE y sin body', () => {
@@ -196,7 +196,7 @@ describe('FormationDraftsApiService', () => {
     expect(request.request.body).toBeNull();
 
     request.flush(null, { status: 204, statusText: 'No Content' });
-    expect(response).toBeUndefined();
+    expect(response).toBeNull();
   });
 
   it('propaga errores HTTP de bloqueo y desbloqueo', () => {

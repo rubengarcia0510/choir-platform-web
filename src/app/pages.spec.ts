@@ -351,10 +351,10 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     expect(carla.x).toBeLessThan(bea.x);
 
     const anaElement = (fixture.nativeElement as HTMLElement)
-      .querySelector<HTMLElement>('.stage-person');
+      .querySelector<HTMLElement>('.stage-person-wrapper');
 
-    expect(anaElement?.style.getPropertyValue('--section-hue'))
-      .toBe(String(ana.sectionHue));
+    expect(anaElement?.getAttribute('style'))
+      .toContain(`--section-hue: ${ana.sectionHue}`);
   });
 
   it('representa las posiciones bloqueadas y ofrece acciones accesibles', () => {
