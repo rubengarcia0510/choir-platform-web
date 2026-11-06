@@ -154,9 +154,75 @@ describe('FormationDraftsApiService', () => {
           divisionNumberSnapshot: null,
           positionLabel: 'Centro',
           x: 25,
-          y: 60
+          y: 60,
+          locked: false
         }
       ]
     });
+  });
+
+  it('bloquea una posición usando su positionId y sin body', () => {
+    let response: void | undefined;
+
+    service.lockPosition(10, 20, 30, 40, 50, 60).subscribe(value => {
+      response = value;
+    });
+
+    const request = http.expectOne(
+      '/api/choirs/10/concerts/20/repertoire/30/formations/40/versions/50/positions/60/lock'
+    );
+
+    expect(request.request.method).toBe('PUT');
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.body).toBeNull();
+
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    expect(response).toBeNull();
+  });
+
+  it('desbloquea una posición usando DELETE y sin body', () => {
+    let response: void | undefined;
+
+    service.unlockPosition(10, 20, 30, 40, 50, 60).subscribe(value => {
+      response = value;
+    });
+
+    const request = http.expectOne(
+      '/api/choirs/10/concerts/20/repertoire/30/formations/40/versions/50/positions/60/lock'
+    );
+
+    expect(request.request.method).toBe('DELETE');
+    expect(request.request.withCredentials).toBe(true);
+    expect(request.request.body).toBeNull();
+
+    request.flush(null, { status: 204, statusText: 'No Content' });
+    expect(response).toBeNull();
+  });
+
+  it('propaga errores HTTP de bloqueo y desbloqueo', () => {
+    let lockErrorStatus: number | undefined;
+    service.lockPosition(10, 20, 30, 40, 50, 60).subscribe({
+      error: error => {
+        lockErrorStatus = error.status;
+      }
+    });
+
+    http.expectOne(
+      '/api/choirs/10/concerts/20/repertoire/30/formations/40/versions/50/positions/60/lock'
+    ).flush(null, { status: 403, statusText: 'Forbidden' });
+
+    let unlockErrorStatus: number | undefined;
+    service.unlockPosition(10, 20, 30, 40, 50, 60).subscribe({
+      error: error => {
+        unlockErrorStatus = error.status;
+      }
+    });
+
+    http.expectOne(
+      '/api/choirs/10/concerts/20/repertoire/30/formations/40/versions/50/positions/60/lock'
+    ).flush(null, { status: 409, statusText: 'Conflict' });
+
+    expect(lockErrorStatus).toBe(403);
+    expect(unlockErrorStatus).toBe(409);
   });
 });

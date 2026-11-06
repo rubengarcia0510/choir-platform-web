@@ -84,6 +84,35 @@ export class FormationDraftsApiService {
     );
   }
 
+  lockPosition(
+    choirId: number,
+    concertId: number,
+    repertoireItemId: number,
+    formationId: number,
+    versionId: number,
+    positionId: number
+  ): Observable<void> {
+    return this.http.put<void>(
+      `${this.repertoireFormationsUrl(choirId, concertId, repertoireItemId)}/${formationId}/versions/${versionId}/positions/${positionId}/lock`,
+      null,
+      { withCredentials: true }
+    );
+  }
+
+  unlockPosition(
+    choirId: number,
+    concertId: number,
+    repertoireItemId: number,
+    formationId: number,
+    versionId: number,
+    positionId: number
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${this.repertoireFormationsUrl(choirId, concertId, repertoireItemId)}/${formationId}/versions/${versionId}/positions/${positionId}/lock`,
+      { withCredentials: true }
+    );
+  }
+
   private repertoireFormationsUrl(
     choirId: number,
     concertId: number,
