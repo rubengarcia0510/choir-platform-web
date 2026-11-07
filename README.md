@@ -57,3 +57,23 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## CI y documentación estática
+
+El workflow de GitHub Actions `.github/workflows/angular-ci.yml` valida la aplicación Angular en cada pull request dirigido a `main` y en cada push a `main`.
+
+La validación incluye:
+
+- Instalación reproducible de dependencias mediante `npm ci`.
+- Ejecución de pruebas unitarias mediante `npx ng test --watch=false`.
+- Compilación de la aplicación mediante `npx ng build`.
+
+Cualquier fallo en las pruebas o en la compilación hace fallar el workflow.
+
+### Documentación estática
+
+La documentación estática se mantiene en el directorio `docs/` y se publica mediante GitHub Pages desde la rama `main`.
+
+URL: https://rubengarcia0510.github.io/choir-platform-web/
+
+El workflow de CI es independiente de la publicación de GitHub Pages: no modifica los archivos de `docs/` ni realiza despliegues. Los cambios en la documentación y su publicación mantienen el mecanismo existente.
