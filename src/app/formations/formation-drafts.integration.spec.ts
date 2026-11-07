@@ -45,6 +45,8 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
   const listFormations = vi.fn();
   const getDraft = vi.fn();
   const saveDraftPositions = vi.fn();
+  const lockPosition = vi.fn();
+  const unlockPosition = vi.fn();
   const loadSingers = vi.fn();
 
   let fixture: ReturnType<typeof TestBed.createComponent<FormationsPage>>;
@@ -98,6 +100,8 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     }]));
     getDraft.mockReset().mockReturnValue(of(draft()));
     saveDraftPositions.mockReset().mockReturnValue(of(draft()));
+    lockPosition.mockReset().mockReturnValue(of(undefined));
+    unlockPosition.mockReset().mockReturnValue(of(undefined));
     loadSingers.mockReset();
 
     await TestBed.configureTestingModule({
@@ -121,7 +125,9 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
             listConcertRepertoire,
             listFormations,
             getDraft,
-            saveDraftPositions
+            saveDraftPositions,
+            lockPosition,
+            unlockPosition
           }
         },
         {
@@ -280,6 +286,92 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
 
     expect(component.stageSingers().map(singer => singer.id)).toEqual([7]);
   });
+
+  it.each([
+    { locked: false, state: 'desbloqueada' },
+    { locked: true, state: 'bloqueada' }
+  ])(
+    'quita una posición $state desde el escenario y persiste el cambio',
+    ({ locked }) => {
+      const initialDraft = draft([
+        {
+          id: 60,
+          singerId: 7,
+          singerNameSnapshot: 'Ana Prueba',
+          voicePartSnapshot: 'Soprano',
+          voiceSectionIdSnapshot: 1,
+          voiceSectionNameSnapshot: 'Sopranos',
+          divisionNumberSnapshot: null,
+          positionLabel: 'Centro',
+          x: 31,
+          y: 42,
+          locked
+        },
+        {
+          id: 61,
+          singerId: 8,
+          singerNameSnapshot: 'Bea Prueba',
+          voicePartSnapshot: 'Contralto',
+          voiceSectionIdSnapshot: 2,
+          voiceSectionNameSnapshot: 'Contraltos',
+          divisionNumberSnapshot: null,
+          positionLabel: 'Lateral',
+          x: 67,
+          y: 71,
+          locked: false
+        }
+      ]);
+      const savedDraft = draft([initialDraft.positions[1]]);
+      getDraft
+        .mockReturnValueOnce(of(initialDraft))
+        .mockReturnValueOnce(of(savedDraft));
+      saveDraftPositions.mockReturnValueOnce(of(savedDraft));
+
+      selectFormationFlow();
+      fixture.detectChanges();
+
+      const element = fixture.nativeElement as HTMLElement;
+      const removeButton = element.querySelector<HTMLButtonElement>(
+        '[aria-label="Quitar Ana Prueba de la formación"]'
+      );
+      expect(removeButton?.type).toBe('button');
+      expect(component.stageSingers().map(singer => singer.id)).toEqual([7, 8]);
+
+      removeButton!.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+      removeButton!.click();
+      fixture.detectChanges();
+
+      expect(component.stageSingers().map(singer => singer.id)).toEqual([8]);
+      expect(component.isSingerInFormation(7)).toBe(false);
+      expect(singersByChoir()['10'].some(singer => singer.id === 7)).toBe(true);
+      expect(element.querySelector(
+        '[aria-label="Agregar Ana Prueba a la formación"]'
+      )).not.toBeNull();
+      expect(component.dragSession()).toBeNull();
+      expect(unlockPosition).not.toHaveBeenCalled();
+      expect(lockPosition).not.toHaveBeenCalled();
+
+      component.savePositions();
+
+      expect(saveDraftPositions).toHaveBeenCalledWith(
+        10,
+        20,
+        30,
+        40,
+        50,
+        { positions: [{ singerId: 8, x: 67, y: 71 }] }
+      );
+
+      component.selectFormation(selection('40'));
+      fixture.detectChanges();
+
+      expect(getDraft).toHaveBeenCalledTimes(2);
+      expect(component.stageSingers().map(singer => singer.id)).toEqual([8]);
+      expect(element.querySelector(
+        '[aria-label="Agregar Ana Prueba a la formación"]'
+      )).not.toBeNull();
+    }
+  );
 
   it('guarda y vuelve a cargar una formación vacía, permitiendo reincorporar integrantes', () => {
     selectFormationFlow();
