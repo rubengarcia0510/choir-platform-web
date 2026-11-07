@@ -648,7 +648,7 @@
   letter-spacing: -.5px;
 }
 
-.stage-person-lock-action {
+.stage-person-context-action {
   position: absolute;
   top: -8px;
   right: -8px;
@@ -665,18 +665,23 @@
   cursor: pointer;
 }
 
-.stage-person-lock-action:hover:not(:disabled) {
+.stage-person-context-action:hover:not(:disabled) {
   border-color: var(--accent);
 }
 
-.stage-person-lock-action:focus-visible {
+.stage-person-context-action:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
 }
 
-.stage-person-lock-action:disabled {
+.stage-person-context-action:disabled {
   cursor: not-allowed;
   opacity: .6;
+}
+
+.stage-person-remove-action {
+  right: auto;
+  left: -8px;
 }
 
 @media (max-width: 850px) {

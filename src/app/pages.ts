@@ -661,7 +661,15 @@ export class ConcertsPage {}
                       </button>
                       <button
                         type="button"
-                        class="stage-person-lock-action"
+                        class="stage-person-context-action stage-person-remove-action"
+                        [disabled]="!canSaveDraft() || savingDraft() || draftLoading() || isLockMutationPending(person.positionId)"
+                        [attr.aria-label]="'Quitar ' + person.displayName + ' de la formación'"
+                        (click)="toggleSingerInFormation(person.id)">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="stage-person-context-action stage-person-lock-action"
                         [disabled]="person.positionId === null || !canSaveDraft() || savingDraft() || draftLoading() || isLockMutationPending(person.positionId)"
                         [attr.aria-label]="(person.locked ? 'Desbloquear' : 'Bloquear') + ' posición de ' + person.displayName"
                         [attr.aria-busy]="person.positionId !== null && isLockMutationPending(person.positionId)"
