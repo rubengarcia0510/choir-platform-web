@@ -783,6 +783,44 @@
 .skeleton-line-primary{width:68%;height:9px}
 .skeleton-line-secondary{width:43%}
 
+.formation-create-form {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--surface);
+}
+.formation-create-form > .page-lead {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.formation-create-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+}
+.formation-create-form input,
+.formation-create-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.formation-create-form textarea { resize: vertical; }
+.formation-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .main-nav a,
