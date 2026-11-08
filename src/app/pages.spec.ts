@@ -61,6 +61,7 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
   const loadSingers = vi.fn();
   const lockPosition = vi.fn((): Observable<void> => of(undefined));
   const unlockPosition = vi.fn((): Observable<void> => of(undefined));
+  const createFormation = vi.fn();
   const getDraft = vi.fn();
   const saveDraftPositions = vi.fn();
 
@@ -124,6 +125,7 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     lockPosition.mockReturnValue(of(undefined));
     unlockPosition.mockReset();
     unlockPosition.mockReturnValue(of(undefined));
+    createFormation.mockReset();
     getDraft.mockReset().mockReturnValue(of(draft(40, 50, false, false)));
     saveDraftPositions.mockReset()
       .mockReturnValue(of(draft(40, 50, false, false)));
@@ -141,6 +143,7 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
             listConcerts: () => of([]),
             listConcertRepertoire: () => of([]),
             listFormations: () => of([]),
+            createFormation,
             getDraft,
             saveDraftPositions,
             lockPosition,
@@ -242,6 +245,71 @@ describe('FormationsPage - editor de escenario CHOIR-21', () => {
     } as unknown as Event);
     fixture.detectChanges();
   }
+
+  it('crea una formación nueva con nombre y descripción y carga su borrador inicial', () => {
+    const created = {
+      id: 41,
+      name: 'Apertura 2026',
+      description: 'Versión de prueba',
+      draftVersionId: 51,
+      versionNumber: 1,
+      status: 'DRAFT'
+    };
+    const draftFromServer = draft(41, 51, false, false);
+
+    component.selectedChoirId.set(10);
+    component.selectedConcertId.set(20);
+    component.selectedRepertoireItemId.set(30);
+    fixture.detectChanges();
+
+    component.openCreateFormationForm();
+    component.updateCreateFormationName({
+      target: { value: '  Apertura 2026  ' }
+    } as unknown as Event);
+    component.updateCreateFormationDescription({
+      target: { value: '  Versión de prueba  ' }
+    } as unknown as Event);
+    createFormation.mockReturnValue(of(created));
+    getDraft.mockReturnValue(of(draftFromServer));
+
+    component.createFormation({ preventDefault: vi.fn() } as unknown as Event);
+    fixture.detectChanges();
+
+    expect(createFormation).toHaveBeenCalledWith(10, 20, 30, {
+      name: 'Apertura 2026',
+      description: 'Versión de prueba'
+    });
+    expect(component.formations()).toContainEqual(created);
+    expect(component.selectedFormationId()).toBe(41);
+    expect(component.selectedDraft()?.draftVersionId).toBe(51);
+    expect(component.createFormationFormOpen()).toBe(false);
+  });
+
+  it('muestra el error cuando la creación falla y no cambia la selección actual', () => {
+    const error = new HttpErrorResponse({ status: 400, statusText: 'Bad Request' });
+
+    component.selectedChoirId.set(10);
+    component.selectedConcertId.set(20);
+    component.selectedRepertoireItemId.set(30);
+    component.selectedFormationId.set(40);
+    component.selectedDraft.set(draft(40, 50, false, false));
+    fixture.detectChanges();
+
+    component.openCreateFormationForm();
+    component.updateCreateFormationName({ target: { value: '   ' } } as unknown as Event);
+    component.createFormation({ preventDefault: vi.fn() } as unknown as Event);
+    expect(component.createFormationError()).toBe('El nombre de la formación no puede estar vacío.');
+
+    createFormation.mockReturnValue(throwError(() => error));
+    component.updateCreateFormationName({ target: { value: 'Nueva formación' } } as unknown as Event);
+    component.createFormation({ preventDefault: vi.fn() } as unknown as Event);
+    fixture.detectChanges();
+
+    expect(component.createFormationError()).toBe(
+      'No se pudo crear la formación. Revisá el nombre y el contenido del borrador.'
+    );
+    expect(component.selectedFormationId()).toBe(40);
+  });
 
   it('representa al director sin contarlo como integrante ni permitir arrastrarlo', () => {
     const element = fixture.nativeElement as HTMLElement;

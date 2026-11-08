@@ -538,6 +538,70 @@ export class ConcertsPage {}
             <p>Esta obra todavía no tiene formaciones guardadas.</p>
           }
 
+          @if (selectedRepertoireItemId() !== null && !formationsLoading()) {
+            @if (!createFormationFormOpen()) {
+              <div>
+                <p class="panel-kicker">NUEVA FORMACIÓN</p>
+                <button
+                  class="button button-secondary"
+                  type="button"
+                  [disabled]="creatingFormation() || draftLoading()"
+                  (click)="openCreateFormationForm()">
+                  {{ creatingFormation() ? 'Creando formación…' : 'Crear formación' }}
+                </button>
+              </div>
+            } @else {
+              <form (submit)="createFormation($event)">
+                <div class="formation-create-form">
+                  <p class="panel-kicker">NUEVA FORMACIÓN</p>
+                  <p class="page-lead">Se creará dentro de la obra actual y quedará lista para editarla en el escenario.</p>
+
+                  <label>
+                    Nombre de la formación
+                    <input
+                      name="formation-name"
+                      [value]="createFormationName()"
+                      (input)="updateCreateFormationName($event)"
+                      maxlength="160"
+                      required
+                      placeholder="Ej.: Ensayo de apertura" />
+                  </label>
+
+                  <label>
+                    Descripción
+                    <textarea
+                      name="formation-description"
+                      rows="3"
+                      maxlength="1000"
+                      [value]="createFormationDescription()"
+                      (input)="updateCreateFormationDescription($event)"
+                      placeholder="Descripción opcional"></textarea>
+                  </label>
+
+                  @if (createFormationError()) {
+                    <p class="formation-workflow-error" role="alert" aria-live="polite">{{ createFormationError() }}</p>
+                  }
+
+                  <div class="formation-create-actions">
+                    <button
+                      class="button button-primary"
+                      type="submit"
+                      [disabled]="creatingFormation() || draftLoading() || !createFormationName().trim()">
+                      {{ creatingFormation() ? 'Creando…' : 'Confirmar creación' }}
+                    </button>
+                    <button
+                      class="button button-secondary"
+                      type="button"
+                      [disabled]="creatingFormation()"
+                      (click)="cancelCreateFormation()">
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              </form>
+            }
+          }
+
           @if (selectedDraft(); as draft) {
             <p>
               Editando <strong>{{ draft.name }}</strong>
@@ -994,6 +1058,11 @@ export class FormationsPage {
   readonly saveError = signal<string | null>(null);
   readonly positionLockError = signal<string | null>(null);
   readonly saveSuccess = signal(false);
+  readonly creatingFormation = signal(false);
+  readonly createFormationFormOpen = signal(false);
+  readonly createFormationName = signal('');
+  readonly createFormationDescription = signal('');
+  readonly createFormationError = signal<string | null>(null);
   readonly pendingPositionLocks = signal<Record<number, number>>({});
   readonly hasPendingPositionLocks = computed(
     () => Object.keys(this.pendingPositionLocks()).length > 0
@@ -1433,6 +1502,113 @@ export class FormationsPage {
     );
   }
 
+  openCreateFormationForm(): void {
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+
+    if (choirId === null || concertId === null || repertoireItemId === null) {
+      return;
+    }
+
+    this.createFormationError.set(null);
+    this.createFormationFormOpen.set(true);
+    this.createFormationName.set('');
+    this.createFormationDescription.set('');
+  }
+
+  cancelCreateFormation(): void {
+    this.createFormationFormOpen.set(false);
+    this.createFormationError.set(null);
+    this.createFormationName.set('');
+    this.createFormationDescription.set('');
+  }
+
+  updateCreateFormationName(event: Event): void {
+    this.createFormationName.set((event.target as HTMLInputElement).value);
+    this.createFormationError.set(null);
+  }
+
+  updateCreateFormationDescription(event: Event): void {
+    this.createFormationDescription.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  createFormation(event: Event): void {
+    event.preventDefault();
+
+    const choirId = this.selectedChoirId();
+    const concertId = this.selectedConcertId();
+    const repertoireItemId = this.selectedRepertoireItemId();
+
+    if (choirId === null || concertId === null || repertoireItemId === null) {
+      return;
+    }
+
+    const name = this.createFormationName().trim();
+    if (!name) {
+      this.createFormationError.set('El nombre de la formación no puede estar vacío.');
+      return;
+    }
+
+    const description = this.createFormationDescription().trim() || null;
+
+    this.creatingFormation.set(true);
+    this.createFormationError.set(null);
+    this.workflowError.set(null);
+
+    this.formationDraftsApi.createFormation(
+      choirId,
+      concertId,
+      repertoireItemId,
+      { name, description }
+    ).subscribe({
+      next: createdFormation => {
+        if (this.selectedChoirId() !== choirId
+          || this.selectedConcertId() !== concertId
+          || this.selectedRepertoireItemId() !== repertoireItemId) {
+          return;
+        }
+
+        this.formations.update(current => {
+          const existing = current.some(item => item.id === createdFormation.id);
+          return existing ? current : [createdFormation, ...current];
+        });
+        this.createFormationFormOpen.set(false);
+        this.createFormationName.set('');
+        this.createFormationDescription.set('');
+        this.selectedFormationId.set(createdFormation.id);
+        this.selectedDraft.set(null);
+        this.singerPositions.set({});
+        this.formationSingerIds.set(null);
+        this.saveError.set(null);
+        this.saveSuccess.set(false);
+
+        this.loadSelectedDraft(
+          choirId,
+          concertId,
+          repertoireItemId,
+          createdFormation.id,
+          true
+        );
+      },
+      error: error => {
+        const activeContextMatches = this.selectedChoirId() === choirId
+          && this.selectedConcertId() === concertId
+          && this.selectedRepertoireItemId() === repertoireItemId;
+
+        if (!activeContextMatches) {
+          return;
+        }
+
+        this.creatingFormation.set(false);
+        const message = error instanceof HttpErrorResponse && error.status === 400
+          ? 'No se pudo crear la formación. Revisá el nombre y el contenido del borrador.'
+          : 'No se pudo crear la formación. Intentá nuevamente.';
+        this.createFormationError.set(message);
+      }
+    });
+  }
+
   savePositions(): void {
     const choirId = this.selectedChoirId();
     const concertId = this.selectedConcertId();
@@ -1623,7 +1799,8 @@ export class FormationsPage {
     choirId: number,
     concertId: number,
     repertoireItemId: number,
-    formationId: number
+    formationId: number,
+    isCreationFlow = false
   ): void {
     this.draftLoading.set(true);
 
@@ -1640,6 +1817,9 @@ export class FormationsPage {
         this.selectedDraft.set(draft);
         this.applyDraftPositions(draft);
         this.draftLoading.set(false);
+        if (isCreationFlow) {
+          this.creatingFormation.set(false);
+        }
       },
       error: () => {
         if (this.selectedChoirId() !== choirId
@@ -1649,6 +1829,13 @@ export class FormationsPage {
           return;
         }
         this.draftLoading.set(false);
+        if (isCreationFlow) {
+          this.creatingFormation.set(false);
+          this.workflowError.set(
+            'La formación fue creada, pero no se pudieron cargar sus posiciones. Podés reintentar la carga.'
+          );
+          return;
+        }
         this.workflowError.set('No se pudo cargar el borrador de la formación.');
       }
     });
@@ -1680,6 +1867,11 @@ export class FormationsPage {
     this.workflowError.set(null);
     this.saveError.set(null);
     this.positionLockError.set(null);
+    this.createFormationError.set(null);
+    this.createFormationFormOpen.set(false);
+    this.createFormationName.set('');
+    this.createFormationDescription.set('');
+    this.creatingFormation.set(false);
     this.pendingPositionLocks.set({});
     this.saveSuccess.set(false);
   }

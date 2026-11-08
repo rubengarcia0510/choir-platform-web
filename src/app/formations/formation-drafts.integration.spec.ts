@@ -43,6 +43,7 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
   const listConcerts = vi.fn();
   const listConcertRepertoire = vi.fn();
   const listFormations = vi.fn();
+  const createFormation = vi.fn();
   const getDraft = vi.fn();
   const saveDraftPositions = vi.fn();
   const lockPosition = vi.fn();
@@ -98,6 +99,7 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
       name: 'Formación de prueba',
       description: null
     }]));
+    createFormation.mockReset();
     getDraft.mockReset().mockReturnValue(of(draft()));
     saveDraftPositions.mockReset().mockReturnValue(of(draft()));
     lockPosition.mockReset().mockReturnValue(of(undefined));
@@ -124,6 +126,7 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
             listConcerts,
             listConcertRepertoire,
             listFormations,
+            createFormation,
             getDraft,
             saveDraftPositions,
             lockPosition,
@@ -163,6 +166,60 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     expect(component.repertoire()).toHaveLength(1);
     expect(component.repertoire()[0].title).toBe('Obra de prueba');
     expect(component.repertoireLoading()).toBe(false);
+  });
+
+  it('mantiene la formación creada y permite reintentar la carga del borrador cuando el GET falla', () => {
+    const created = {
+      id: 41,
+      name: 'Estrofa nueva',
+      description: 'Creada por director',
+      draftVersionId: 51,
+      versionNumber: 1,
+      status: 'DRAFT'
+    };
+
+    component.selectedChoirId.set(10);
+    component.selectedConcertId.set(20);
+    component.selectedRepertoireItemId.set(30);
+    component.formations.set([{ id: 40, name: 'Formación de prueba', description: null }]);
+    fixture.detectChanges();
+
+    component.openCreateFormationForm();
+    component.updateCreateFormationName({ target: { value: 'Estrofa nueva' } } as unknown as Event);
+    component.updateCreateFormationDescription({ target: { value: 'Creada por director' } } as unknown as Event);
+    createFormation.mockReturnValue(of(created));
+    getDraft.mockReturnValueOnce(throwError(() => new Error('GET failed')));
+
+    component.createFormation({ preventDefault: vi.fn() } as unknown as Event);
+    fixture.detectChanges();
+
+    expect(component.formations()).toContainEqual(created);
+    expect(component.selectedFormationId()).toBe(41);
+    expect(component.workflowError()).toBe(
+      'La formación fue creada, pero no se pudieron cargar sus posiciones. Podés reintentar la carga.'
+    );
+    expect(component.creatingFormation()).toBe(false);
+    expect(component.selectedDraft()).toBeNull();
+
+    getDraft.mockReturnValueOnce(of(draft([{
+      id: 60,
+      singerId: 7,
+      singerNameSnapshot: 'Ana Prueba',
+      voicePartSnapshot: 'Soprano',
+      voiceSectionIdSnapshot: 1,
+      voiceSectionNameSnapshot: 'Sopranos',
+      divisionNumberSnapshot: null,
+      positionLabel: 'Centro',
+      x: 31,
+      y: 42,
+      locked: false
+    }])));
+
+    component.retryWorkflow();
+    fixture.detectChanges();
+
+    expect(component.selectedDraft()?.draftVersionId).toBe(50);
+    expect(component.stageSingers().some(person => person.id === 7)).toBe(true);
   });
 
   it('carga las formaciones y aplica al escenario las posiciones del borrador', () => {
