@@ -1,0 +1,243 @@
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.stage-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stage-toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+
+  h2 {
+    margin: 0.35rem 0;
+    font-size: 1.2rem;
+  }
+}
+
+.panel-kicker {
+  color: var(--muted-color, #8b8b98);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.director-name,
+.stage-hint,
+.stage-status {
+  color: var(--muted-color, #8b8b98);
+  font-size: 0.85rem;
+}
+
+.stage-tag {
+  border: 1px solid var(--border-color, #444);
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.stage-message {
+  display: flex;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border: 1px dashed var(--border-color, #444);
+  border-radius: 1rem;
+  color: var(--muted-color, #8b8b98);
+  text-align: center;
+}
+
+.stage-error {
+  color: var(--error-color, #d66);
+}
+
+.secondary-button {
+  border: 1px solid var(--border-color, #555);
+  border-radius: 0.6rem;
+  padding: 0.55rem 0.9rem;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.stage {
+  position: relative;
+  min-height: 440px;
+  overflow: hidden;
+  border: 1px solid var(--border-color, #454552);
+  border-radius: 1rem;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(255 255 255 / 7%), transparent 65%),
+    var(--panel-background, #191922);
+  touch-action: pan-y;
+}
+
+.stage-front {
+  position: absolute;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  display: flex;
+  justify-content: center;
+  padding: 0.65rem;
+  border-bottom: 1px solid var(--border-color, #454552);
+  color: var(--muted-color, #8b8b98);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+}
+
+.stage-director {
+  position: absolute;
+  top: 11%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  transform: translateX(-50%);
+  color: var(--muted-color, #aaa);
+  font-size: 0.75rem;
+}
+
+.director-indicator {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--accent-color, #9c8ce8);
+}
+
+.stage-person {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: translate(-50%, -50%);
+}
+
+.singer-position {
+  display: flex;
+  min-width: 4.5rem;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.35rem;
+  border: 1px solid hsl(var(--section-hue, 250) 45% 60% / 55%);
+  border-radius: 0.7rem;
+  background: var(--card-background, #252530);
+  color: var(--text-color, #eee);
+  cursor: grab;
+  touch-action: none;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--accent-color, #9c8ce8);
+    outline-offset: 3px;
+  }
+}
+
+.singer-position-locked {
+  border-style: dashed;
+}
+
+.singer-avatar {
+  display: grid;
+  width: 1.8rem;
+  height: 1.8rem;
+  place-items: center;
+  border-radius: 50%;
+  background: hsl(var(--section-hue, 250) 35% 35%);
+  font-weight: 700;
+}
+
+.singer-name {
+  max-width: 6rem;
+  overflow: hidden;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.singer-section {
+  color: var(--muted-color, #aaa);
+  font-size: 0.6rem;
+}
+
+.singer-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+}
+
+.icon-action {
+  display: grid;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 1px solid var(--border-color, #555);
+  border-radius: 50%;
+  background: var(--card-background, #252530);
+  color: var(--text-color, #eee);
+  cursor: pointer;
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
+
+.remove-action {
+  color: var(--error-color, #e88);
+  font-size: 1.1rem;
+}
+
+.stage-person-pending {
+  opacity: 0.55;
+}
+
+.empty-stage {
+  position: absolute;
+  top: 55%;
+  left: 50%;
+  width: 80%;
+  color: var(--muted-color, #999);
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.stage-hint,
+.stage-status {
+  margin: 0;
+}
+
+@media (max-width: 600px) {
+  .stage {
+    min-height: 360px;
+  }
+
+  .stage-person {
+    max-width: 5rem;
+  }
+
+  .singer-position {
+    min-width: 3.7rem;
+    padding: 0.25rem;
+  }
+
+  .singer-name {
+    max-width: 4.5rem;
+    font-size: 0.62rem;
+  }
+}

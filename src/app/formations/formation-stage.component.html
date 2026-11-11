@@ -1,0 +1,108 @@
+<section class="stage-container">
+  <div class="stage-toolbar">
+    <div>
+      <span class="panel-kicker">VISTA PREVIA DEL ESCENARIO</span>
+      <h2>Distribución de la formación</h2>
+      @if (directorName) {
+        <p class="director-name">Dirección: {{ directorName }}</p>
+      }
+    </div>
+
+    <span class="stage-tag">ESCENARIO</span>
+  </div>
+
+  @if (loading || singersLoading || draftLoading) {
+    <div class="stage-message" role="status">
+      Cargando escenario...
+    </div>
+  } @else if (error) {
+    <div class="stage-message stage-error" role="alert">
+      <p>{{ error }}</p>
+      <button type="button" class="secondary-button" (click)="retryLoading()">
+        Reintentar
+      </button>
+    </div>
+  } @else if (!hasDraft) {
+    <div class="stage-message">
+      Seleccioná o creá una formación para visualizar el escenario.
+    </div>
+  } @else {
+    <div #stage class="stage" [class.stage-editable]="canEdit">
+      <div class="stage-front">
+        <span>FRENTE DEL ESCENARIO</span>
+      </div>
+
+      <div class="stage-director">
+        <span class="director-indicator"></span>
+        <span>{{ directorName || 'Dirección' }}</span>
+      </div>
+
+      @for (singer of singers; track singer.id) {
+        <div
+          class="stage-person"
+          [class.stage-person-locked]="singer.locked"
+          [class.stage-person-pending]="isLockMutationPending(singer.positionId)"
+          [style.left.%]="singer.x"
+          [style.top.%]="singer.y"
+          [style.--section-hue]="singer.sectionHue">
+
+          <button
+            type="button"
+            class="singer-position"
+            [class.singer-position-locked]="singer.locked"
+            [disabled]="!canEdit || singer.locked || saving || draftLoading"
+            [attr.aria-label]="'Mover a ' + singer.displayName"
+            (pointerdown)="startDrag($event, singer)"
+            (pointermove)="moveSinger($event)"
+            (pointerup)="endDrag($event)"
+            (pointercancel)="cancelDrag($event)"
+            (lostpointercapture)="cancelDrag($event)">
+            <span class="singer-avatar">
+              {{ singer.displayName.charAt(0).toUpperCase() }}
+            </span>
+            <span class="singer-name">{{ singer.displayName }}</span>
+            <span class="singer-section">{{ singer.sectionLabel }}</span>
+          </button>
+
+          @if (canEdit) {
+            <div class="singer-actions">
+              @if (singer.positionId !== null) {
+                <button
+                  type="button"
+                  class="icon-action"
+                  [disabled]="isLockMutationPending(singer.positionId)"
+                  [attr.aria-label]="singer.locked ? 'Desbloquear posición' : 'Bloquear posición'"
+                  (click)="requestLockToggle(singer)">
+                  {{ singer.locked ? '🔒' : '🔓' }}
+                </button>
+              }
+
+              <button
+                type="button"
+                class="icon-action remove-action"
+                [disabled]="saving || draftLoading"
+                [attr.aria-label]="'Quitar a ' + singer.displayName"
+                (click)="requestRemoval(singer.id)">
+                ×
+              </button>
+            </div>
+          }
+        </div>
+      }
+
+      @if (singers.length === 0) {
+        <div class="empty-stage">
+          Todavía no hay cantantes en esta formación.
+        </div>
+      }
+    </div>
+  }
+
+  @if (saving) {
+    <p class="stage-status" role="status">Guardando posiciones...</p>
+  }
+
+  @if (!canEdit && hasDraft) {
+    <p class="stage-hint">La formación está en modo de solo lectura.</p>
+  }
+</section>
