@@ -61,8 +61,8 @@
           <div
             class="stage-person-wrapper"
             [class.stage-person-locked]="singer.locked"
-            [style.left.%]="singer.x"
-            [style.top.%]="singer.y"
+            [style.left.%]="displayX(singer)"
+            [style.top.%]="displayY(singer)"
             [style.--section-hue]="singer.sectionHue">
 
             <button

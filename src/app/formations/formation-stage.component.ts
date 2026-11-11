@@ -4,7 +4,8 @@ import {
   EventEmitter,
   Input,
   Output,
-  ViewChild
+  ViewChild,
+  signal
 } from '@angular/core';
 
 import { FormationStageSinger } from './formation-stage.model';
@@ -48,10 +49,26 @@ export class FormationStageComponent {
   @ViewChild('stage')
   private stageElement?: ElementRef<HTMLElement>;
 
-  private dragSession: DragSession | null = null;
+  readonly dragSession = signal<DragSession | null>(null);
 
   isDragging(singerId: number): boolean {
-    return this.dragSession?.singerId === singerId;
+    return this.dragSession()?.singerId === singerId;
+  }
+
+  displayX(singer: FormationStageSinger): number {
+    const session = this.dragSession();
+
+    return session?.singerId === singer.id
+      ? session.currentX
+      : singer.x;
+  }
+
+  displayY(singer: FormationStageSinger): number {
+    const session = this.dragSession();
+
+    return session?.singerId === singer.id
+      ? session.currentY
+      : singer.y;
   }
 
   startDrag(event: PointerEvent, singer: FormationStageSinger): void {
@@ -75,7 +92,7 @@ export class FormationStageComponent {
       target.setPointerCapture(event.pointerId);
     }
 
-    this.dragSession = {
+    this.dragSession.set({
       singerId: singer.id,
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -84,11 +101,11 @@ export class FormationStageComponent {
       initialY: singer.y,
       currentX: singer.x,
       currentY: singer.y
-    };
+    });
   }
 
   moveSinger(event: PointerEvent): void {
-    const session = this.dragSession;
+    const session = this.dragSession();
     const stage = this.stageElement?.nativeElement;
 
     if (!session || !stage || session.pointerId !== event.pointerId) {
@@ -104,12 +121,15 @@ export class FormationStageComponent {
     const deltaX = ((event.clientX - session.startX) / bounds.width) * 100;
     const deltaY = ((event.clientY - session.startY) / bounds.height) * 100;
 
-    session.currentX = this.clamp(session.initialX + deltaX, 5, 95);
-    session.currentY = this.clamp(session.initialY + deltaY, 8, 92);
+    this.dragSession.set({
+      ...session,
+      currentX: this.clamp(session.initialX + deltaX, 5, 95),
+      currentY: this.clamp(session.initialY + deltaY, 8, 92)
+    });
   }
 
   endDrag(event: PointerEvent): void {
-    const session = this.dragSession;
+    const session = this.dragSession();
 
     if (!session || session.pointerId !== event.pointerId) {
       return;
@@ -125,7 +145,7 @@ export class FormationStageComponent {
       target.releasePointerCapture(event.pointerId);
     }
 
-    this.dragSession = null;
+    this.dragSession.set(null);
 
     if (
       session.currentX !== session.initialX ||
@@ -140,11 +160,11 @@ export class FormationStageComponent {
   }
 
   cancelDrag(event: PointerEvent): void {
-    if (this.dragSession?.pointerId !== event.pointerId) {
+    if (this.dragSession()?.pointerId !== event.pointerId) {
       return;
     }
 
-    this.dragSession = null;
+    this.dragSession.set(null);
   }
 
   isLockMutationPending(positionId: number | null): boolean {
