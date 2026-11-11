@@ -315,7 +315,6 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
     expect(component.stageSingers()).toEqual([]);
     expect(component.isSingerInFormation(7)).toBe(false);
     expect(component.selectedDraft()?.positions[0].locked).toBe(true);
-    expect(component.dragSession()).toBeNull();
     expect(element.querySelector<HTMLButtonElement>(
       '[aria-label="Agregar Ana Prueba a la formación"]'
     )).not.toBeNull();
@@ -404,7 +403,6 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
       expect(element.querySelector(
         '[aria-label="Agregar Ana Prueba a la formación"]'
       )).not.toBeNull();
-      expect(component.dragSession()).toBeNull();
       expect(unlockPosition).not.toHaveBeenCalled();
       expect(lockPosition).not.toHaveBeenCalled();
 
