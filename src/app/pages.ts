@@ -662,6 +662,7 @@ export class ConcertsPage {}
             (retry)="retrySingers()">
           </app-formation-stage>
 
+        </article>
         <aside class="panel formation-details">
           <span class="panel-kicker">ELENCO DEL CORO</span>
           <h2>Integrantes</h2>

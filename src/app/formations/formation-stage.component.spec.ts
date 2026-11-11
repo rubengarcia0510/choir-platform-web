@@ -294,8 +294,8 @@ describe('FormationStageComponent', () => {
 
     expect(positionChanged).toHaveBeenCalledWith({
       singerId: 7,
-      x: 100,
-      y: 100
+      x: 95,
+      y: 92
     });
   });
 

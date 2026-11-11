@@ -104,8 +104,8 @@ export class FormationStageComponent {
     const deltaX = ((event.clientX - session.startX) / bounds.width) * 100;
     const deltaY = ((event.clientY - session.startY) / bounds.height) * 100;
 
-    session.currentX = this.clamp(session.initialX + deltaX);
-    session.currentY = this.clamp(session.initialY + deltaY);
+    session.currentX = this.clamp(session.initialX + deltaX, 5, 95);
+    session.currentY = this.clamp(session.initialY + deltaY, 8, 92);
   }
 
   endDrag(event: PointerEvent): void {
@@ -176,7 +176,7 @@ export class FormationStageComponent {
     this.retry.emit();
   }
 
-  private clamp(value: number): number {
-    return Math.max(0, Math.min(100, value));
+  private clamp(value: number, min: number, max: number): number {
+    return Math.max(min, Math.min(max, value));
   }
 }
