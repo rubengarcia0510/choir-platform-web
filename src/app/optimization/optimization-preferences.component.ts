@@ -111,7 +111,7 @@ import {
           <button
             class="button button-primary"
             type="submit"
-            [disabled]="!valid() || saving() || !hasChanges()">
+            [disabled]="!valid() || saving() || loading() || !hasChanges()">
             {{ saving() ? 'Guardando…' : 'Guardar preferencias' }}
           </button>
         </form>
@@ -203,6 +203,8 @@ export class OptimizationPreferencesComponent implements OnChanges {
 
   private readonly api = inject(OptimizationPreferencesApiService);
 
+  private requestVersion = 0;
+
   readonly draft = signal<OptimizationPreferences>({
     ...DEFAULT_OPTIMIZATION_PREFERENCES
   });
@@ -247,26 +249,47 @@ export class OptimizationPreferencesComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['choirId'] || changes['concertId']) {
+      this.requestVersion++;
+      this.confirmed.set(null);
+      this.draft.set({ ...DEFAULT_OPTIMIZATION_PREFERENCES });
+      this.saving.set(false);
+
       if (this.choirId > 0 && this.concertId > 0) {
         this.load();
+      } else {
+        this.loading.set(false);
       }
     }
   }
 
   load(): void {
+    const choirId = this.choirId;
+    const concertId = this.concertId;
+    const version = ++this.requestVersion;
+
     this.loading.set(true);
+    this.saving.set(false);
     this.loadError.set(null);
     this.saveError.set(null);
     this.saveSuccess.set(false);
+    this.confirmed.set(null);
 
-    this.api.get(this.choirId, this.concertId).subscribe({
+    this.api.get(choirId, concertId).subscribe({
       next: preferences => {
+        if (!this.isCurrentRequest(version, choirId, concertId)) {
+          return;
+        }
+
         const value = { ...preferences };
         this.draft.set(value);
         this.confirmed.set(value);
         this.loading.set(false);
       },
       error: () => {
+        if (!this.isCurrentRequest(version, choirId, concertId)) {
+          return;
+        }
+
         this.loading.set(false);
         this.loadError.set(
           'No pudimos cargar las preferencias de este concierto.'
@@ -293,18 +316,26 @@ export class OptimizationPreferencesComponent implements OnChanges {
   save(event: Event): void {
     event.preventDefault();
 
-    if (!this.valid() || this.saving() || !this.hasChanges()) {
+    if (!this.valid() || this.saving() || this.loading()
+      || !this.hasChanges()) {
       return;
     }
+
+    const choirId = this.choirId;
+    const concertId = this.concertId;
+    const version = ++this.requestVersion;
+    const request = { ...this.draft() };
 
     this.saving.set(true);
     this.saveError.set(null);
     this.saveSuccess.set(false);
 
-    const request = { ...this.draft() };
-
-    this.api.update(this.choirId, this.concertId, request).subscribe({
+    this.api.update(choirId, concertId, request).subscribe({
       next: saved => {
+        if (!this.isCurrentRequest(version, choirId, concertId)) {
+          return;
+        }
+
         const value = { ...saved };
         this.draft.set(value);
         this.confirmed.set(value);
@@ -312,11 +343,25 @@ export class OptimizationPreferencesComponent implements OnChanges {
         this.saveSuccess.set(true);
       },
       error: () => {
+        if (!this.isCurrentRequest(version, choirId, concertId)) {
+          return;
+        }
+
         this.saving.set(false);
         this.saveError.set(
           'No pudimos guardar las preferencias. Tus últimos valores confirmados se mantienen.'
         );
       }
     });
+  }
+
+  private isCurrentRequest(
+    version: number,
+    choirId: number,
+    concertId: number
+  ): boolean {
+    return version === this.requestVersion
+      && this.choirId === choirId
+      && this.concertId === concertId;
   }
 }

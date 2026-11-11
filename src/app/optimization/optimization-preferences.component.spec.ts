@@ -100,19 +100,21 @@ describe('OptimizationPreferencesComponent', () => {
     expect(component.valid()).toBe(true);
     expect(component.total()).toBe(100);
 
-    const form = fixture.nativeElement.querySelector('form');
-    form.dispatchEvent(new Event('submit', {
-      bubbles: true,
-      cancelable: true
-    }));
-    fixture.detectChanges();
-
     const expected: OptimizationPreferences = {
       distance: 40,
       crossings: 20,
       compactness: 20,
       sectionContinuity: 20
     };
+
+    update.mockReturnValueOnce(of(expected));
+
+    const form = fixture.nativeElement.querySelector('form');
+    form.dispatchEvent(new Event('submit', {
+      bubbles: true,
+      cancelable: true
+    }));
+    fixture.detectChanges();
 
     expect(update).toHaveBeenCalledWith(10, 20, expected);
     expect(component.confirmed()).toEqual(expected);
