@@ -39,10 +39,10 @@ describe('FormationStageComponent', () => {
     fixture = TestBed.createComponent(FormationStageComponent);
     component = fixture.componentInstance;
 
-    component.singers = singers;
-    component.directorName = 'Rosa Directora';
-    component.hasDraft = true;
-    component.canEdit = true;
+    fixture.componentRef.setInput('singers', singers);
+    fixture.componentRef.setInput('directorName', 'Rosa Directora');
+    fixture.componentRef.setInput('hasDraft', true);
+    fixture.componentRef.setInput('canEdit', true);
 
     fixture.detectChanges();
   });
@@ -109,7 +109,7 @@ describe('FormationStageComponent', () => {
   });
 
   it('muestra el estado de carga', () => {
-    component.loading = true;
+    fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Cargando escenario');
@@ -119,7 +119,10 @@ describe('FormationStageComponent', () => {
   it('muestra un error y permite reintentar', () => {
     const retry = vi.spyOn(component.retry, 'emit');
 
-    component.error = 'No se pudo cargar el elenco.';
+    fixture.componentRef.setInput(
+      'error',
+      'No se pudo cargar el elenco.'
+    );
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent)
@@ -135,7 +138,7 @@ describe('FormationStageComponent', () => {
   });
 
   it('muestra un mensaje cuando no existe un borrador', () => {
-    component.hasDraft = false;
+    fixture.componentRef.setInput('hasDraft', false);
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent)
@@ -144,7 +147,6 @@ describe('FormationStageComponent', () => {
   });
 
   it('no permite arrastrar una posición bloqueada', () => {
-    const lockedSinger = singers[1];
     const button = fixture.nativeElement.querySelectorAll(
       '.singer-position'
     )[1] as HTMLButtonElement;
@@ -154,7 +156,7 @@ describe('FormationStageComponent', () => {
 
     const event = pointerEvent(button, 10, 100, 100);
 
-    component.startDrag(event, lockedSinger);
+    component.startDrag(event, singers[1]);
 
     expect(event.preventDefault).not.toHaveBeenCalled();
     expect(setPointerCapture).not.toHaveBeenCalled();
@@ -314,7 +316,7 @@ describe('FormationStageComponent', () => {
   });
 
   it('no solicita el bloqueo si ya existe una mutación pendiente', () => {
-    component.pendingPositionIds = [60];
+    fixture.componentRef.setInput('pendingPositionIds', [60]);
 
     const toggleLock = vi.spyOn(component.toggleLock, 'emit');
 
@@ -332,7 +334,7 @@ describe('FormationStageComponent', () => {
   });
 
   it('no permite eliminar integrantes durante el guardado', () => {
-    component.saving = true;
+    fixture.componentRef.setInput('saving', true);
 
     const removeSinger = vi.spyOn(component.removeSinger, 'emit');
 
@@ -342,7 +344,7 @@ describe('FormationStageComponent', () => {
   });
 
   it('no permite modificar cuando el componente está en modo de solo lectura', () => {
-    component.canEdit = false;
+    fixture.componentRef.setInput('canEdit', false);
 
     const toggleLock = vi.spyOn(component.toggleLock, 'emit');
     const removeSinger = vi.spyOn(component.removeSinger, 'emit');
