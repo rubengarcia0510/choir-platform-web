@@ -45,14 +45,15 @@
   } @else {
     @if (draftLoading) {
       <p class="stage-empty" role="status">Cargando la formación…</p>
+    } @else if (!hasDraft) {
+      <div class="stage-empty">
+        <span>♪</span>
+        <p>Seleccioná o creá una formación para preparar la distribución escénica.</p>
+      </div>
     } @else if (singers.length === 0) {
       <div class="stage-empty">
         <span>♪</span>
-        @if (hasDraft) {
-          <p>Esta formación está vacía. Agregá integrantes desde el elenco.</p>
-        } @else {
-          <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
-        }
+        <p>Esta formación está vacía. Agregá integrantes desde el elenco.</p>
       </div>
     } @else {
       <div class="stage-people" aria-label="Integrantes posicionados en el escenario">

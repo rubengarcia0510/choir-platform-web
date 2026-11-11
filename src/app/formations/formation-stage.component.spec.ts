@@ -85,7 +85,7 @@ describe('FormationStageComponent', () => {
 
   function firstSingerButton(): HTMLButtonElement {
     const button = fixture.nativeElement.querySelector(
-      '.singer-position'
+      '.stage-person'
     ) as HTMLButtonElement;
 
     if (!button) {
@@ -112,8 +112,10 @@ describe('FormationStageComponent', () => {
     fixture.componentRef.setInput('loading', true);
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Cargando escenario');
-    expect(fixture.nativeElement.querySelector('.stage')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.stage-skeleton')).toBeTruthy();
+    expect(
+      fixture.nativeElement.querySelector('.stage')?.getAttribute('aria-busy')
+    ).toBe('true');
   });
 
   it('muestra un error y permite reintentar', () => {
@@ -143,12 +145,13 @@ describe('FormationStageComponent', () => {
 
     expect(fixture.nativeElement.textContent)
       .toContain('Seleccioná o creá una formación');
-    expect(fixture.nativeElement.querySelector('.stage')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.stage-empty')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('.stage-people')).toBeNull();
   });
 
   it('no permite arrastrar una posición bloqueada', () => {
     const button = fixture.nativeElement.querySelectorAll(
-      '.singer-position'
+      '.stage-person'
     )[1] as HTMLButtonElement;
 
     const setPointerCapture = vi.fn();
