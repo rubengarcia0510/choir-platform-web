@@ -9,6 +9,7 @@ import { SingersStore } from './singers/singers.store';
 import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
 import { FormationStageComponent } from './formations/formation-stage.component';
 import { FormationStageSinger } from './formations/formation-stage.model';
+import { mapFormationStageSingers } from './formations/formation-stage.mapper';
 import {
   Concert,
   ConcertRepertoireEntry,
@@ -16,15 +17,6 @@ import {
   FormationSummary
 } from './formations/formation-draft.model';
 
-function getSectionHue(key: string): number {
-  let hash = 0;
-
-  for (let index = 0; index < key.length; index++) {
-    hash = (hash * 31 + key.charCodeAt(index)) >>> 0;
-  }
-
-  return hash % 360;
-}
 
 @Component({
   standalone: true,
@@ -813,82 +805,13 @@ export class FormationsPage {
 
   readonly singerPositions = signal<Record<number, { x: number; y: number }>>({});
 
-  private readonly rosterStageSingers = computed(() => {
-    const singers = this.selectedSingers();
-    const positions = this.singerPositions();
-    const draftPositions = new Map(
-      (this.selectedDraft()?.positions ?? [])
-        .map(position => [position.singerId, position] as const)
-    );
-    const groups = new Map<string, (typeof singers)[number][]>();
-
-    for (const singer of singers) {
-      const voicePart = singer.voicePart?.trim().toLocaleLowerCase() || '';
-      const key = singer.voiceSectionId !== null
-        ? `section:${singer.voiceSectionId}`
-        : `voice:${voicePart || 'unknown'}`;
-      const group = groups.get(key) ?? [];
-      group.push(singer);
-      groups.set(key, group);
-    }
-
-    const groupEntries = Array.from(groups.entries());
-    const groupColumns = Math.min(
-      3,
-      Math.max(1, Math.ceil(Math.sqrt(groupEntries.length)))
-    );
-    const groupRows = Math.ceil(groupEntries.length / groupColumns);
-    const cellWidth = 76 / groupColumns;
-    const cellHeight = 64 / groupRows;
-    const initialPositions = new Map<number, { x: number; y: number }>();
-
-    groupEntries.forEach(([, members], groupIndex) => {
-      const groupRow = Math.floor(groupIndex / groupColumns);
-      const groupColumn = groupIndex % groupColumns;
-      const memberColumns = Math.min(
-        3,
-        Math.max(1, Math.ceil(Math.sqrt(members.length)))
-      );
-      const memberRows = Math.ceil(members.length / memberColumns);
-
-      members.forEach((singer, memberIndex) => {
-        const row = Math.floor(memberIndex / memberColumns);
-        const column = memberIndex % memberColumns;
-        const rowLength = Math.min(
-          memberColumns,
-          members.length - row * memberColumns
-        );
-
-        initialPositions.set(singer.id, {
-          x: 12 + groupColumn * cellWidth
-            + (column + 0.5) * cellWidth / rowLength,
-          y: 18 + groupRow * cellHeight
-            + (row + 0.5) * cellHeight / memberRows
-        });
-      });
-    });
-
-    return singers.map((singer) => {
-      const initial = initialPositions.get(singer.id)!;
-      const position = positions[singer.id];
-      const sectionLabel = singer.voicePart?.trim()
-        || 'Sección sin especificar';
-      const sectionKey = singer.voiceSectionId !== null
-        ? `section:${singer.voiceSectionId}`
-        : `voice:${singer.voicePart?.trim().toLocaleLowerCase() || 'unknown'}`;
-      const draftPosition = draftPositions.get(singer.id);
-
-      return {
-        ...singer,
-        positionId: draftPosition?.id ?? null,
-        locked: draftPosition?.locked ?? false,
-        x: position?.x ?? initial.x,
-        y: position?.y ?? initial.y,
-        sectionLabel,
-        sectionHue: getSectionHue(sectionKey)
-      };
-    });
-  });
+  private readonly rosterStageSingers = computed(() =>
+    mapFormationStageSingers(
+      this.selectedSingers(),
+      this.selectedDraft()?.positions ?? [],
+      this.singerPositions()
+    )
+  );
 
   isLockMutationPending(positionId: number | null): boolean {
     return positionId !== null
