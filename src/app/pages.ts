@@ -7,6 +7,8 @@ import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
 import { SingersStore } from './singers/singers.store';
 import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
+import { FormationStageComponent } from './formations/formation-stage.component';
+import { FormationStageSinger } from './formations/formation-stage.model';
 import {
   Concert,
   ConcertRepertoireEntry,
@@ -413,6 +415,7 @@ export class ConcertsPage {}
 
 @Component({
   standalone: true,
+  imports: [FormationStageComponent],
   template: `
     <section class="page-wrap">
       <span class="eyebrow">ESPACIO DE DIRECCIÓN / 03</span>
@@ -642,113 +645,22 @@ export class ConcertsPage {}
             <span class="stage-tag">ESCENARIO</span>
           </div>
 
-          <div
-            class="stage"
-            aria-label="Vista previa del escenario"
-            [attr.aria-busy]="choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])">
-            <div class="stage-back"></div>
-
-            <div
-              class="stage-director"
-              role="img"
-              [attr.aria-label]="'Director del coro: ' + (auth.currentDirector()?.displayName || 'sin sesión identificada')">
-              <span class="stage-director-avatar" aria-hidden="true">{{ auth.currentDirector()?.displayName?.trim()?.charAt(0)?.toLocaleUpperCase() || 'D' }}</span>
-              <span class="stage-director-label">Dirección</span>
-              @if (auth.currentDirector(); as director) {
-                <span class="stage-director-name">{{ director.displayName }}</span>
-              }
-            </div>
-
-            @if (choirsLoading() || (selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()])) {
-              <div
-                class="stage-skeleton"
-                role="status"
-                aria-label="Cargando vista previa del escenario"
-                aria-busy="true">
-                <div class="stage-skeleton-grid" aria-hidden="true">
-                  @for (placeholder of [1, 2, 3, 4, 5, 6, 7, 8]; track placeholder) {
-                    <span class="stage-skeleton-person">
-                      <span class="stage-skeleton-avatar"></span>
-                      <span class="stage-skeleton-line"></span>
-                    </span>
-                  }
-                </div>
-              </div>
-            } @else if (
-              selectedChoirId() !== null &&
-              singersStore.errorsByChoir()[choirKey()]
-            ) {
-              <div class="stage-error" role="alert">
-                <p>No pudimos cargar el elenco.</p>
-                <button
-                  class="button button-primary"
-                  type="button"
-                  (click)="retrySingers()">Reintentar</button>
-              </div>
-            } @else {
-              @if (selectedFormationId() !== null && draftLoading()) {
-                <p class="stage-empty" role="status">Cargando la formación…</p>
-              } @else if (stageSingers().length === 0) {
-                <div class="stage-empty">
-                  <span>♪</span>
-                  @if (selectedDraft()) {
-                    <p>Esta formación está vacía. Agregá integrantes desde el elenco.</p>
-                  } @else {
-                    <p>Agregá integrantes al elenco para preparar la distribución escénica.</p>
-                  }
-                </div>
-              } @else {
-                <div class="stage-people" aria-label="Integrantes posicionados en el escenario">
-                  @for (person of stageSingers(); track person.id) {
-                    <div
-                      class="stage-person-wrapper"
-                      [class.stage-person-locked]="person.locked"
-                      [style.left.%]="person.x"
-                      [style.top.%]="person.y"
-                      [style.--section-hue]="person.sectionHue">
-                      <button
-                        type="button"
-                        class="stage-person"
-                        [class.stage-person-dragging]="dragSession()?.singerId === person.id"
-                        [attr.aria-label]="person.displayName + ', ' + person.sectionLabel + (person.locked ? '. Posición bloqueada; no se puede arrastrar.' : '. Arrastrar para cambiar la posición.')"
-                        (pointerdown)="startDrag($event, person.id)"
-                        (pointermove)="moveSinger($event)"
-                        (pointerup)="endDrag($event)"
-                        (pointercancel)="endDrag($event)"
-                        (lostpointercapture)="endDrag($event)">
-                        <span class="stage-person-avatar" aria-hidden="true">{{ person.displayName.charAt(0).toUpperCase() }}</span>
-                        <span class="stage-person-name">{{ person.displayName }}</span>
-                        <span class="stage-person-section">{{ person.sectionLabel }}</span>
-                        @if (person.locked) {
-                          <span class="stage-person-lock-state">🔒 Bloqueada</span>
-                        }
-                      </button>
-                      <button
-                        type="button"
-                        class="stage-person-context-action stage-person-remove-action"
-                        [disabled]="!canSaveDraft() || savingDraft() || draftLoading() || isLockMutationPending(person.positionId)"
-                        [attr.aria-label]="'Quitar ' + person.displayName + ' de la formación'"
-                        (click)="toggleSingerInFormation(person.id)">
-                        <span aria-hidden="true">×</span>
-                      </button>
-                      <button
-                        type="button"
-                        class="stage-person-context-action stage-person-lock-action"
-                        [disabled]="person.positionId === null || !canSaveDraft() || savingDraft() || draftLoading() || isLockMutationPending(person.positionId)"
-                        [attr.aria-label]="(person.locked ? 'Desbloquear' : 'Bloquear') + ' posición de ' + person.displayName"
-                        [attr.aria-busy]="person.positionId !== null && isLockMutationPending(person.positionId)"
-                        (click)="togglePositionLock(person)">
-                        <span aria-hidden="true">{{ person.locked ? '🔓' : '🔒' }}</span>
-                      </button>
-                    </div>
-                  }
-                </div>
-              }
-            }
-
-            <div class="stage-front"></div>
-          </div>
-        </article>
+          <app-formation-stage
+            [singers]="stageSingers()"
+            [directorName]="auth.currentDirector()?.displayName ?? null"
+            [loading]="choirsLoading()"
+            [singersLoading]="selectedChoirId() !== null && singersStore.loadingByChoir()[choirKey()]"
+            [error]="selectedChoirId() !== null ? singersStore.errorsByChoir()[choirKey()] ?? null : null"
+            [draftLoading]="draftLoading()"
+            [hasDraft]="selectedFormationId() === null || selectedDraft() !== null"
+            [canEdit]="canSaveDraft()"
+            [saving]="savingDraft()"
+            [pendingPositionIds]="pendingPositionIds()"
+            (positionChanged)="updateStagePosition($event)"
+            (removeSinger)="toggleSingerInFormation($event)"
+            (toggleLock)="togglePositionLock($event)"
+            (retry)="retrySingers()">
+          </app-formation-stage>
 
         <aside class="panel formation-details">
           <span class="panel-kicker">ELENCO DEL CORO</span>
@@ -1064,6 +976,9 @@ export class FormationsPage {
   readonly createFormationDescription = signal('');
   readonly createFormationError = signal<string | null>(null);
   readonly pendingPositionLocks = signal<Record<number, number>>({});
+  readonly pendingPositionIds = computed(
+    () => Object.keys(this.pendingPositionLocks()).map(Number)
+  );
   readonly hasPendingPositionLocks = computed(
     () => Object.keys(this.pendingPositionLocks()).length > 0
   );
@@ -1184,7 +1099,7 @@ export class FormationsPage {
       && this.pendingPositionLocks()[positionId] !== undefined;
   }
 
-  togglePositionLock(person: ReturnType<FormationsPage['stageSingers']>[number]): void {
+  togglePositionLock(person: FormationStageSinger): void {
     if (person.positionId === null
       || this.isLockMutationPending(person.positionId)) {
       return;
@@ -1194,7 +1109,7 @@ export class FormationsPage {
   }
 
   private setPositionLocked(
-    person: ReturnType<FormationsPage['stageSingers']>[number],
+    person: FormationStageSinger,
     locked: boolean
   ): void {
     const choirId = this.selectedChoirId();
@@ -1700,69 +1615,19 @@ export class FormationsPage {
     }
   }
 
+  updateStagePosition(change: { singerId: number; x: number; y: number }): void {
+    this.singerPositions.update(current => ({
+      ...current,
+      [change.singerId]: { x: change.x, y: change.y }
+    }));
+    this.saveError.set(null);
+    this.saveSuccess.set(false);
+  }
+
   retrySingers(): void {
     const choirId = this.selectedChoirId();
     if (choirId !== null) {
       this.singersStore.loadSingers(choirId, true);
-    }
-  }
-
-  startDrag(event: PointerEvent, singerId: number): void {
-    const person = this.stageSingers().find((singer) => singer.id === singerId);
-    const stage = (event.currentTarget as HTMLElement).closest('.stage');
-
-    if (!person || person.locked || !(stage instanceof HTMLElement)) {
-      return;
-    }
-
-    event.preventDefault();
-    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-
-    this.dragSession.set({
-      singerId,
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startY: event.clientY,
-      originX: person.x,
-      originY: person.y
-    });
-  }
-
-  moveSinger(event: PointerEvent): void {
-    const drag = this.dragSession();
-
-    if (!drag || drag.pointerId !== event.pointerId) {
-      return;
-    }
-
-    const stage = (event.currentTarget as HTMLElement).closest('.stage');
-
-    if (!(stage instanceof HTMLElement)) {
-      return;
-    }
-
-    const bounds = stage.getBoundingClientRect();
-
-    if (bounds.width <= 0 || bounds.height <= 0) {
-      return;
-    }
-
-    const x = Math.max(5, Math.min(95,
-      drag.originX + (event.clientX - drag.startX) / bounds.width * 100));
-    const y = Math.max(8, Math.min(92,
-      drag.originY + (event.clientY - drag.startY) / bounds.height * 100));
-
-    this.singerPositions.update((positions) => ({
-      ...positions,
-      [drag.singerId]: { x, y }
-    }));
-  }
-
-  endDrag(event: PointerEvent): void {
-    const drag = this.dragSession();
-
-    if (drag && drag.pointerId === event.pointerId) {
-      this.dragSession.set(null);
     }
   }
 
