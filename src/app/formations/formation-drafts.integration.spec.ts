@@ -142,13 +142,6 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
               update: vi.fn().mockReturnValue(of(DEFAULT_OPTIMIZATION_PREFERENCES))
             }
           },
-          {
-            provide: OptimizationPreferencesApiService,
-            useValue: {
-              get: vi.fn().mockReturnValue(of(DEFAULT_OPTIMIZATION_PREFERENCES)),
-              update: vi.fn().mockReturnValue(of(DEFAULT_OPTIMIZATION_PREFERENCES))
-            }
-          },
         {
           provide: SingersStore,
           useValue: {
