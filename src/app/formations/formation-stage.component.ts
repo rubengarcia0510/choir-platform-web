@@ -50,6 +50,10 @@ export class FormationStageComponent {
 
   private dragSession: DragSession | null = null;
 
+  isDragging(singerId: number): boolean {
+    return this.dragSession?.singerId === singerId;
+  }
+
   startDrag(event: PointerEvent, singer: FormationStageSinger): void {
     if (!this.canEdit || singer.locked || this.saving || this.draftLoading) {
       return;
