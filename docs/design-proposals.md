@@ -339,6 +339,30 @@ No agregar búsqueda, filtros, detalle, gestión de integrantes ni nuevas
 operaciones. La propuesta reorganiza la presentación de las capacidades
 existentes.
 
+#### Referencias visuales
+
+Mockups conceptuales de alta fidelidad, pendientes de validación. No
+representan una implementación. Los nombres de coros son datos de ejemplo
+solo para el mockup; los textos y estados provienen de la pantalla actual.
+
+| Referencia | Archivo (`docs/assets/choir-124/`) |
+|---|---|
+| Escritorio, 1440 × 900 | `mi-coro-desktop` (y `@2x`) |
+| Móvil, 390 × 844 | `mi-coro-mobile` (y `@2x`) |
+| Estados | `mi-coro-estados` |
+
+![Mi coro — escritorio](assets/choir-124/mi-coro-desktop.png)
+
+Decisiones y salvedades:
+
+- El móvil omite «Sitio público» y la etiqueta «GESTIÓN DE COROS» para
+  ganar espacio; ambos existen en la pantalla actual y deben decidirse.
+- Se subraya el ítem activo de la navegación y los banners de error
+  incluyen ícono, para no depender solo del color.
+- Los botones del listado miden 40 px en escritorio y 44 px en móvil.
+- Los bordes de campo usan `#E9E8E1`, con la observación de contraste
+  abierta en la sección 2 de este documento.
+
 ### 4.2 Conciertos
 
 #### Funcionalidad observada
