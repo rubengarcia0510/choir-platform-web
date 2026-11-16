@@ -2,10 +2,10 @@
 
 Estado: propuesta de diseño de CHOIR-124. Pendiente de validación.
 
-Este documento complementa `design-discovery.md`, `design-system.md` y
-`design-backlog.md`.
+Este documento complementa `design-discovery.md`, `design-system.md`,
+`design-backlog.md` y `accessibility-audit.md`.
 
-Los wireframes describen la estructura y la jerarquía de cada pantalla.
+Los wireframes describen estructura, jerarquía y recorridos visuales.
 No constituyen una especificación funcional nueva ni autorizan cambios
 en Angular o backend.
 
@@ -13,13 +13,13 @@ en Angular o backend.
 
 ### Identidad artística
 
-Aplicar la identidad azul profundo y dorado en las experiencias de
-presentación y comunicación artística:
+Aplicar la identidad azul profundo y dorado en experiencias de presentación
+y comunicación artística:
 
 - Inicio y presentación de la plataforma.
 - Presentación de conciertos.
 - Encabezados y destacados de contenido artístico.
-- Mensajes y elementos visuales asociados a actuaciones.
+- Visualizaciones de formaciones y transiciones cuando aporten contexto.
 
 ### Experiencia operativa
 
@@ -27,14 +27,15 @@ Mantener una interfaz clara para las tareas frecuentes:
 
 - Formularios y autenticación.
 - Administración del coro.
+- Gestión de coreutas.
 - Gestión de conciertos.
 - Edición de formaciones.
-- Tablas, listados y paneles de control.
+- Tablas, listados y paneles.
 
-La propuesta no reemplaza automáticamente la paleta operativa existente.
-La convivencia entre ambas identidades debe validarse antes de implementar.
+La paleta operativa actual se conserva como punto de partida. La convivencia
+entre ambos ambientes debe validarse antes de implementar.
 
-## 2. Wireframe: Inicio
+## 2. Inicio
 
 ### Objetivo
 
@@ -43,9 +44,9 @@ Explicar qué ofrece CHOIR y facilitar el acceso a las acciones principales.
 ### Escritorio
 
 1. Encabezado con logotipo y navegación principal.
-2. Hero con mensaje institucional y fotografía o recurso artístico.
+2. Hero con mensaje institucional y recurso artístico.
 3. Acción principal para comenzar.
-4. Accesos a las capacidades principales de la plataforma.
+4. Accesos a las capacidades principales.
 5. Sección secundaria de presentación y beneficios.
 6. Pie de página institucional.
 
@@ -53,7 +54,7 @@ Explicar qué ofrece CHOIR y facilitar el acceso a las acciones principales.
 
 1. Logotipo y menú compacto.
 2. Mensaje principal.
-3. Imagen artística adaptada al ancho disponible.
+3. Recurso artístico adaptado al ancho disponible.
 4. Acción principal visible.
 5. Accesos secundarios en tarjetas apiladas.
 6. Navegación sin desplazamiento horizontal.
@@ -65,7 +66,7 @@ Explicar qué ofrece CHOIR y facilitar el acceso a las acciones principales.
 - La imagen no debe ser necesaria para comprender el mensaje.
 - El encabezado debe adaptarse a pantallas pequeñas.
 
-## 3. Wireframe: Ingresar y Registro
+## 3. Ingresar y Registro
 
 ### Objetivo
 
@@ -79,7 +80,7 @@ Ofrecer una experiencia de acceso sencilla, consistente y accesible.
 4. Campos del formulario.
 5. Mensajes de validación junto al campo correspondiente.
 6. Acción principal.
-7. Enlaces secundarios y recuperación de acceso, si están disponibles.
+7. Enlaces secundarios únicamente cuando estén disponibles.
 
 ### Móvil
 
@@ -89,7 +90,7 @@ Ofrecer una experiencia de acceso sencilla, consistente y accesible.
 4. Acción principal de ancho completo.
 5. Enlaces secundarios claramente separados.
 
-### Estados que deben diseñarse
+### Estados
 
 - Inicial.
 - Cargando.
@@ -97,10 +98,10 @@ Ofrecer una experiencia de acceso sencilla, consistente y accesible.
 - Error de autenticación o registro.
 - Operación exitosa.
 
-No agregar proveedores de autenticación ni flujos de recuperación que
-no estén contemplados en los contratos y funcionalidades existentes.
+No agregar proveedores de autenticación ni flujos de recuperación
+que no estén contemplados en las funcionalidades existentes.
 
-## 4. Wireframe: Mi coro
+## 4. Mi coro
 
 ### Objetivo
 
@@ -124,12 +125,71 @@ Facilitar la consulta y administración cotidiana del coro.
 
 ### Criterios
 
-- Diferenciar claramente información y acciones.
+- Diferenciar información y acciones.
 - Mantener consistencia entre estados vacíos y listados cargados.
 - No ocultar acciones esenciales en pantallas pequeñas.
 - Respetar permisos y capacidades existentes.
 
-## 5. Wireframe: Conciertos
+## 5. Gestión de coreutas
+
+### Objetivo
+
+Definir una experiencia consistente para consultar la información
+de cada integrante y acceder a las operaciones de administración existentes.
+
+### Recorrido conceptual
+
+1. El director ingresa a Mi coro.
+2. Consulta el resumen del coro.
+3. Localiza un integrante en el listado.
+4. Identifica la información disponible del integrante.
+5. Accede a las acciones que ya estén habilitadas para su rol.
+6. Visualiza el resultado o mensaje correspondiente a la operación.
+
+Este recorrido organiza visualmente capacidades existentes.
+No presupone nuevas operaciones ni nuevos datos.
+
+### Escritorio
+
+- Encabezado con contexto del coro.
+- Resumen general separado del listado.
+- Listado con columnas o agrupaciones según los datos disponibles.
+- Identificación visual de cada integrante.
+- Información secundaria con jerarquía menor.
+- Acciones agrupadas en una zona consistente.
+- Detalle del integrante en una vista o panel solo si existe ese patrón
+  funcional en la aplicación.
+
+### Móvil
+
+- Resumen compacto.
+- Listado vertical mediante tarjetas o filas.
+- Información principal visible sin abrir elementos secundarios.
+- Acciones disponibles accesibles mediante controles explícitos.
+- Evitar acciones que aparezcan exclusivamente al pasar el puntero.
+- Evitar tablas que obliguen a desplazarse horizontalmente para consultar
+  información esencial.
+
+### Estados
+
+- Cargando listado.
+- Listado disponible.
+- Coro sin integrantes.
+- Búsqueda sin resultados, si existe búsqueda.
+- Error de consulta.
+- Operación en curso.
+- Confirmación o error de una operación.
+
+### Criterios
+
+- Diferenciar nombre, información contextual y acciones.
+- No mostrar campos vacíos como si fueran datos.
+- No utilizar únicamente colores para indicar secciones o estados.
+- Mantener etiquetas y nombres accesibles.
+- Respetar permisos existentes.
+- No inventar filtros, operaciones ni vistas de detalle.
+
+## 6. Conciertos
 
 ### Objetivo
 
@@ -158,7 +218,7 @@ Combinar la presentación artística de los conciertos con su gestión.
 - Mantener visibles fechas y datos importantes.
 - No inventar estados ni información que no entregue el backend.
 
-## 6. Wireframe: Formaciones
+## 7. Formaciones
 
 ### Objetivo
 
@@ -192,24 +252,82 @@ Facilitar la visualización y edición de las posiciones de los integrantes.
 - Respetar el contexto de formación por concierto.
 - Toda acción de arrastrar debe tener una alternativa operable por teclado.
 
-## 7. Componentes compartidos
+## 8. Transiciones entre formaciones
+
+### Objetivo
+
+Proponer una visualización que permita comprender los cambios entre
+una formación de origen y otra de destino.
+
+La propuesta es exclusivamente de presentación. No define algoritmos,
+cálculos, métricas ni reglas nuevas.
+
+### Jerarquía de información
+
+1. Contexto del concierto.
+2. Identificación de la formación de origen.
+3. Identificación de la formación de destino.
+4. Representación visual del estado inicial y final.
+5. Cambios de posición que puedan obtenerse de los datos disponibles.
+6. Información complementaria únicamente cuando exista en el contrato.
+
+### Escritorio
+
+- Encabezado con el contexto de la transición.
+- Dos áreas visuales identificadas: origen y destino.
+- Representaciones con la misma escala y orientación.
+- Integrantes identificables de forma consistente en ambas áreas.
+- Indicadores visuales para posiciones que cambian.
+- Leyenda textual que explique el significado de los indicadores.
+- Información complementaria en un panel secundario cuando corresponda.
+
+### Móvil
+
+- Encabezado compacto con el contexto.
+- Selector o navegación entre origen y destino.
+- Representación de una formación por vez cuando el espacio no permita
+  una comparación legible.
+- Indicadores textuales para identificar los cambios.
+- Información complementaria debajo de la representación.
+- Controles táctiles accesibles y claramente etiquetados.
+
+### Estados
+
+- Datos de transición disponibles.
+- Información insuficiente para representar el cambio.
+- Cargando.
+- Error de consulta.
+- Sin transición disponible, únicamente si ese estado existe funcionalmente.
+
+### Criterios
+
+- Diferenciar origen y destino mediante títulos y etiquetas, no solo colores.
+- Mantener la misma escala para facilitar la comparación.
+- No depender exclusivamente de animaciones para explicar los cambios.
+- Respetar `prefers-reduced-motion`.
+- No inventar métricas ni movimientos que no estén presentes en los datos.
+- Mantener legibilidad en pantallas pequeñas.
+
+## 9. Componentes compartidos
 
 Los siguientes patrones deben mantener una presentación y comportamiento
 consistentes:
 
 - Encabezados y navegación.
-- Botones primarios y secundarios.
+- Botones primarios, secundarios y de texto.
 - Campos, etiquetas y mensajes de validación.
 - Tarjetas y paneles.
 - Indicadores de estado.
 - Confirmaciones y mensajes de error.
 - Estados de carga y contenido vacío.
 - Diálogos y acciones destructivas.
+- Listados y tablas.
+- Controles de selección y filtros cuando existan.
 
-La definición final de componentes debe considerar los componentes Angular
-existentes antes de proponer nuevos.
+La definición final debe considerar los componentes Angular existentes
+antes de proponer nuevos.
 
-## 8. Accesibilidad
+## 10. Accesibilidad
 
 La auditoría real queda pendiente. Para cada pantalla se deberá comprobar:
 
@@ -223,11 +341,12 @@ La auditoría real queda pendiente. Para cada pantalla se deberá comprobar:
 - Estados que no dependan únicamente del color.
 - Compatibilidad con lectores de pantalla.
 - Respeto por la preferencia de movimiento reducido.
+- Alternativas de teclado para operaciones de arrastrar y soltar.
 
 Objetivo de referencia: WCAG 2.2 nivel AA. No se considera cumplido hasta
 realizar y documentar las verificaciones.
 
-## 9. Responsive
+## 11. Responsive
 
 Validar al menos tres categorías:
 
@@ -238,17 +357,19 @@ Validar al menos tres categorías:
 La adaptación debe conservar las acciones y la información disponibles.
 No debe limitarse a reducir el tamaño de los elementos.
 
-## 10. Validación pendiente
+## 12. Validación pendiente
 
-- [ ] Revisar los cinco wireframes con los flujos reales.
+- [ ] Revisar los wireframes con los flujos reales.
 - [ ] Validar la dirección artística y operativa.
 - [ ] Contrastar la propuesta con los componentes existentes.
 - [ ] Preparar referencias visuales definitivas de escritorio y móvil.
+- [ ] Validar los recorridos de gestión de coreutas.
+- [ ] Confirmar qué información de transiciones está disponible.
 - [ ] Ejecutar auditoría de accesibilidad sobre las pantallas reales.
 - [ ] Registrar hallazgos y decisiones en el Discovery.
 - [ ] Revisar el backlog y las dependencias antes de crear tickets.
 
-## 11. Restricciones
+## 13. Restricciones
 
 Este documento no autoriza:
 
