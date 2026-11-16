@@ -72,8 +72,8 @@ Estado:
 - Ingresar ya es funcional; el trabajo es visual y no cambia su comportamiento.
 - Registro es un placeholder informativo. Sus campos, validaciones y flujo
   de verificación de correo no están confirmados; esa parte no debe
-  implementarse hasta resolver las decisiones pendientes de la sección 2
-  de `design-proposals.md`.
+  implementarse hasta confirmar contra el backend las decisiones propuestas
+  de la sección 2 de `design-proposals.md`.
 
 Alcance:
 - Presentación de los formularios.

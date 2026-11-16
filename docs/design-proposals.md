@@ -81,6 +81,8 @@ Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
 | Ingresar — móvil | `auth-login-mobile` |
 | Registro — escritorio | `auth-register-desktop` |
 | Registro — móvil | `auth-register-mobile` |
+| Registro, éxito — escritorio | `auth-register-success-desktop` |
+| Registro, éxito — móvil | `auth-register-success-mobile` |
 | Estados visuales | `auth-states` |
 
 ![Ingresar — escritorio](assets/choir-124/auth-login-desktop.png)
@@ -144,25 +146,37 @@ Ver `auth-states`. Se definen para Ingresar y Registro:
   sin cambio de ancho ni reenvío.
 - **Deshabilitado:** relleno neutro y texto atenuado, distinguible sin color.
 
-El texto "Ingresá un correo electrónico válido." y "Este campo es
-obligatorio." son propuestas de copy, no contratos existentes.
+El estado de éxito de Registro se propone en `auth-register-success-*`:
+aviso de que debe verificarse el correo y acción "Ir a ingresar".
 
-### Decisiones pendientes (requieren confirmación funcional)
+El texto "Ingresá un correo electrónico válido.", "Este campo es
+obligatorio." y el copy del éxito son propuestas, no contratos existentes.
 
-1. **Campos de Registro.** La propuesta muestra nombre para mostrar, correo y
-   contraseña de forma **provisional**; `DirectorSession` tiene `displayName`
-   y `email`, pero no existe contrato de registro en el frontend. No se
-   asumen confirmación de contraseña ni reglas de contraseña.
-2. **Endpoint y validaciones de registro** (formato, longitudes, correo ya
-   registrado).
-3. **Verificación de correo:** si el alta la exige antes del primer ingreso y
-   qué ve la persona después de registrarse. El estado de éxito de Registro
-   no se diseña como definitivo.
-4. **Destino tras el registro** (Ingresar, aviso de verificación u otro).
-5. **Texto final del botón** de Registro ("Crear cuenta" es una propuesta
-   alineada con "Registrate").
-6. **Errores de Ingresar:** el mensaje actual agrupa credenciales y correo
-   no verificado; separarlos requiere que el backend los distinga.
+### Decisiones propuestas (a confirmar contra el backend)
+
+Aprobadas para el diseño, no como contrato. Cada una debe verificarse con
+el backend antes de implementar.
+
+1. **Campos de Registro:** nombre para mostrar, correo y contraseña
+   (`DirectorSession` tiene `displayName` y `email`). Sin confirmación de
+   contraseña.
+2. **Validaciones:** formato de correo y obligatoriedad en el frontend; las
+   reglas de contraseña son las que imponga el backend, sin duplicarlas.
+3. **Correo ya registrado:** mensaje genérico ("No pudimos crear la cuenta.
+   Revisá los datos e intentá nuevamente.") para no revelar qué correos
+   existen.
+4. **Verificación de correo:** se asume. El error de Ingresar ya la
+   menciona y el alta no inicia sesión sola.
+5. **Después del alta:** pantalla de éxito en la misma ruta, con aviso de
+   verificación y enlace a Ingresar.
+6. **Botón de Registro:** "Crear cuenta".
+7. **Errores de Ingresar:** se mantiene el mensaje actual, que agrupa
+   credenciales y correo no verificado; separarlos exigiría cambios de
+   backend y revelaría si un correo existe.
+
+Pendiente de confirmar: endpoint y DTO de registro, si el backend envía el
+correo de verificación y las respuestas para correo duplicado y datos
+inválidos.
 
 ### Ajustes de tokens sugeridos (a validar en `design-system.md`)
 
@@ -187,7 +201,7 @@ Contrastes calculados, sin pruebas manuales:
 
 ### Criterios de validación
 
-- [ ] Confirmar campos, contrato y flujo de verificación de Registro.
+- [ ] Confirmar contra el backend las decisiones propuestas de Registro.
 - [ ] Medir contrastes con herramienta sobre los tokens definitivos.
 - [ ] Probar navegación por teclado y foco en ambos formularios.
 - [ ] Probar en móvil real con teclado abierto y zoom al 200 %.
