@@ -90,16 +90,16 @@ Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
 
 ### Correspondencia con la implementación actual
 
-- `/ingresar` ya carga `src/app/auth/login.page.ts`, un formulario funcional
-  (correo, contraseña, estado de carga y mensajes de error). El `LoginPage`
-  placeholder de `src/app/pages.ts` no es la pantalla enrutada. Por eso la
-  propuesta de Ingresar es una **reorganización visual** del formulario
-  existente y conserva sus campos, textos y acciones. La tabla de rutas de
-  `design-discovery.md` aún marca `/ingresar` como pendiente de completar;
-  conviene corregirla.
-- `/registro` carga `RegisterPage` de `src/app/pages.ts`, un placeholder
-  informativo que indica que el alta depende de flujos de registro,
-  verificación de correo y autenticación aún no definidos.
+- `/ingresar` carga `src/app/auth/login.page.ts`, que contiene un formulario
+  funcional con correo, contraseña, estado de carga y mensajes de error.
+  El `LoginPage` placeholder de `src/app/pages.ts` no es la pantalla
+  enrutada. La propuesta de Ingresar es una reorganización visual del
+  formulario existente y debe conservar sus campos, acciones y
+  comportamiento.
+- `/registro` carga `RegisterPage` de `src/app/pages.ts`, que actualmente
+  es un placeholder informativo. El backend sí dispone de un endpoint de
+  registro, pero su disponibilidad depende de configuración y de que exista
+  un mecanismo de envío de correo de verificación.
 - Los mensajes de error de Ingresar reutilizan el texto existente, que ya
   menciona que el correo debe estar verificado.
 
@@ -116,9 +116,80 @@ Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
 - **Misma estructura en ambas pantallas:** eyebrow, título serif, bajada,
   campos con etiqueta siempre visible, acción principal de ancho completo y
   enlace al flujo opuesto subrayado (no depende solo del color).
-- Se mantiene el enlace "Volver al inicio" que ya existe.
+- Se mantiene el enlace "Volver al inicio" que ya existe en Ingresar.
 - No se incorpora recuperación de contraseña, mostrar/ocultar contraseña,
   autenticación social ni "recordarme".
+
+### Contrato de Registro verificado en backend
+
+La revisión del código backend en `main` confirmó lo siguiente:
+
+- Endpoint: `POST /api/auth/register`.
+- Request: `displayName`, `email` y `password`.
+- `displayName`: obligatorio, máximo 160 caracteres.
+- `email`: obligatorio, formato válido, máximo 254 caracteres.
+- `password`: obligatoria, entre 12 y 200 caracteres.
+- No se confirmó una regla adicional de composición de contraseña.
+- El registro requiere que `choir.auth.registration.enabled` esté habilitado,
+  que exista un `VerificationEmailSender` disponible y que
+  `choir.auth.verification-url-base` tenga un valor no vacío.
+- Si alguna de esas condiciones no se cumple, el backend responde HTTP 503
+  con `registration_unavailable`.
+- Si el registro se procesa, responde HTTP 202 Accepted con un mensaje
+  genérico que indica que, si el registro está disponible, se enviará un
+  correo de verificación.
+- Si el correo ya existe, el backend devuelve la misma respuesta HTTP 202
+  genérica. El diseño no debe intentar distinguir ese caso ni revelar si
+  una dirección está registrada.
+- El alta crea una cuenta sin verificar. No inicia sesión automáticamente.
+- El token de verificación vence a los 30 minutos y es de un solo uso.
+- La verificación se realiza mediante `POST /api/auth/verify-email`,
+  enviando el campo `token`.
+- Un token válido produce HTTP 200; uno inválido o vencido produce HTTP 400
+  con `invalid_or_expired_token`.
+- No se encontró un endpoint de reenvío de correo de verificación.
+- El login no distingue públicamente entre credenciales incorrectas y
+  correo no verificado: ambos casos se responden como `invalid_credentials`.
+
+La configuración incluida en `application.yml` tiene el registro deshabilitado
+por defecto y la URL de verificación vacía. Esto no permite concluir cuál es
+la configuración efectiva de un entorno desplegado, ya que puede sobrescribirse
+mediante configuración externa.
+
+### Seguridad y protección CSRF
+
+El registro utiliza la protección CSRF existente:
+
+1. Obtener el token mediante `GET /api/auth/csrf`.
+2. Conservar la cookie de sesión recibida.
+3. Enviar el token en el header `X-CSRF-TOKEN` al realizar el POST.
+
+La autorización pública de la ruta no elimina la protección CSRF. La futura
+implementación visual deberá respetar el mecanismo utilizado por el cliente
+de autenticación existente y no asumir que el POST puede ejecutarse sin
+cookie ni token.
+
+### Comportamiento visual propuesto para Registro
+
+- Los campos de la propuesta corresponden a `displayName`, `email` y
+  `password`.
+- No se agrega confirmación de contraseña: no forma parte del request
+  confirmado.
+- La validación del frontend debe respetar los límites confirmados y no
+  inventar reglas de composición.
+- La respuesta HTTP 202 debe mostrar un mensaje neutral que indique que,
+  si el registro está disponible, se enviará un correo de verificación.
+- No debe mostrarse un mensaje que asegure que la cuenta fue creada o que
+  el correo fue enviado en todos los casos.
+- El estado visual de éxito puede explicar que se debe revisar el correo
+  para continuar, sin revelar si la dirección ya existía.
+- No debe ofrecerse una acción de reenvío: no se encontró esa operación
+  en el backend revisado.
+- La respuesta HTTP 503 debe comunicarse como indisponibilidad temporal
+  del registro, sin atribuirla a los datos ingresados.
+- La verificación de correo es un paso separado. La URL de destino del
+  enlace de verificación y su pantalla frontend deben confirmarse antes
+  de diseñarlas como un flujo implementable.
 
 ### Escritorio y móvil
 
@@ -142,41 +213,19 @@ Ver `auth-states`. Se definen para Ingresar y Registro:
 - **Foco:** borde de 2 px en verde más halo; el botón usa anillo oscuro.
 - **Error:** borde, ícono y texto asociados al campo (`aria-invalid` y
   `aria-describedby`); el error de la operación usa `role="alert"`.
-- **Carga:** campos bloqueados, botón con indicador y texto "Ingresando…",
-  sin cambio de ancho ni reenvío.
+- **Carga:** campos bloqueados y botón con indicador; el texto debe
+  corresponder a la operación en curso y no sugerir que se inició sesión
+  durante el registro.
 - **Deshabilitado:** relleno neutro y texto atenuado, distinguible sin color.
 
 El estado de éxito de Registro se propone en `auth-register-success-*`:
-aviso de que debe verificarse el correo y acción "Ir a ingresar".
+aviso neutral sobre el siguiente paso de verificación y acceso a Ingresar.
+El mensaje no debe afirmar que el correo fue enviado efectivamente en todos
+los casos, porque el backend utiliza una respuesta genérica.
 
-El texto "Ingresá un correo electrónico válido.", "Este campo es
-obligatorio." y el copy del éxito son propuestas, no contratos existentes.
-
-### Decisiones propuestas (a confirmar contra el backend)
-
-Aprobadas para el diseño, no como contrato. Cada una debe verificarse con
-el backend antes de implementar.
-
-1. **Campos de Registro:** nombre para mostrar, correo y contraseña
-   (`DirectorSession` tiene `displayName` y `email`). Sin confirmación de
-   contraseña.
-2. **Validaciones:** formato de correo y obligatoriedad en el frontend; las
-   reglas de contraseña son las que imponga el backend, sin duplicarlas.
-3. **Correo ya registrado:** mensaje genérico ("No pudimos crear la cuenta.
-   Revisá los datos e intentá nuevamente.") para no revelar qué correos
-   existen.
-4. **Verificación de correo:** se asume. El error de Ingresar ya la
-   menciona y el alta no inicia sesión sola.
-5. **Después del alta:** pantalla de éxito en la misma ruta, con aviso de
-   verificación y enlace a Ingresar.
-6. **Botón de Registro:** "Crear cuenta".
-7. **Errores de Ingresar:** se mantiene el mensaje actual, que agrupa
-   credenciales y correo no verificado; separarlos exigiría cambios de
-   backend y revelaría si un correo existe.
-
-Pendiente de confirmar: endpoint y DTO de registro, si el backend envía el
-correo de verificación y las respuestas para correo duplicado y datos
-inválidos.
+Los textos de validación y el copy visual son propuestas. No deben
+presentarse como mensajes exactos del backend salvo los códigos y respuestas
+confirmados en esta sección.
 
 ### Ajustes de tokens sugeridos (a validar en `design-system.md`)
 
@@ -195,13 +244,20 @@ Contrastes calculados, sin pruebas manuales:
 
 - Mantener esta sección y registrar aquí las decisiones aceptadas o
   descartadas tras la revisión.
-- Corregir el estado de `/ingresar` en `design-discovery.md`.
-- Reconciliar DS-02 en `design-backlog.md` con el formulario ya existente
-  y con las decisiones pendientes de Registro antes de crear tickets.
+- Mantener diferenciados el formulario funcional de Ingresar y el
+  placeholder actual de Registro.
+- Contrastar la propuesta de Registro con el contrato backend documentado
+  en esta sección antes de implementar.
+- Confirmar la ruta frontend de verificación y la configuración efectiva
+  de los entornos antes de cerrar el diseño del recorrido completo.
+- Reconciliar DS-02 en `design-backlog.md` con el contrato verificado.
 
 ### Criterios de validación
 
-- [ ] Confirmar contra el backend las decisiones propuestas de Registro.
+- [ ] Confirmar la configuración efectiva de Registro en los entornos
+      donde se habilitará.
+- [ ] Validar el envío CSRF desde el cliente frontend.
+- [ ] Confirmar la ruta frontend de destino del enlace de verificación.
 - [ ] Medir contrastes con herramienta sobre los tokens definitivos.
 - [ ] Probar navegación por teclado y foco en ambos formularios.
 - [ ] Probar en móvil real con teclado abierto y zoom al 200 %.

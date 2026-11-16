@@ -65,42 +65,78 @@ Prioridad: P1.
 
 Objetivo:
 Aplicar la propuesta visual de CHOIR-124 (`design-proposals.md`, sección 2)
-a los flujos de autenticación: el formulario funcional de Ingresar
-(`src/app/auth/login.page.ts`) y, una vez definido su alcance, Registro.
+a los flujos de autenticación, respetando la implementación existente y el
+contrato de registro confirmado en backend.
 
-Estado:
-- Ingresar ya es funcional; el trabajo es visual y no cambia su comportamiento.
-- Registro es un placeholder informativo. Sus campos, validaciones y flujo
-  de verificación de correo no están confirmados; esa parte no debe
-  implementarse hasta confirmar contra el backend las decisiones propuestas
-  de la sección 2 de `design-proposals.md`.
+Estado actual:
+- Ingresar ya dispone de un formulario funcional en
+  `src/app/auth/login.page.ts`. El trabajo previsto es visual y de
+  accesibilidad; no debe reemplazar ni duplicar el flujo de autenticación.
+- Registro todavía es un placeholder informativo en `src/app/pages.ts`.
+  El backend dispone de `POST /api/auth/register` y
+  `POST /api/auth/verify-email`, pero el registro depende de configuración
+  y de la disponibilidad del servicio de envío de correo.
+- El contrato backend fue revisado y está documentado en
+  `design-proposals.md`, sección 2.
 
 Alcance:
-- Presentación de los formularios.
-- Jerarquía de títulos, etiquetas y acciones.
-- Estados inicial, validación, carga, error y éxito.
-- Adaptación móvil y escritorio.
+- Reorganización visual del formulario existente de Ingresar.
+- Diseño e implementación de la pantalla de Registro conforme al contrato
+  backend confirmado.
+- Campos de Registro: nombre para mostrar, correo y contraseña.
+- Respeto de los límites confirmados: nombre hasta 160 caracteres,
+  correo hasta 254 caracteres y contraseña entre 12 y 200 caracteres.
+- Integración con la protección CSRF existente: obtención del token,
+  conservación de la cookie de sesión y envío del header `X-CSRF-TOKEN`.
+- Presentación de los estados de carga, error, indisponibilidad y respuesta
+  genérica de aceptación.
+- Diseño del mensaje posterior al registro sin revelar si el correo ya
+  existía ni afirmar que el envío se completó en todos los casos.
+- Adaptación responsive y accesibilidad de ambos formularios.
 - Consistencia visual entre Ingresar y Registro.
 
 Criterios de aceptación:
-- Ambos formularios mantienen una estructura visual consistente.
-- Cada campo tiene una etiqueta visible.
-- Los errores se identifican junto al campo correspondiente.
-- Los controles tienen estados de foco y deshabilitado.
-- La acción principal se distingue claramente.
+- Ingresar conserva sus campos, validaciones, autenticación y mensajes
+  funcionales actuales.
+- La propuesta visual de Ingresar no introduce nuevas operaciones.
+- Registro envía los campos `displayName`, `email` y `password` según
+  el contrato existente.
+- La contraseña respeta el mínimo de 12 y el máximo de 200 caracteres;
+  no se agregan reglas de composición no confirmadas.
+- El formulario gestiona correctamente la protección CSRF existente.
+- La respuesta HTTP 202 presenta un mensaje neutral y no revela si la
+  dirección ya estaba registrada.
+- La respuesta HTTP 503 se presenta como indisponibilidad del registro,
+  sin atribuir el problema a los datos ingresados.
+- La interfaz no ofrece reenvío de verificación, porque no existe un
+  endpoint confirmado para esa operación.
+- La interfaz no inicia sesión automáticamente después del registro.
+- La experiencia no afirma que el correo fue enviado efectivamente
+  en todos los casos.
+- Ambos formularios tienen etiquetas visibles, foco perceptible y errores
+  comprensibles.
 - La pantalla funciona en móvil sin desplazamiento horizontal.
 - Se respetan los contratos y validaciones existentes.
 
 Dependencias:
 - DS-01.
-- Verificación de los flujos y endpoints actuales de autenticación.
-- Para Registro: contrato backend, campos y flujo de verificación de correo
-  confirmados.
+- Revisión de los componentes y servicios de autenticación existentes.
+- Confirmar la configuración efectiva de Registro en los entornos donde
+  vaya a habilitarse.
+- Confirmar la ruta frontend de destino del enlace de verificación.
+- Verificar la integración CSRF con el cliente HTTP existente.
+- No iniciar la implementación del recorrido completo de Registro hasta
+  confirmar la configuración y el destino frontend de verificación.
 
 Fuera de alcance:
 - Nuevos proveedores de autenticación.
-- Recuperación de contraseña si no existe en el alcance funcional.
-- Modificaciones del backend.
+- Recuperación de contraseña.
+- Reenvío de correo de verificación.
+- Confirmación de contraseña si no existe en el contrato.
+- Mostrar u ocultar contraseña.
+- Autenticación social.
+- Inicio de sesión automático después del registro.
+- Modificaciones del backend o de sus contratos.
 
 ### DS-03 — Gestión de Conciertos
 
@@ -336,7 +372,8 @@ Fuera de alcance:
 Secuencia de referencia:
 
 1. DS-01: fundamentos visuales.
-2. DS-02 y DS-03: autenticación y conciertos.
+2. DS-02 y DS-03: autenticación y conciertos, respetando las dependencias
+   específicas de configuración y verificación de Registro.
 3. DS-04 y DS-05: formaciones y gestión del coro.
 4. DS-06 y DS-07: transiciones e Inicio.
 5. DS-08: consolidación de estados.

@@ -14,15 +14,31 @@ La aplicación utiliza Angular y dispone de las siguientes rutas:
 
 | Ruta | Pantalla | Estado observado |
 |---|---|---|
-| `/` | Inicio | Implementada |
-| `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); pendiente de propuesta visual validada |
-| `/registro` | Registro | Placeholder informativo; pendiente de definir campos y flujo |
+| `/` | Inicio | Implementada; propuesta visual documentada, pendiente de validación |
+| `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); propuesta de reorganización visual documentada, pendiente de validación |
+| `/registro` | Registro | Placeholder informativo; backend con endpoints de registro y verificación, sujetos a configuración y disponibilidad del servicio de correo |
 | `/app/coro` | Gestión del coro | Implementada |
 | `/app/conciertos` | Conciertos | Pendiente de completar |
 | `/app/formaciones` | Formaciones | Implementada parcialmente |
 | `**` | No encontrado | Implementada |
 
 Las rutas privadas se encuentran protegidas mediante `directorGuard`.
+
+### Observaciones sobre autenticación
+
+La revisión del backend confirmó:
+
+- `POST /api/auth/register` recibe `displayName`, `email` y `password`.
+- El registro depende de `choir.auth.registration.enabled`, de un `VerificationEmailSender` disponible y de una URL base de verificación configurada.
+- La configuración incluida en `application.yml` deshabilita el registro por defecto y deja vacía la URL base. La configuración efectiva de los entornos desplegados no fue verificada.
+- Una solicitud procesada devuelve HTTP 202 con una respuesta genérica, también utilizada cuando el correo ya existe.
+- El registro requiere verificación de correo y no inicia sesión automáticamente.
+- El token de verificación vence a los 30 minutos y se consume una sola vez.
+- La verificación utiliza `POST /api/auth/verify-email`.
+- La protección CSRF requiere obtener el token mediante `GET /api/auth/csrf`, conservar la cookie de sesión y enviar el header `X-CSRF-TOKEN`.
+- No se encontró un endpoint de reenvío de correo de verificación.
+
+El contrato, sus límites y las decisiones de diseño derivadas están documentados en `design-proposals.md`, sección 2. No debe asumirse que el registro está habilitado en producción ni que el correo se envía correctamente en todos los entornos.
 
 ## 3. Auditoría visual inicial
 
@@ -183,17 +199,34 @@ Las futuras implementaciones deberán contar con alcance y criterios de aceptaci
 - `docs/design-references.md`: wireframes conceptuales para los módulos principales, incluyendo gestión de coreutas y transiciones.
 - `docs/accessibility-audit.md`: auditoría estática preliminar con cinco hallazgos y pruebas pendientes.
 - `docs/design-backlog.md`: backlog propuesto DS-01 a DS-09 con prioridades, dependencias y criterios de aceptación.
+- `docs/design-proposals.md`: propuestas conceptuales de Inicio, Ingresar y Registro.
 - `docs/assets/choir-design-reference.png`: referencia conceptual general de identidad visual.
+
+### Propuestas visuales disponibles
+
+En `docs/assets/choir-124/` se encuentran recursos de escritorio y móvil para:
+
+- Inicio.
+- Ingresar.
+- Registro.
+- Estado de éxito de Registro.
+- Estados de interacción de formularios.
+
+Las propuestas de Ingresar y Registro son conceptuales. Ingresar ya dispone de un formulario funcional; Registro continúa siendo un placeholder en el frontend. Las propuestas no equivalen a pantallas implementadas ni implican que el registro esté habilitado en los entornos desplegados.
 
 ### Pendiente de validación
 
-- Preparar propuestas visuales diferenciadas de escritorio y móvil para las pantallas representativas.
-- Validar la dirección artística y operativa con las pantallas y flujos reales.
+- Contrastar las propuestas visuales de Inicio, Ingresar y Registro con las pantallas y flujos reales.
+- Validar la dirección artística y operativa.
+- Confirmar la configuración efectiva de Registro en los entornos donde se utilizará.
+- Confirmar la ruta frontend de destino del enlace de verificación.
+- Verificar la integración CSRF en el cliente.
+- Preparar propuestas visuales diferenciadas para escritorio y móvil de Mi coro, Conciertos, Formaciones y transiciones.
 - Ejecutar las pruebas manuales de accesibilidad y responsive indicadas en `accessibility-audit.md`.
 - Confirmar las decisiones finales de diseño y actualizar el backlog si la validación modifica prioridades o dependencias.
 - Crear tickets Jira independientes únicamente después de validar el alcance y evitar solapamientos.
 
-La documentación completada constituye una propuesta de Discovery, no una aprobación definitiva del sistema visual ni una certificación de accesibilidad.
+La documentación y las propuestas constituyen un Discovery preliminar. No representan una aprobación definitiva del sistema visual ni una certificación de accesibilidad.
 
 ## 9. Registro de hallazgos UX/UI priorizados
 
@@ -204,7 +237,7 @@ ni sustituyen las pruebas manuales pendientes.
 
 | ID | Área | Evidencia observada | Impacto | Prioridad |
 |---|---|---|---|---|
-| UX-01 | Ingresar y Registro | `/ingresar` ya cuenta con un formulario funcional y `/registro` es un placeholder informativo; ninguna tiene una propuesta visual validada. | Los recorridos de acceso no cuentan todavía con una experiencia visual completa. | P1 |
+| UX-01 | Ingresar y Registro | `/ingresar` dispone de un formulario funcional y `/registro` es un placeholder informativo. Hay propuestas visuales para ambos flujos, todavía pendientes de validación. | La experiencia visual de autenticación necesita validación e implementación; Registro también requiere completar su integración frontend conforme al contrato y configuración disponibles. | P1 |
 | UX-02 | Conciertos | La ruta `/app/conciertos` está identificada como pendiente de completar. | La gestión de conciertos carece de una experiencia visual terminada. | P1 |
 | UX-03 | Estilos compartidos | `src/app/app.scss` concentra estilos de navegación, presentación, formularios, estados y layouts. | La concentración puede dificultar la evolución y consistencia de los patrones compartidos. | P2 |
 | UX-04 | Formaciones | El escenario utiliza interacciones de puntero para mover integrantes; no se identificó una alternativa de teclado en el template revisado. | Algunas operaciones pueden no estar disponibles para usuarios que navegan con teclado. | P1 |
@@ -226,9 +259,10 @@ ni sustituyen las pruebas manuales pendientes.
 
 ### Trabajo pendiente para cerrar la validación visual
 
+- Contrastar las propuestas de Inicio, Ingresar y Registro con los
+  componentes y flujos existentes.
 - Preparar propuestas visuales diferenciadas para escritorio y móvil de
-  las pantallas representativas.
-- Contrastar las propuestas con los componentes y flujos existentes.
+  las pantallas restantes.
 - Registrar las decisiones aceptadas y descartadas.
 - Revalidar las prioridades con evidencia de uso y dependencias funcionales.
 
