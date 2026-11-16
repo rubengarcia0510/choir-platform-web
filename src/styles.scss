@@ -41,3 +41,28 @@ a:focus-visible, button:focus-visible, input:focus-visible {
   color: #fff;
   background: var(--accent);
 }
+
+/* Design system tokens (CHOIR‑124/125) */
+:root {
+  --choir-night: #00102A;               /* fondo azul profundo */
+  --choir-night-secondary: #142747;    /* superficie oscura secundaria */
+  --choir-gold: #D8B879;               /* acento dorado */
+  --choir-ivory: #F5F1E8;              /* texto o superficies claras */
+  --choir-white: #FFFFFF;              /* texto de alto contraste */
+  --choir-page: #FCFBF8;               /* fondo general */
+  --choir-surface: #FFFFFF;            /* tarjetas y paneles */
+  --choir-ink: #252B25;                /* texto principal */
+  --choir-muted: #747A70;              /* texto secundario */
+  --choir-line: #E9E8E1;               /* bordes y separadores */
+  --choir-accent: #456B4C;             /* acento operativo */
+  /* Spacing scale (multiples of 4) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+}
