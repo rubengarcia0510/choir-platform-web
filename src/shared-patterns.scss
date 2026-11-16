@@ -1,0 +1,145 @@
+/* ==========================================================================
+   CHOIR — Shared Design System Patterns (CHOIR-125 / DS-01)
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Buttons (.button, .button-primary, .button-secondary, .button-danger)
+   States: default, hover, active, focus-visible, disabled, loading/waiting
+   -------------------------------------------------------------------------- */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 47px;
+  padding: 0 var(--space-4);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-base);
+  text-decoration: none;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  transition: transform var(--transition-duration) ease,
+              background var(--transition-duration) ease,
+              border-color var(--transition-duration) ease,
+              color var(--transition-duration) ease,
+              box-shadow var(--transition-duration) ease;
+
+  /* Focus visible */
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 3px;
+  }
+
+  /* Hover & Active (solo en elementos interactivos NO deshabilitados) */
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled):not([aria-disabled="true"]) {
+    transform: translateY(0);
+  }
+
+  /* Disabled & Loading states */
+  &:disabled,
+  &[aria-disabled="true"] {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none !important;
+    pointer-events: auto;
+  }
+
+  &[disabled]:not([aria-busy="true"]) {
+    cursor: not-allowed;
+  }
+
+  /* Estado de espera / carga cuando se indica o durante mutación */
+  &[aria-busy="true"],
+  &:disabled[data-loading="true"] {
+    cursor: wait;
+  }
+}
+
+.button-primary {
+  color: var(--choir-white);
+  background: var(--choir-accent);
+  border-color: var(--choir-accent);
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--choir-accent-dark);
+    border-color: var(--choir-accent-dark);
+  }
+
+  &:active:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--choir-accent-dark);
+  }
+}
+
+.button-secondary {
+  color: var(--choir-ink);
+  border-color: var(--choir-line);
+  background: var(--choir-surface);
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--choir-page);
+    border-color: var(--choir-accent);
+    color: var(--choir-accent);
+  }
+
+  &:active:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--choir-line);
+  }
+}
+
+.button-danger {
+  color: var(--choir-white);
+  background: var(--color-danger);
+  border-color: var(--color-danger);
+
+  &:hover:not(:disabled):not([aria-disabled="true"]) {
+    background: #a71d2a;
+    border-color: #a71d2a;
+  }
+
+  &:active:not(:disabled):not([aria-disabled="true"]) {
+    background: #8c1823;
+  }
+}
+
+.full-button {
+  width: 100%;
+  margin-top: var(--space-4);
+}
+
+/* --------------------------------------------------------------------------
+   Panels (.panel) y Notice Cards (.notice-card)
+   -------------------------------------------------------------------------- */
+.panel {
+  border: 1px solid var(--choir-line);
+  background: var(--choir-surface);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  color: var(--choir-ink);
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 3px;
+  }
+}
+
+.notice-card {
+  border: 1px solid var(--choir-line);
+  background: var(--choir-surface);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  color: var(--choir-ink);
+
+  &:focus-visible {
+    outline: var(--focus-ring);
+    outline-offset: 3px;
+  }
+}
