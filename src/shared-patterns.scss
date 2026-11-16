@@ -2,6 +2,12 @@
    CHOIR — Shared Design System Patterns (CHOIR-125 / DS-01)
    ========================================================================== */
 
+@keyframes choir-button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* --------------------------------------------------------------------------
    Buttons (.button, .button-primary, .button-secondary, .button-danger)
    States: default, hover, active, focus-visible, disabled, loading/waiting
@@ -23,11 +29,12 @@
   cursor: pointer;
   user-select: none;
   vertical-align: middle;
-  transition: transform var(--transition-duration) ease,
-              background var(--transition-duration) ease,
-              border-color var(--transition-duration) ease,
-              color var(--transition-duration) ease,
-              box-shadow var(--transition-duration) ease;
+  transition:
+    transform var(--transition-duration) ease,
+    background var(--transition-duration) ease,
+    border-color var(--transition-duration) ease,
+    color var(--transition-duration) ease,
+    box-shadow var(--transition-duration) ease;
 
   /* Focus visible */
   &:focus-visible {
@@ -36,31 +43,61 @@
   }
 
   /* Hover & Active (solo en elementos interactivos NO deshabilitados) */
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
+  &:hover:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     transform: translateY(-2px);
   }
 
-  &:active:not(:disabled):not([aria-disabled="true"]) {
+  &:active:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     transform: translateY(0);
   }
 
   /* Disabled & Loading states */
   &:disabled,
-  &[aria-disabled="true"] {
+  &[aria-disabled='true'] {
     opacity: 0.55;
     cursor: not-allowed;
     transform: none !important;
     pointer-events: auto;
   }
 
-  &[disabled]:not([aria-busy="true"]) {
+  &[disabled]:not([aria-busy='true']):not([data-loading='true']) {
     cursor: not-allowed;
   }
 
-  /* Estado de espera / carga cuando se indica o durante mutación */
-  &[aria-busy="true"],
-  &:disabled[data-loading="true"] {
+  /* Carga: se activa con [aria-busy="true"] o [data-loading="true"].
+     - Se distingue de disabled: opacidad completa (conserva el contraste del
+       texto) e indicador giratorio antes de la etiqueta.
+     - Es compatible con disabled: si el botón también está deshabilitado
+       (consumidor actual), prevalece el aspecto de carga.
+     - No agrega lógica: el consumidor decide cuándo aplicar el atributo y
+       mantiene su propio bloqueo de reenvío ([disabled] o guarda en el handler). */
+  &[aria-busy='true'],
+  &[data-loading='true'] {
     cursor: wait;
+    opacity: 1;
+    transform: none !important;
+
+    &::before {
+      content: '';
+      flex: none;
+      width: 1em;
+      height: 1em;
+      border: 2px solid currentColor;
+      border-right-color: transparent;
+      border-radius: var(--radius-full);
+      animation: choir-button-spin 800ms linear infinite;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &[aria-busy='true']::before,
+    &[data-loading='true']::before {
+      animation: none;
+    }
   }
 }
 
@@ -69,12 +106,16 @@
   background: var(--choir-accent);
   border-color: var(--choir-accent);
 
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
+  &:hover:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: var(--choir-accent-dark);
     border-color: var(--choir-accent-dark);
   }
 
-  &:active:not(:disabled):not([aria-disabled="true"]) {
+  &:active:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: var(--choir-accent-dark);
   }
 }
@@ -84,13 +125,17 @@
   border-color: var(--choir-line);
   background: var(--choir-surface);
 
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
+  &:hover:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: var(--choir-page);
     border-color: var(--choir-accent);
     color: var(--choir-accent);
   }
 
-  &:active:not(:disabled):not([aria-disabled="true"]) {
+  &:active:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: var(--choir-line);
   }
 }
@@ -100,19 +145,18 @@
   background: var(--color-danger);
   border-color: var(--color-danger);
 
-  &:hover:not(:disabled):not([aria-disabled="true"]) {
+  &:hover:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: #a71d2a;
     border-color: #a71d2a;
   }
 
-  &:active:not(:disabled):not([aria-disabled="true"]) {
+  &:active:not(:disabled):not([aria-disabled='true']):not([aria-busy='true']):not(
+      [data-loading='true']
+    ) {
     background: #8c1823;
   }
-}
-
-.full-button {
-  width: 100%;
-  margin-top: var(--space-4);
 }
 
 /* --------------------------------------------------------------------------
