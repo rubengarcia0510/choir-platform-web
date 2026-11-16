@@ -69,64 +69,79 @@ a los flujos de autenticación, respetando la implementación existente y el
 contrato de registro confirmado en backend.
 
 Estado actual:
-- Ingresar ya dispone de un formulario funcional en
-  `src/app/auth/login.page.ts`. El trabajo previsto es visual y de
-  accesibilidad; no debe reemplazar ni duplicar el flujo de autenticación.
-- Registro todavía es un placeholder informativo en `src/app/pages.ts`.
-  El backend dispone de `POST /api/auth/register` y
-  `POST /api/auth/verify-email`, pero el registro depende de configuración
-  y de la disponibilidad del servicio de envío de correo.
+- Ingresar dispone de un formulario funcional en
+  `src/app/auth/login.page.ts`. Su trabajo previsto es visual y de
+  accesibilidad; no debe reemplazar ni duplicar el flujo existente.
+- Registro continúa siendo un placeholder informativo en
+  `src/app/pages.ts`.
+- El backend dispone de `POST /api/auth/register` y
+  `POST /api/auth/verify-email`. La disponibilidad del registro depende
+  de configuración y del servicio de envío de correo.
 - El contrato backend fue revisado y está documentado en
   `design-proposals.md`, sección 2.
 
+#### Etapa A — Diseño visual
+
 Alcance:
 - Reorganización visual del formulario existente de Ingresar.
-- Diseño e implementación de la pantalla de Registro conforme al contrato
-  backend confirmado.
-- Campos de Registro: nombre para mostrar, correo y contraseña.
-- Respeto de los límites confirmados: nombre hasta 160 caracteres,
-  correo hasta 254 caracteres y contraseña entre 12 y 200 caracteres.
-- Integración con la protección CSRF existente: obtención del token,
-  conservación de la cookie de sesión y envío del header `X-CSRF-TOKEN`.
-- Presentación de los estados de carga, error, indisponibilidad y respuesta
-  genérica de aceptación.
-- Diseño del mensaje posterior al registro sin revelar si el correo ya
-  existía ni afirmar que el envío se completó en todos los casos.
-- Adaptación responsive y accesibilidad de ambos formularios.
+- Definición visual de Registro para escritorio y móvil.
+- Definición de estados de carga, error, indisponibilidad y aceptación.
 - Consistencia visual entre Ingresar y Registro.
+- Revisión de etiquetas, foco, contraste y accesibilidad.
 
 Criterios de aceptación:
 - Ingresar conserva sus campos, validaciones, autenticación y mensajes
   funcionales actuales.
 - La propuesta visual de Ingresar no introduce nuevas operaciones.
-- Registro envía los campos `displayName`, `email` y `password` según
-  el contrato existente.
-- La contraseña respeta el mínimo de 12 y el máximo de 200 caracteres;
-  no se agregan reglas de composición no confirmadas.
-- El formulario gestiona correctamente la protección CSRF existente.
-- La respuesta HTTP 202 presenta un mensaje neutral y no revela si la
-  dirección ya estaba registrada.
-- La respuesta HTTP 503 se presenta como indisponibilidad del registro,
-  sin atribuir el problema a los datos ingresados.
-- La interfaz no ofrece reenvío de verificación, porque no existe un
-  endpoint confirmado para esa operación.
-- La interfaz no inicia sesión automáticamente después del registro.
-- La experiencia no afirma que el correo fue enviado efectivamente
-  en todos los casos.
+- La propuesta de Registro utiliza los campos confirmados:
+  nombre para mostrar, correo y contraseña.
+- Los estados visuales no afirman que se creó una cuenta ni que se envió
+  un correo cuando la respuesta del backend no lo garantiza.
 - Ambos formularios tienen etiquetas visibles, foco perceptible y errores
   comprensibles.
-- La pantalla funciona en móvil sin desplazamiento horizontal.
-- Se respetan los contratos y validaciones existentes.
+- Las propuestas funcionan en móvil sin desplazamiento horizontal.
 
-Dependencias:
+#### Etapa B — Integración funcional de Registro
+
+Esta etapa no debe comenzar hasta resolver las dependencias indicadas abajo.
+
+Alcance:
+- Implementar el formulario con `displayName`, `email` y `password`.
+- Respetar los límites confirmados: nombre hasta 160 caracteres,
+  correo hasta 254 caracteres y contraseña entre 12 y 200 caracteres.
+- Integrar la protección CSRF existente: obtener el token, conservar
+  la cookie de sesión y enviar el header `X-CSRF-TOKEN`.
+- Gestionar la respuesta HTTP 202 con un mensaje neutral.
+- Gestionar HTTP 503 como indisponibilidad del registro.
+- Integrar la verificación de correo únicamente cuando esté confirmado
+  el destino frontend del enlace.
+- Mantener el comportamiento responsive y accesible.
+
+Criterios de aceptación:
+- El request utiliza los campos y límites del contrato existente.
+- No se agregan reglas de composición de contraseña no confirmadas.
+- La respuesta HTTP 202 no revela si la dirección ya estaba registrada.
+- La interfaz no afirma que el correo fue enviado efectivamente
+  en todos los casos.
+- La respuesta HTTP 503 se presenta como indisponibilidad del registro,
+  sin atribuir el problema a los datos ingresados.
+- No se ofrece reenvío de verificación porque no existe un endpoint
+  confirmado para esa operación.
+- No se inicia sesión automáticamente después del registro.
+- Se respeta la protección CSRF existente.
+- Los errores y estados son accesibles y comprensibles.
+
+Dependencias para la Etapa B:
 - DS-01.
 - Revisión de los componentes y servicios de autenticación existentes.
 - Confirmar la configuración efectiva de Registro en los entornos donde
   vaya a habilitarse.
+- Confirmar la disponibilidad del servicio de envío de correo.
 - Confirmar la ruta frontend de destino del enlace de verificación.
 - Verificar la integración CSRF con el cliente HTTP existente.
-- No iniciar la implementación del recorrido completo de Registro hasta
-  confirmar la configuración y el destino frontend de verificación.
+
+La Etapa A puede avanzar sin implementar el recorrido funcional de Registro.
+La Etapa B queda bloqueada hasta confirmar las dependencias anteriores.
 
 Fuera de alcance:
 - Nuevos proveedores de autenticación.
@@ -372,12 +387,12 @@ Fuera de alcance:
 Secuencia de referencia:
 
 1. DS-01: fundamentos visuales.
-2. DS-02 y DS-03: autenticación y conciertos, respetando las dependencias
-   específicas de configuración y verificación de Registro.
-3. DS-04 y DS-05: formaciones y gestión del coro.
-4. DS-06 y DS-07: transiciones e Inicio.
-5. DS-08: consolidación de estados.
-6. DS-09: validación integral.
+2. DS-02 Etapa A y DS-03: diseño visual de autenticación y conciertos.
+3. DS-02 Etapa B: integración de Registro, una vez resueltas sus dependencias.
+4. DS-04 y DS-05: formaciones y gestión del coro.
+5. DS-06 y DS-07: transiciones e Inicio.
+6. DS-08: consolidación de estados.
+7. DS-09: validación integral.
 
 Esta secuencia es orientativa. Las dependencias reales deben verificarse
 contra Jira y los componentes compartidos antes de asignar trabajo paralelo.
@@ -387,6 +402,8 @@ contra Jira y los componentes compartidos antes de asignar trabajo paralelo.
 - DS-01 es responsable de los patrones compartidos.
 - Cada módulo debe tener un responsable de implementación.
 - Las tareas de DS-02 a DS-07 no deben modificar componentes ajenos a su módulo.
+- DS-02 debe mantener separadas las tareas visuales y las de integración
+  funcional de Registro.
 - DS-08 debe reutilizar los patrones definidos, no crear variantes aisladas.
 - DS-09 valida y reporta hallazgos; las correcciones se implementan en tickets
   específicos.
