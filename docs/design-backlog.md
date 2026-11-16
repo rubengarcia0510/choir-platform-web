@@ -64,7 +64,16 @@ Fuera de alcance:
 Prioridad: P1.
 
 Objetivo:
-Completar visualmente los flujos de autenticación existentes.
+Aplicar la propuesta visual de CHOIR-124 (`design-proposals.md`, sección 2)
+a los flujos de autenticación: el formulario funcional de Ingresar
+(`src/app/auth/login.page.ts`) y, una vez definido su alcance, Registro.
+
+Estado:
+- Ingresar ya es funcional; el trabajo es visual y no cambia su comportamiento.
+- Registro es un placeholder informativo. Sus campos, validaciones y flujo
+  de verificación de correo no están confirmados; esa parte no debe
+  implementarse hasta resolver las decisiones pendientes de la sección 2
+  de `design-proposals.md`.
 
 Alcance:
 - Presentación de los formularios.
@@ -85,6 +94,8 @@ Criterios de aceptación:
 Dependencias:
 - DS-01.
 - Verificación de los flujos y endpoints actuales de autenticación.
+- Para Registro: contrato backend, campos y flujo de verificación de correo
+  confirmados.
 
 Fuera de alcance:
 - Nuevos proveedores de autenticación.
