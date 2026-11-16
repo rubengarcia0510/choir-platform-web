@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="1440" height="900" role="img" aria-labelledby="t d">
+  <title id="t">CHOIR-124 · Solicitud de registro — escritorio (propuesta)</title>
+  <desc id="d">Propuesta visual conceptual. Informa que, si el registro está disponible, se recibirán los próximos pasos por correo. No confirma la creación de una cuenta ni el envío efectivo de un mensaje.</desc>
+  <rect width="1440" height="900" fill="#FCFBF8"/>
+  <rect width="560" height="900" fill="#00102A"/>
+  <circle cx="80" cy="140" r="260" fill="#142747" opacity=".55"/>
+  <g fill="none" stroke="#D8B879" stroke-linecap="round" opacity=".5">
+    <path d="M0 640 C140 622 224 658 336 640 S504 622 560 649"/>
+    <path d="M0 661 C140 638 224 684 336 661 S504 638 560 673"/>
+    <path d="M0 683 C140 655 224 711 336 683 S504 655 560 697"/>
+    <path d="M0 704 C140 671 224 737 336 704 S504 671 560 721"/>
+    <path d="M0 726 C140 688 224 764 336 726 S504 688 560 745"/>
+  </g>
+  <text x="64" y="84" font-family="Georgia,serif" font-size="24" fill="#D8B879" letter-spacing="6.7">CHOIR</text>
+  <text x="64" y="330" font-family="Arial,sans-serif" font-size="11" font-weight="bold" fill="#D8B879" letter-spacing="1.6">PARA DIRECTORES DE CORO</text>
+  <text x="64" y="392" font-family="Georgia,serif" font-size="40" fill="#F5F1E8">Cada voz importa.</text>
+  <text x="64" y="442" font-family="Georgia,serif" font-size="40" fill="#D8B879">Cada detalle también.</text>
+  <rect x="780" y="210" width="440" height="384" rx="18" fill="#FFFFFF" stroke="#E9E8E1"/>
+  <circle cx="848" cy="286" r="28" fill="#EAF0EB"/>
+  <g fill="none" stroke="#456B4C" stroke-width="2" stroke-linejoin="round">
+    <rect x="834" y="276" width="28" height="20" rx="3"/>
+    <path d="M834 279 L848 289 L862 279"/>
+  </g>
+  <text x="820" y="336" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#456B4C" letter-spacing="1.4">SOLICITUD RECIBIDA</text>
+  <text x="820" y="376" font-family="Georgia,serif" font-size="32" fill="#252B25">Próximos pasos</text>
+  <text x="820" y="410" font-family="Arial,sans-serif" font-size="15" fill="#5F655C">Si corresponde, vas a</text>
+  <text x="820" y="432" font-family="Arial,sans-serif" font-size="15" fill="#5F655C">recibir un correo con los próximos</text>
+  <text x="820" y="454" font-family="Arial,sans-serif" font-size="15" fill="#5F655C">pasos. Revisá tu bandeja de entrada.</text>
+  <rect x="820" y="494" width="360" height="52" rx="10" fill="#456B4C"/>
+  <text x="1000" y="526" font-family="Arial,sans-serif" font-size="16" font-weight="600" fill="#FFFFFF" text-anchor="middle">Ir a ingresar</text>
+</svg>
