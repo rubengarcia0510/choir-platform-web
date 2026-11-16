@@ -274,3 +274,237 @@ Pendientes de propuesta visual:
 
 Cada pantalla deberá documentarse para escritorio y móvil, respetando
 los datos, permisos, rutas y operaciones existentes.
+
+## 4. Mi coro, Conciertos y Formaciones
+
+Estado: auditoría estática de las pantallas y componentes existentes en
+`main`. Las propuestas siguientes son conceptuales y requieren validación
+visual y manual. No autorizan cambios funcionales ni de estilos.
+
+### 4.1 Mi coro
+
+#### Funcionalidad observada
+
+La pantalla permite:
+- Consultar los coros disponibles.
+- Crear un coro mediante nombre y descripción.
+- Editar los datos de un coro.
+- Archivar un coro mediante confirmación.
+- Distinguir visualmente los coros archivados.
+- Reconocer estados de carga, error y ausencia de resultados.
+
+La pantalla no implementa en este flujo un listado de coreutas, búsqueda,
+filtros ni una vista de detalle del coro. Esas capacidades no deben
+incorporarse a la propuesta como si ya existieran.
+
+#### Problemas y oportunidades
+
+- El formulario y el listado compiten por la atención visual.
+- Las filas del listado reúnen nombre, descripción y acciones sin una
+  jerarquía suficientemente marcada.
+- La condición de archivado necesita distinguirse sin depender únicamente
+  del color.
+- La confirmación de archivado debe mantener una relación visual clara
+  con el coro sobre el que se está actuando.
+- En pantallas pequeñas, las acciones de cada fila necesitan conservar
+  espacio y objetivos táctiles adecuados.
+- Los estados de carga, error y lista vacía deben tener una presentación
+  consistente y no confundirse entre sí.
+
+#### Propuesta de escritorio
+
+- Encabezado de página con título, descripción breve y contexto del coro.
+- Formulario de alta en una tarjeta diferenciada, con jerarquía secundaria
+  respecto del listado cuando ya existen coros.
+- Listado como área principal de trabajo.
+- Cada coro se presenta como una unidad visual con nombre destacado,
+  descripción secundaria y acciones agrupadas.
+- Estado archivado mediante texto o indicador explícito además de su
+  tratamiento visual.
+- Confirmación de archivado asociada a la fila correspondiente, con
+  acciones de confirmar y cancelar claramente diferenciadas.
+
+#### Propuesta móvil
+
+- Encabezado compacto y contenido en una sola columna.
+- Formulario accesible sin competir horizontalmente con el listado.
+- Cada coro se presenta como tarjeta o bloque apilado.
+- Acciones agrupadas debajo de los datos, sin depender de hover.
+- Confirmación dentro del contexto del elemento afectado.
+- Sin desplazamiento horizontal ni controles demasiado próximos.
+
+#### Límites de la propuesta
+
+No agregar búsqueda, filtros, detalle, gestión de integrantes ni nuevas
+operaciones. La propuesta reorganiza la presentación de las capacidades
+existentes.
+
+### 4.2 Conciertos
+
+#### Funcionalidad observada
+
+La ruta actual muestra:
+- Título y descripción del módulo.
+- Indicador de módulo en preparación.
+- Panel informativo sobre la futura presentación.
+- Mensaje que aclara que los datos todavía no están conectados.
+
+No existe en esta pantalla un listado funcional de conciertos, filtros,
+calendario, detalle ni acciones de creación o edición.
+
+#### Problemas y oportunidades
+
+- El estado de módulo en preparación debe ser inequívoco.
+- No debe confundirse la falta de integración del módulo con un listado
+  vacío de conciertos reales.
+- La presentación debe explicar el alcance disponible sin simular
+  operaciones que todavía no existen.
+- La pantalla necesita conservar la identidad visual operativa de CHOIR,
+  sin aparentar que la gestión está habilitada.
+
+#### Propuesta de escritorio
+
+- Encabezado con título y descripción breve.
+- Estado visible de módulo en preparación, expresado mediante texto
+  además de cualquier indicador cromático.
+- Panel central de información con una explicación concisa del estado
+  actual.
+- Composición sobria, con superficie clara y jerarquía tipográfica.
+- No mostrar tarjetas de conciertos ficticios ni acciones inactivas
+  que sugieran funcionalidades disponibles.
+
+#### Propuesta móvil
+
+- Encabezado compacto.
+- Indicador de preparación próximo al título.
+- Panel informativo de ancho completo y lectura sencilla.
+- Texto breve, con espaciado suficiente y sin elementos decorativos
+  que compitan con el mensaje.
+- Sin desplazamiento horizontal.
+
+#### Límites de la propuesta
+
+Esta pantalla debe seguir representando un módulo en preparación.
+No diseñar como funcionalidades existentes un calendario, listado,
+filtros, creación, edición, detalle ni estados de conciertos.
+
+La futura gestión de conciertos requiere validar primero los flujos,
+contratos, permisos y operaciones funcionales correspondientes.
+
+### 4.3 Formaciones
+
+#### Funcionalidad observada
+
+El flujo existente permite:
+- Seleccionar un coro.
+- Seleccionar un concierto.
+- Seleccionar una obra del repertorio.
+- Seleccionar una formación o crearla con nombre y descripción.
+- Consultar el borrador y las posiciones asociadas a la formación.
+- Visualizar al director y a los integrantes posicionados en el escenario.
+- Arrastrar integrantes para modificar su posición.
+- Bloquear y desbloquear posiciones.
+- Quitar integrantes de la formación.
+- Guardar las posiciones.
+- Reconocer estados de carga, error, reintento y confirmación de guardado.
+
+El escenario muestra estados diferenciados para carga, error, ausencia de
+borrador y formación sin integrantes. Los controles de integrantes incluyen
+acciones para quitar y bloquear posiciones.
+
+#### Problemas y oportunidades
+
+- La selección de coro, concierto, repertorio y formación puede competir
+  visualmente con el escenario, aunque representa una secuencia de contexto.
+- El escenario debe ser el área visual principal una vez seleccionado
+  el contexto necesario.
+- El elenco disponible y las acciones de incorporación necesitan una
+  jerarquía secundaria, pero deben seguir siendo fáciles de localizar.
+- Los nombres y las secciones vocales deben permanecer legibles en el
+  escenario.
+- Los estados de bloqueo, selección y movimiento necesitan señales
+  comprensibles que no dependan solo del color.
+- Las acciones de quitar y bloquear deben conservar una asociación
+  inequívoca con cada integrante.
+- La interfaz debe distinguir cambios todavía no guardados de posiciones
+  persistidas.
+- En móvil, el escenario requiere una reorganización específica: reducir
+  el ancho de las tarjetas puede afectar la lectura de nombres y secciones.
+- El movimiento actual se basa en eventos de puntero. No se identificó
+  en el template una alternativa equivalente de teclado para cambiar
+  posiciones; debe tratarse como una necesidad de accesibilidad pendiente.
+
+#### Propuesta de escritorio
+
+- Presentar los selectores como una secuencia de contexto, agrupados y
+  ordenados: coro, concierto, obra y formación.
+- Mantener visible el contexto seleccionado para evitar dudas sobre
+  qué concierto y obra se están editando.
+- Una vez disponible el borrador, dar prioridad visual al escenario.
+- Conservar una referencia visible de la dirección del coro y la
+  orientación del escenario.
+- Mostrar nombre y sección vocal de cada integrante con jerarquía
+  tipográfica suficiente.
+- Mantener las acciones de bloqueo y quitar vinculadas visualmente
+  a cada integrante.
+- Ubicar el elenco disponible en un panel secundario, con controles
+  distinguibles para agregar o quitar integrantes según el flujo actual.
+- Agrupar las acciones de guardado y sus mensajes de resultado en una
+  zona estable y fácil de localizar.
+- Diferenciar carga del contexto, carga del borrador y guardado.
+
+#### Propuesta móvil
+
+- Organizar los selectores en una secuencia vertical, con etiquetas
+  visibles y contexto seleccionado reconocible.
+- Evitar que todos los controles y el escenario compitan en el primer
+  nivel visual.
+- Dar al escenario el ancho disponible y preservar la relación espacial
+  entre integrantes.
+- Mantener nombres y secciones legibles; no reducirlos hasta volverlos
+  ambiguos.
+- Reubicar las acciones de cada integrante para que no queden fuera
+  del área visible ni se superpongan con otros controles.
+- Presentar el elenco disponible en un bloque separado del escenario,
+  conservando acceso a las operaciones existentes.
+- Mantener el guardado y sus mensajes accesibles sin exigir precisión
+  excesiva de desplazamiento o interacción.
+
+#### Accesibilidad y validaciones pendientes
+
+- Definir una alternativa operable por teclado para modificar posiciones,
+  sin asumir que el arrastre por puntero es suficiente.
+- Verificar nombres accesibles y orden de navegación de los integrantes.
+- Revisar cómo se anuncian selección, bloqueo, carga y cambios de posición.
+- Comprobar que los botones contextuales sean localizables y operables
+  con teclado y tecnologías de asistencia.
+- Validar el escenario con zoom y anchos móviles reales.
+- Revisar movimiento reducido y evitar que una animación sea el único
+  medio para comunicar un cambio.
+- No declarar conformidad WCAG sin completar las pruebas manuales.
+
+#### Límites de la propuesta
+
+No modificar algoritmos de distribución, reglas de negocio, contratos,
+persistencia ni operaciones del flujo. No agregar nuevas métricas ni
+nuevos modos de edición.
+
+La alternativa accesible al arrastre debe definirse en un ticket específico
+y validarse contra el comportamiento funcional existente antes de
+implementarse.
+
+### 4.4 Criterios comunes de validación
+
+- [ ] Contrastar cada propuesta con la pantalla real y sus estados.
+- [ ] Validar escritorio, tablet y móvil con anchos representativos.
+- [ ] Verificar que ninguna propuesta agregue operaciones inexistentes.
+- [ ] Comprobar contraste de texto, controles, bordes y foco.
+- [ ] Revisar navegación por teclado y nombres accesibles.
+- [ ] Validar mensajes de carga, error, vacío, confirmación y éxito
+      cuando esos estados existan en el flujo.
+- [ ] Registrar evidencia de las pruebas manuales.
+- [ ] Revisar dependencias funcionales en Jira antes de convertir
+      propuestas en tickets de implementación.
+
+Estas propuestas complementan la auditoría inicial. No representan
+diseños aprobados ni una certificación de accesibilidad.
