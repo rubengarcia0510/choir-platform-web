@@ -251,6 +251,7 @@ Contrastes calculados, sin pruebas manuales:
 - Confirmar la ruta frontend de verificación y la configuración efectiva
   de los entornos antes de cerrar el diseño del recorrido completo.
 - Reconciliar DS-02 en `design-backlog.md` con el contrato verificado.
+- DS-02 Etapa A y DS-02 Etapa B deben gestionarse como tickets Jira independientes, cada uno con su propia rama y PR. La Etapa A cubre el diseño visual; la Etapa B cubre exclusivamente la integración funcional de Registro y permanece bloqueada hasta resolver sus dependencias.
 
 ### Criterios de validación
 

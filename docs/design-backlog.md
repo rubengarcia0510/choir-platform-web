@@ -14,6 +14,9 @@ independientes. No representa tickets ya creados ni autoriza implementaciones.
 - Verificar dependencias con Jira antes de iniciar cada implementación.
 - No asignar tareas paralelas que modifiquen los mismos componentes.
 - Cada implementación debe realizarse en su propia rama y PR.
+- Cada unidad DS que se implemente debe tener un ticket Jira propio.
+- Las etapas A y B de DS-02 son tickets Jira independientes, con ramas y PR separados.
+- Los identificadores DS organizan este backlog; no representan tickets Jira creados.
 
 ## 2. Criterios de prioridad
 
@@ -32,14 +35,16 @@ Prioridad: P1.
 Objetivo:
 Establecer los patrones visuales que utilizarán los módulos del frontend.
 
+Responsabilidad exclusiva: definir y documentar los fundamentos visuales y los contratos de los componentes compartidos. No implementar estados específicos de cada pantalla ni rediseñar módulos.
+
 Alcance:
 - Tokens de color, tipografía, espaciado, bordes y superficies.
 - Botones y sus variantes.
 - Campos y controles de formularios.
 - Tarjetas y paneles.
 - Alertas y mensajes de feedback.
-- Estados de carga, vacío, error y éxito.
-- Foco visible y estados disabled.
+- Estados visuales de los componentes base: foco, disabled, validación y feedback.
+- Estados de carga y deshabilitado propios de los controles.
 - Criterios responsive.
 
 Criterios de aceptación:
@@ -324,6 +329,8 @@ Prioridad: P2.
 Objetivo:
 Consolidar los estados compartidos de la aplicación.
 
+Responsabilidad exclusiva: aplicar y verificar los patrones de estado ya definidos por DS-01 en los módulos existentes. No crear tokens, variantes ni componentes base nuevos.
+
 Alcance:
 - Carga.
 - Vacío.
@@ -331,7 +338,8 @@ Alcance:
 - Éxito.
 - Confirmación.
 - Falta de permisos.
-- Mensajes de validación.
+- Aplicación de mensajes de validación en formularios existentes.
+- Aplicación de los patrones en las pantallas existentes, sin redefinir componentes base.
 
 Criterios de aceptación:
 - Los estados tienen patrones visuales consistentes.
@@ -339,6 +347,7 @@ Criterios de aceptación:
 - Los errores y confirmaciones son accesibles.
 - No se confunden errores técnicos con estados vacíos.
 - Los patrones se reutilizan entre módulos.
+- DS-08 no modifica tokens, variantes ni contratos visuales definidos por DS-01.
 
 Dependencias:
 - DS-01.
@@ -405,6 +414,7 @@ contra Jira y los componentes compartidos antes de asignar trabajo paralelo.
 - DS-02 debe mantener separadas las tareas visuales y las de integración
   funcional de Registro.
 - DS-08 debe reutilizar los patrones definidos, no crear variantes aisladas.
+- DS-01 define estados a nivel de componente; DS-08 aplica y verifica estados globales a nivel de pantalla.
 - DS-09 valida y reporta hallazgos; las correcciones se implementan en tickets
   específicos.
 - No dividir una misma pantalla entre implementadores sin delimitar archivos
