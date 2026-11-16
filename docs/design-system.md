@@ -199,7 +199,7 @@ La adaptación debe validarse por pantalla y no solamente por la existencia de b
 | Mi coro | Operativo | Gestión clara y estados consistentes |
 | Conciertos | Mixto | Presentación artística y gestión operativa |
 | Formaciones | Operativo con detalles artísticos | Escenario, posiciones y controles |
-| Transiciones | Mixto | Visualización de movimiento y métricas |
+| Transiciones | Mixto | Comparación visual de origen y destino con información disponible |
 | Ingresar y registro | Operativo | Simplicidad y legibilidad |
 
 ## 10. Reglas de implementación futura

@@ -180,3 +180,43 @@ Las futuras implementaciones deberán contar con alcance y criterios de aceptaci
 - Referencias y propuestas visuales para las pantallas principales.
 - Backlog de mejoras frontend priorizado por módulo y dependencia.
 - Validación de la dirección visual antes de iniciar su implementación.
+
+## 9. Registro de hallazgos UX/UI priorizados
+
+Los siguientes hallazgos surgen de la revisión estática documentada en este
+Discovery y en `accessibility-audit.md`. Las prioridades expresan impacto
+potencial y necesidad de resolución; no representan una certificación
+ni sustituyen las pruebas manuales pendientes.
+
+| ID | Área | Evidencia observada | Impacto | Prioridad |
+|---|---|---|---|---|
+| UX-01 | Ingresar y Registro | Las rutas `/ingresar` y `/registro` tienen pantallas pendientes de completar. | Los recorridos de acceso no cuentan todavía con una experiencia visual completa. | P1 |
+| UX-02 | Conciertos | La ruta `/app/conciertos` está identificada como pendiente de completar. | La gestión de conciertos carece de una experiencia visual terminada. | P1 |
+| UX-03 | Estilos compartidos | `src/app/app.scss` concentra estilos de navegación, presentación, formularios, estados y layouts. | La concentración puede dificultar la evolución y consistencia de los patrones compartidos. | P2 |
+| UX-04 | Formaciones | El escenario utiliza interacciones de puntero para mover integrantes; no se identificó una alternativa de teclado en el template revisado. | Algunas operaciones pueden no estar disponibles para usuarios que navegan con teclado. | P1 |
+| UX-05 | Foco de controles | `src/styles.scss` contempla foco visible para enlaces, botones e inputs, pero no incluye explícitamente `select` y `textarea`. | La indicación de foco puede ser inconsistente entre controles. | P1 |
+| UX-06 | Responsive | Existen reglas responsive, pero no se realizaron pruebas manuales completas en móvil, tablet y escritorio. | La existencia de breakpoints no garantiza que los flujos sean utilizables en todos los tamaños. | P2 |
+| UX-07 | Semántica y contenido accesible | La auditoría identifica aspectos pendientes en el escenario de Formaciones y en la ilustración de Inicio. | La información puede no comunicarse correctamente mediante tecnologías de asistencia. | P2 |
+
+### Evidencia y límites
+
+- Los hallazgos de accesibilidad UX-04, UX-05 y UX-07 se detallan en
+  `accessibility-audit.md`, con observaciones, recomendaciones y pruebas
+  pendientes.
+- Los estados de implementación de las rutas se registran en la sección 2.
+- La concentración de estilos se observa en `src/app/app.scss`.
+- Los hallazgos responsive requieren validación manual antes de confirmar
+  su alcance real.
+- No se atribuyen problemas visuales específicos a pantallas que no hayan
+  sido inspeccionadas visualmente en todos sus estados.
+
+### Trabajo pendiente para cerrar la validación visual
+
+- Preparar propuestas visuales diferenciadas para escritorio y móvil de
+  las pantallas representativas.
+- Contrastar las propuestas con los componentes y flujos existentes.
+- Registrar las decisiones aceptadas y descartadas.
+- Revalidar las prioridades con evidencia de uso y dependencias funcionales.
+
+Este registro no implica que los hallazgos estén corregidos ni autoriza
+cambios de implementación.
