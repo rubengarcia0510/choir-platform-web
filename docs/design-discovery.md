@@ -174,12 +174,26 @@ Este Discovery no incluye:
 
 Las futuras implementaciones deberán contar con alcance y criterios de aceptación definidos en Jira.
 
-## 8. Próximos entregables
+## 8. Estado de entregables
 
-- `docs/design-system.md`: sistema visual y reglas de uso.
-- Referencias y propuestas visuales para las pantallas principales.
-- Backlog de mejoras frontend priorizado por módulo y dependencia.
-- Validación de la dirección visual antes de iniciar su implementación.
+### Documentación completada
+
+- `docs/design-discovery.md`: relevamiento inicial, dirección visual y hallazgos UX/UI.
+- `docs/design-system.md`: tokens propuestos, componentes, estados y criterios de accesibilidad.
+- `docs/design-references.md`: wireframes conceptuales para los módulos principales, incluyendo gestión de coreutas y transiciones.
+- `docs/accessibility-audit.md`: auditoría estática preliminar con cinco hallazgos y pruebas pendientes.
+- `docs/design-backlog.md`: backlog propuesto DS-01 a DS-09 con prioridades, dependencias y criterios de aceptación.
+- `docs/assets/choir-design-reference.png`: referencia conceptual general de identidad visual.
+
+### Pendiente de validación
+
+- Preparar propuestas visuales diferenciadas de escritorio y móvil para las pantallas representativas.
+- Validar la dirección artística y operativa con las pantallas y flujos reales.
+- Ejecutar las pruebas manuales de accesibilidad y responsive indicadas en `accessibility-audit.md`.
+- Confirmar las decisiones finales de diseño y actualizar el backlog si la validación modifica prioridades o dependencias.
+- Crear tickets Jira independientes únicamente después de validar el alcance y evitar solapamientos.
+
+La documentación completada constituye una propuesta de Discovery, no una aprobación definitiva del sistema visual ni una certificación de accesibilidad.
 
 ## 9. Registro de hallazgos UX/UI priorizados
 
