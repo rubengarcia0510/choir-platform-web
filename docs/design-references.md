@@ -260,3 +260,11 @@ Este documento no autoriza:
 
 La implementación debe realizarse mediante tickets independientes,
 con alcance, dependencias y criterios de aceptación definidos en Jira.
+
+## Referencia visual general
+
+![Propuesta visual del sistema de diseño CHOIR](assets/choir-design-reference.png)
+
+Esta imagen representa una propuesta conceptual de identidad visual,
+disposición de pantallas y adaptación responsive. No representa
+la interfaz actualmente implementada.
