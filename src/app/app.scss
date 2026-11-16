@@ -160,63 +160,7 @@
   font-size: 11px;
 }
 
-.button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  min-height: 47px;
-  padding: 0 var(--space-4);
-  border: 1px solid transparent;
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-base);
-  font-weight: var(--font-weight-medium);
-  text-decoration: none;
-  transition: transform var(--transition-duration) ease, background var(--transition-duration) ease;
-  &:hover { transform: translateY(-2px); }
-  &:disabled { opacity: .55; cursor: wait; }
-  &:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
-}
-
-.button-primary {
-  color: #fff;
-  background: var(--choir-accent);
-  &:hover { background: var(--choir-accent-dark); }
-}
-
-.button-secondary {
-  border-color: var(--choir-line);
-  background: var(--choir-surface);
-}
-
-.button-danger {
-  color: #fff;
-  background: var(--color-danger);
-}
-
-.full-button {
-  width: 100%;
-  margin-top: var(--space-4);
-}
-
-/* Shared patterns */
-.panel {
-  border: 1px solid var(--choir-line);
-  background: var(--choir-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-4);
-  &:hover { background: var(--choir-surface); }
-  &:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
-}
-
-.notice-card {
-  border: 1px solid var(--choir-line);
-  background: var(--choir-surface);
-  border-radius: var(--radius-sm);
-  padding: var(--space-3);
-  &:hover { background: var(--choir-surface); }
-  &:focus-visible { outline: var(--focus-ring); outline-offset: 3px; }
-}
+@use './shared-patterns' as *;
 
 .hero-art {
   position: relative;
