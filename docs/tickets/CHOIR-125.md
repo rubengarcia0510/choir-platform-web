@@ -2,7 +2,9 @@
 
 **Ticket:** https://rubengarcia0510.atlassian.net/browse/CHOIR-125
 **Repositorio:** rubengarcia0510/choir-platform-web
-**Rama de implementación:** feature/CHOIR-125-design-system-foundations
+**Rama de implementación:** feature/125-design-system-foundations
+**Rama base:** 124-integradora
+**Destino del PR:** 124-integradora (CHOIR-125 se integra primero en la rama integradora, no directamente en `main`).
 **Unidad:** DS-01 — Fundamentos visuales compartidos.
 
 ## 1. Objetivo
@@ -159,12 +161,12 @@ Comprobar que los cambios no generen regresiones en pantallas que consumen los e
 
 ## 9. Git y entrega
 
-1. Implementar en `feature/CHOIR-125-design-system-foundations`.
-2. No trabajar directamente en main.
+1. Implementar en `feature/125-design-system-foundations`, creada a partir de `124-integradora`.
+2. No trabajar directamente en `main` ni en `124-integradora`.
 3. No mezclar cambios de otros tickets.
 4. Revisar el diff completo.
 5. Verificar que solo se hayan modificado archivos autorizados.
-6. Crear un PR propio contra main.
+6. Crear un PR propio contra `124-integradora`. La integración a `main` se resuelve después, desde la rama integradora.
 7. Referenciar CHOIR-125.
 
 ## 10. Criterios de finalización
