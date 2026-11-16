@@ -15,8 +15,8 @@ La aplicación utiliza Angular y dispone de las siguientes rutas:
 | Ruta | Pantalla | Estado observado |
 |---|---|---|
 | `/` | Inicio | Implementada |
-| `/ingresar` | Iniciar sesión | Pendiente de completar |
-| `/registro` | Registro | Pendiente de completar |
+| `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); pendiente de propuesta visual validada |
+| `/registro` | Registro | Placeholder informativo; pendiente de definir campos y flujo |
 | `/app/coro` | Gestión del coro | Implementada |
 | `/app/conciertos` | Conciertos | Pendiente de completar |
 | `/app/formaciones` | Formaciones | Implementada parcialmente |
@@ -204,7 +204,7 @@ ni sustituyen las pruebas manuales pendientes.
 
 | ID | Área | Evidencia observada | Impacto | Prioridad |
 |---|---|---|---|---|
-| UX-01 | Ingresar y Registro | Las rutas `/ingresar` y `/registro` tienen pantallas pendientes de completar. | Los recorridos de acceso no cuentan todavía con una experiencia visual completa. | P1 |
+| UX-01 | Ingresar y Registro | `/ingresar` ya cuenta con un formulario funcional y `/registro` es un placeholder informativo; ninguna tiene una propuesta visual validada. | Los recorridos de acceso no cuentan todavía con una experiencia visual completa. | P1 |
 | UX-02 | Conciertos | La ruta `/app/conciertos` está identificada como pendiente de completar. | La gestión de conciertos carece de una experiencia visual terminada. | P1 |
 | UX-03 | Estilos compartidos | `src/app/app.scss` concentra estilos de navegación, presentación, formularios, estados y layouts. | La concentración puede dificultar la evolución y consistencia de los patrones compartidos. | P2 |
 | UX-04 | Formaciones | El escenario utiliza interacciones de puntero para mover integrantes; no se identificó una alternativa de teclado en el template revisado. | Algunas operaciones pueden no estar disponibles para usuarios que navegan con teclado. | P1 |
