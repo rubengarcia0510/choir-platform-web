@@ -32,7 +32,7 @@ body {
 
 button, input, textarea, select { font: inherit; }
 
-a:focus-visible, button:focus-visible, input:focus-visible {
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
   outline: 3px solid #91aa91;
   outline-offset: 3px;
 }
