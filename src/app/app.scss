@@ -1,3 +1,4 @@
+@use './shared-patterns' as *;
 :host { display: block; min-height: 100vh; }
 .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
 #main-content { width: 100%; flex: 1; }
@@ -160,7 +161,7 @@
   font-size: 11px;
 }
 
-@use './shared-patterns' as *;
+
 
 .hero-art {
   position: relative;
