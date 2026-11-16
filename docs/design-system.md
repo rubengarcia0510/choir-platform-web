@@ -224,3 +224,163 @@ Antes de implementarla se deberán validar:
 - Aplicación de los dos ambientes.
 - Propuestas visuales de las pantallas principales.
 - Priorización del backlog frontend.
+
+## 12. Tablas y listados
+
+### Estructura
+
+- Utilizar encabezados claros y descriptivos.
+- Mantener una jerarquía visual entre encabezados, datos y acciones.
+- Alinear los valores según su naturaleza: textos a la izquierda y valores numéricos de forma consistente.
+- Evitar columnas que repitan información ya visible.
+- Agrupar las acciones de cada registro en una ubicación predecible.
+- No utilizar únicamente el color para destacar una fila o un estado.
+
+### Comportamiento responsive
+
+- En escritorio, utilizar tablas cuando faciliten la comparación de datos.
+- En móvil, priorizar filas compactas o tarjetas cuando la tabla no resulte legible.
+- No ocultar información esencial al adaptar una tabla.
+- Evitar el desplazamiento horizontal como único medio para consultar datos importantes.
+- Mantener las acciones accesibles sin depender del hover.
+
+### Estados
+
+Definir presentaciones consistentes para:
+- Carga de datos.
+- Listado disponible.
+- Listado vacío.
+- Búsqueda sin resultados, cuando exista búsqueda.
+- Error de consulta.
+- Operación en curso.
+- Resultado de una operación.
+
+La paginación, ordenamiento y filtros solo deben representarse cuando formen parte de las capacidades existentes.
+
+## 13. Diálogos y confirmaciones
+
+### Estructura
+
+Un diálogo deberá mantener:
+- Título que describa su propósito.
+- Contenido breve y comprensible.
+- Acciones claramente identificadas.
+- Acción principal diferenciada.
+- Acción secundaria para cancelar o volver cuando corresponda.
+
+### Comportamiento
+
+- El foco inicial debe ubicarse en un elemento apropiado para la tarea.
+- La navegación por teclado debe permanecer dentro del diálogo mientras esté abierto.
+- Escape debe cerrar el diálogo cuando la operación lo permita.
+- Al cerrar, el foco debe regresar al control que lo abrió.
+- Los diálogos no deben utilizarse para información que pueda comunicarse de forma menos intrusiva.
+
+### Acciones destructivas
+
+- Explicar qué operación se va a realizar.
+- Identificar claramente la acción irreversible o destructiva.
+- Evitar botones ambiguos como "Aceptar" cuando sea posible describir la acción.
+- No presentar una confirmación como garantía de que la operación se completó.
+
+## 14. Alertas y notificaciones
+
+### Variantes
+
+Definir patrones diferenciados para:
+- Información: comunica contexto o novedades.
+- Éxito: confirma una operación completada.
+- Advertencia: señala una condición que requiere atención.
+- Error: informa un problema y, cuando corresponda, cómo continuar.
+
+### Contenido
+
+- Utilizar mensajes breves y específicos.
+- Describir el resultado o problema en lenguaje comprensible.
+- Incluir una acción de recuperación cuando exista.
+- Evitar mensajes técnicos internos o detalles de implementación.
+- No comunicar el significado exclusivamente mediante color o iconografía.
+
+### Accesibilidad y duración
+
+- Los mensajes que deban anunciarse sin interrumpir la tarea deben utilizar una región `aria-live` apropiada.
+- Los errores que requieren atención inmediata deben utilizar una semántica adecuada a su urgencia.
+- No anunciar repetidamente el mismo mensaje.
+- Las notificaciones temporales deben permanecer visibles el tiempo suficiente para poder leerse.
+- La información importante no debe depender exclusivamente de un toast que desaparece.
+
+## 15. Iconografía
+
+### Criterios visuales
+
+- Mantener una familia de iconos consistente.
+- Evitar mezclar estilos de trazo, relleno y proporciones sin una razón funcional.
+- Utilizar tamaños coherentes según el contexto.
+- Reservar los iconos decorativos para acompañar contenido, sin competir con él.
+- No utilizar iconos como sustituto de etiquetas cuando la acción pueda resultar ambigua.
+
+### Accesibilidad
+
+- Los iconos decorativos deben quedar fuera del árbol de accesibilidad.
+- Los controles representados únicamente mediante iconos deben tener un nombre accesible.
+- Las acciones deben poder identificarse sin depender de la forma o el color del icono.
+- Mantener áreas interactivas adecuadas para uso táctil.
+
+La selección definitiva de la biblioteca de iconos queda pendiente de revisar las dependencias existentes en Angular.
+
+## 16. Estados de interacción
+
+Todos los componentes interactivos deberán definir los estados que correspondan a su función:
+
+| Estado | Criterio |
+|---|---|
+| Default | Presentación inicial y comportamiento normal |
+| Hover | Realimentación visual al pasar el puntero, cuando corresponda |
+| Focus | Foco claramente visible mediante teclado |
+| Active | Indicación de interacción o selección activa |
+| Disabled | Estado no disponible, identificable y no ambiguo |
+| Loading | Operación en curso y prevención de acciones duplicadas cuando corresponda |
+| Error | Problema asociado al control o a la operación |
+| Success | Confirmación de resultado exitoso |
+| Empty | Ausencia de contenido con explicación contextual |
+| Permission | Acción o contenido no disponible por permisos |
+
+Reglas generales:
+
+- No utilizar hover como único indicador de una acción.
+- Mantener el foco visible incluso en componentes personalizados.
+- Diferenciar selección de foco.
+- No comunicar estados exclusivamente mediante color.
+- Evitar cambios bruscos de disposición al cambiar de estado.
+- Respetar `prefers-reduced-motion`.
+- No representar como exitosas operaciones que todavía no fueron confirmadas.
+
+## 17. Validación de accesibilidad de componentes
+
+Antes de aprobar la implementación de cada patrón, verificar:
+
+- Contraste de texto, iconos, bordes y controles.
+- Foco visible y orden lógico de navegación.
+- Nombre, rol y estado accesibles.
+- Uso mediante teclado sin depender del puntero.
+- Asociación entre campos y mensajes de validación.
+- Anuncios de carga, errores y resultados dinámicos.
+- Comportamiento con ampliación de texto y reflow.
+- Tamaño y separación de objetivos táctiles.
+- Compatibilidad con lectores de pantalla.
+
+El objetivo de referencia es WCAG 2.2 AA. Los valores de contraste y dimensiones deberán medirse sobre los componentes implementados; este documento no certifica su cumplimiento.
+
+## 18. Criterios de validación del sistema
+
+La propuesta se considerará lista para pasar a implementación cuando:
+
+- Los dos ambientes visuales estén validados.
+- Los componentes compartidos tengan variantes y estados definidos.
+- Tablas, listados, diálogos y notificaciones tengan criterios documentados.
+- La iconografía sea consistente y accesible.
+- Los patrones responsive estén definidos por tipo de pantalla.
+- Los criterios de accesibilidad tengan verificaciones asociadas.
+- Las decisiones estén reflejadas en el backlog y vinculadas a tickets con alcance independiente.
+
+Estas definiciones son criterios de diseño. No autorizan cambios de CSS, componentes Angular, contratos backend ni funcionalidades.
