@@ -1,4 +1,8 @@
 <div class="app-shell">
+  <a class="skip-link" href="#main-content" (click)="$event.preventDefault(); mainContent.focus()"
+    >Saltar al contenido principal</a
+  >
+
   <header class="topbar">
     <a class="brand" routerLink="/" aria-label="CHOIR, inicio">
       <span class="brand-mark">C</span>
@@ -38,7 +42,7 @@
     <p class="session-message" role="alert">{{ logoutError() }}</p>
   }
 
-  <main id="main-content">
+  <main id="main-content" tabindex="-1" #mainContent>
     <router-outlet />
   </main>
 

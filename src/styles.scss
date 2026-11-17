@@ -137,6 +137,26 @@ select:focus-visible {
   outline-offset: 3px;
 }
 
+/* Enlace de salto al contenido principal (A11Y-01): oculto hasta recibir foco */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 1000;
+  padding: var(--space-3) var(--space-4);
+  color: var(--choir-white);
+  background: var(--choir-accent-dark);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 ::selection {
   color: var(--choir-white);
   background: var(--choir-accent);
