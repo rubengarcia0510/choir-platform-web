@@ -163,4 +163,65 @@ describe('App shell - CHOIR-11 / CHOIR-64', () => {
       element.querySelector('.stage-person')
     ).toBeTruthy();
   });
+
+  describe('skip link - CHOIR-134', () => {
+    const interactiveSelector =
+      'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+    function skipLink(element: HTMLElement): HTMLAnchorElement | null {
+      return element.querySelector<HTMLAnchorElement>('a.skip-link');
+    }
+
+    it('provides a skip link to the main content', () => {
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      const link = skipLink(fixture.nativeElement as HTMLElement);
+
+      expect(link).toBeTruthy();
+      expect(link?.textContent?.trim()).toBe('Saltar al contenido principal');
+      expect(link?.getAttribute('href')).toBe('#main-content');
+    });
+
+    it('is the first interactive element of the shell', async () => {
+      const fixture = TestBed.createComponent(App);
+      const element = fixture.nativeElement as HTMLElement;
+
+      fixture.detectChanges();
+
+      expect(element.querySelector(interactiveSelector)).toBe(skipLink(element));
+
+      session = testDirector;
+      await TestBed.inject(Router).navigateByUrl('/app/coro');
+      fixture.detectChanges();
+
+      expect(
+        element.querySelector('nav[aria-label="Navegación del espacio de trabajo"]'),
+      ).toBeTruthy();
+      expect(element.querySelector(interactiveSelector)).toBe(skipLink(element));
+    });
+
+    it('makes the main element programmatically focusable', () => {
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      const main = (fixture.nativeElement as HTMLElement).querySelector('main#main-content');
+
+      expect(main?.getAttribute('tabindex')).toBe('-1');
+    });
+
+    it('moves focus to the main element when activated', () => {
+      const fixture = TestBed.createComponent(App);
+      fixture.detectChanges();
+
+      const element = fixture.nativeElement as HTMLElement;
+      const main = element.querySelector<HTMLElement>('main#main-content');
+      const click = new MouseEvent('click', { bubbles: true, cancelable: true });
+
+      skipLink(element)?.dispatchEvent(click);
+
+      expect(document.activeElement).toBe(main);
+      expect(click.defaultPrevented).toBe(true);
+    });
+  });
 });
