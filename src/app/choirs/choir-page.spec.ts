@@ -49,6 +49,7 @@ describe('ChoirPage', () => {
     expect(announcement?.textContent?.trim()).toBe('');
     expect(announcement?.getAttribute('aria-live')).toBe('polite');
     expect(announcement?.getAttribute('aria-atomic')).toBe('true');
+    expect(announcement?.classList.contains('choir-success-announcement')).toBe(true);
   });
 
   it('lista los coros activos antes que los archivados', () => {

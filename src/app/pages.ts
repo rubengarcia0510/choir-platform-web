@@ -126,7 +126,7 @@ export class LoginPage {}
         <span class="pill-status">GESTIÓN DE COROS</span>
       </div>
 
-      <p class="choir-message" role="status" aria-live="polite" aria-atomic="true">
+      <p class="choir-success-announcement" role="status" aria-live="polite" aria-atomic="true">
         {{ successMessage() }}
       </p>
 
