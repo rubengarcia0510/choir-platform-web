@@ -27,17 +27,17 @@ Se inspeccionó el código y los tests disponibles. No se realizaron pruebas man
 
 ## 2. Inventario de pantallas y estados
 
-| Pantalla | Estados y comportamientos observados |
-|---|---|
-| Inicio `/` | Contenido estático, navegación pública y enlaces a los módulos. |
-| Ingresar `/ingresar` | Formulario, validación HTML, carga, error de autenticación/conexión y navegación al espacio de trabajo. |
-| Registro `/registro` | Formulario, validación, envío, campos deshabilitados durante el envío, error y confirmación de solicitud mediante `role="status"`. |
-| Verificación `/registro/verificar` | Carga, éxito, token ausente/inválido/vencido y error de conexión. |
-| Mi coro `/app/coro` | Carga, error con reintento, vacío, listado, creación, edición, validación, guardado, confirmación de archivo y error de archivo. |
-| Conciertos `/app/conciertos` | Placeholder informativo. No hay operaciones funcionales de conciertos implementadas en esta pantalla. |
-| Formaciones `/app/formaciones` | Carga/error/vacío de coros, selección de coro/concierto/obra/formación, carga/error de planificación, creación de formación, guardado y errores de posiciones. |
-| Escenario | Carga, error con reintento, sin borrador, formación vacía, integrantes, bloqueo de posición y arrastre por puntero. |
-| No encontrado `**` | Pantalla de fallback. |
+| Pantalla                           | Estados y comportamientos observados                                                                                                                           |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inicio `/`                         | Contenido estático, navegación pública y enlaces a los módulos.                                                                                                |
+| Ingresar `/ingresar`               | Formulario, validación HTML, carga, error de autenticación/conexión y navegación al espacio de trabajo.                                                        |
+| Registro `/registro`               | Formulario, validación, envío, campos deshabilitados durante el envío, error y confirmación de solicitud mediante `role="status"`.                             |
+| Verificación `/registro/verificar` | Carga, éxito, token ausente/inválido/vencido y error de conexión.                                                                                              |
+| Mi coro `/app/coro`                | Carga, error con reintento, vacío, listado, creación, edición, validación, guardado, confirmación de archivo y error de archivo.                               |
+| Conciertos `/app/conciertos`       | Placeholder informativo. No hay operaciones funcionales de conciertos implementadas en esta pantalla.                                                          |
+| Formaciones `/app/formaciones`     | Carga/error/vacío de coros, selección de coro/concierto/obra/formación, carga/error de planificación, creación de formación, guardado y errores de posiciones. |
+| Escenario                          | Carga, error con reintento, sin borrador, formación vacía, integrantes, bloqueo de posición y arrastre por puntero.                                            |
+| No encontrado `**`                 | Pantalla de fallback.                                                                                                                                          |
 
 ## 3. Hallazgos
 
@@ -249,3 +249,26 @@ La auditoría se considerará completa cuando:
 3. Se hayan ejecutado las pruebas manuales críticas de teclado y lector de pantalla.
 4. Se documenten las limitaciones de las pruebas y la evidencia obtenida.
 5. El informe esté integrado mediante PR a `124-integradora`.
+
+## 9. Automatización axe-core y Playwright
+
+Se incorpora una auditoría automatizada con axe-core ejecutada mediante
+Playwright y Chromium en GitHub Actions.
+
+La ejecución recorre las rutas principales de la aplicación y comprueba
+reglas etiquetadas como WCAG 2.0 A/AA, WCAG 2.1 A/AA y WCAG 2.2 AA.
+El workflow falla cuando se detectan violaciones o errores al auditar
+una ruta.
+
+Esta automatización permite detectar, entre otros problemas, controles
+sin nombre accesible, asociaciones incorrectas de etiquetas, atributos
+ARIA inválidos y determinados problemas de contraste.
+
+**Limitaciones:** el análisis automatizado no sustituye las pruebas
+manuales con TalkBack, navegación completa por teclado, revisión del
+orden de foco, anuncios de cambios dinámicos ni mediciones manuales
+de contraste y reflow. Un resultado sin violaciones no certifica por sí
+solo conformidad WCAG 2.2 AA.
+
+Las pruebas manuales pendientes de esta auditoría continúan pendientes
+hasta que exista evidencia de su ejecución.
