@@ -1,10 +1,14 @@
-import { Component } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, signal } from '@angular/core';
+import { FormControl, FormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+
+import { AuthService } from './auth.service';
 
 @Component({
   selector: 'app-register-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [FormsModule, RouterLink],
   styleUrl: './register.page.scss',
   template: `
     <section class="register-page">
@@ -43,28 +47,75 @@ import { RouterLink } from '@angular/router';
             <p>Un espacio pensado para que la planificación musical y la organización convivan.</p>
           </header>
 
-          <form class="register-form" aria-label="Formulario de registro">
-            <div class="register-field">
-              <label for="displayName">Nombre para mostrar</label>
-              <input id="displayName" name="displayName" type="text" autocomplete="name" />
+          @if (successMessage()) {
+            <div class="register-result" role="status">
+              <p>{{ successMessage() }}</p>
             </div>
+          } @else {
+            <form
+              class="register-form"
+              aria-label="Formulario de registro"
+              #registrationForm="ngForm"
+              (ngSubmit)="submit()"
+            >
+              <div class="register-field">
+                <label for="displayName">Nombre para mostrar</label>
+                <input
+                  id="displayName"
+                  name="displayName"
+                  type="text"
+                  autocomplete="name"
+                  [(ngModel)]="displayName"
+                  required
+                  maxlength="160"
+                  [disabled]="isSubmitting()"
+                />
+              </div>
 
-            <div class="register-field">
-              <label for="email">Correo electrónico</label>
-              <input id="email" name="email" type="email" autocomplete="email" />
-            </div>
+              <div class="register-field">
+                <label for="email">Correo electrónico</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  [(ngModel)]="email"
+                  required
+                  email
+                  maxlength="254"
+                  [disabled]="isSubmitting()"
+                />
+              </div>
 
-            <div class="register-field">
-              <label for="password">Contraseña</label>
-              <input id="password" name="password" type="password" autocomplete="new-password" />
-            </div>
+              <div class="register-field">
+                <label for="password">Contraseña</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  [(ngModel)]="password"
+                  required
+                  minlength="12"
+                  maxlength="200"
+                  [disabled]="isSubmitting()"
+                />
+                <span class="register-hint">Usá al menos 12 caracteres.</span>
+              </div>
 
-            <button class="register-submit" type="button" disabled>Crear cuenta</button>
+              @if (errorMessage()) {
+                <p class="register-error" role="alert">{{ errorMessage() }}</p>
+              }
 
-            <p class="register-unavailable" role="status">
-              El registro todavía no está habilitado desde esta pantalla.
-            </p>
-          </form>
+              <button
+                class="register-submit"
+                type="submit"
+                [disabled]="registrationForm.invalid || isSubmitting()"
+              >
+                {{ isSubmitting() ? 'Enviando…' : 'Crear cuenta' }}
+              </button>
+            </form>
+          }
 
           <footer class="register-footer">
             <span>¿Ya tenés una cuenta?</span>
@@ -75,4 +126,68 @@ import { RouterLink } from '@angular/router';
     </section>
   `,
 })
-export class RegisterPage {}
+export class RegisterPage {
+  displayName = '';
+  email = '';
+  password = '';
+
+  readonly isSubmitting = signal(false);
+  readonly successMessage = signal('');
+  readonly errorMessage = signal('');
+
+  constructor(private readonly auth: AuthService) {}
+
+  submit(): void {
+    if (
+      this.isSubmitting() ||
+      !this.displayName.trim() ||
+      !this.email.trim() ||
+      !this.password ||
+      this.password.length < 12 ||
+      this.password.length > 200 ||
+      this.displayName.trim().length > 160 ||
+      this.email.trim().length > 254
+    ) {
+      return;
+    }
+
+    if (Validators.email(new FormControl(this.email.trim()))) {
+      this.errorMessage.set('Ingresá un correo electrónico válido.');
+      return;
+    }
+
+    this.errorMessage.set('');
+    this.successMessage.set('');
+    this.isSubmitting.set(true);
+
+    this.auth.register(this.displayName.trim(), this.email.trim(), this.password).subscribe({
+      next: () => {
+        this.successMessage.set(
+          'Recibimos tu solicitud. Si los datos permiten crear la cuenta, vas a recibir un correo con los pasos para verificar tu dirección.',
+        );
+        this.isSubmitting.set(false);
+      },
+      error: (error: unknown) => {
+        this.isSubmitting.set(false);
+
+        if (error instanceof HttpErrorResponse) {
+          if (error.status === 503) {
+            this.errorMessage.set(
+              'El registro no está disponible por el momento. Intentá nuevamente más tarde.',
+            );
+          } else if (error.status === 0) {
+            this.errorMessage.set(
+              'No se pudo conectar con el servidor. Revisá tu conexión e intentá nuevamente.',
+            );
+          } else if (error.status === 400 || error.status === 422) {
+            this.errorMessage.set('Revisá los datos ingresados e intentá nuevamente.');
+          } else {
+            this.errorMessage.set('Ocurrió un error al procesar el registro. Intentá nuevamente.');
+          }
+        } else {
+          this.errorMessage.set('Ocurrió un error al procesar el registro. Intentá nuevamente.');
+        }
+      },
+    });
+  }
+}
