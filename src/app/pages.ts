@@ -126,11 +126,9 @@ export class LoginPage {}
         <span class="pill-status">GESTIÓN DE COROS</span>
       </div>
 
-      @if (successMessage()) {
-        <p class="choir-message" role="status" aria-live="polite">
-          {{ successMessage() }}
-        </p>
-      }
+      <p class="choir-message" role="status" aria-live="polite" aria-atomic="true">
+        {{ successMessage() }}
+      </p>
 
       @if (loading()) {
         <div class="panel" role="status"><h2>Cargando tus coros…</h2></div>

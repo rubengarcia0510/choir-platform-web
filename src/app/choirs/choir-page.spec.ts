@@ -41,6 +41,16 @@ describe('ChoirPage', () => {
     fixture.detectChanges();
   });
 
+  it('mantiene la región accesible de éxito presente y vacía inicialmente', () => {
+    const announcement = (fixture.nativeElement as HTMLElement)
+      .querySelector('[role="status"]');
+
+    expect(announcement).not.toBeNull();
+    expect(announcement?.textContent?.trim()).toBe('');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
+    expect(announcement?.getAttribute('aria-atomic')).toBe('true');
+  });
+
   it('lista los coros activos antes que los archivados', () => {
     expect(api.list).toHaveBeenCalledWith(true);
     expect(component.choirs().map(item => item.id)).toEqual([1, 2]);
@@ -79,7 +89,8 @@ describe('ChoirPage', () => {
 
     expect(component.successMessage()).toBeNull();
     expect(component.formError()).toContain('No pudimos guardar');
-    expect((fixture.nativeElement as HTMLElement).querySelector('[role="status"]')).toBeNull();
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent?.trim()).toBe('');
   });
 
   it('rechaza un nombre vacío', () => {
