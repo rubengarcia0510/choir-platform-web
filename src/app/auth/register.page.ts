@@ -1,6 +1,6 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { AuthService } from './auth.service';
@@ -148,6 +148,11 @@ export class RegisterPage {
       this.displayName.trim().length > 160 ||
       this.email.trim().length > 254
     ) {
+      return;
+    }
+
+    if (Validators.email(new FormControl(this.email.trim()))) {
+      this.errorMessage.set('Ingresá un correo electrónico válido.');
       return;
     }
 

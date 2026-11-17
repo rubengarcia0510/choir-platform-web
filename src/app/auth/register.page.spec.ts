@@ -115,6 +115,22 @@ describe('RegisterPage', () => {
     expect(auth.register).not.toHaveBeenCalled();
   });
 
+  it('does not submit an invalid email even when submit is invoked directly', () => {
+    component.displayName = 'Directora';
+    component.email = 'correo-invalido';
+    component.password = 'clave-segura-de-12';
+
+    component.submit();
+    fixture.detectChanges();
+
+    expect(auth.register).not.toHaveBeenCalled();
+    expect(component.errorMessage()).toBe('Ingresá un correo electrónico válido.');
+    expect(component.isSubmitting()).toBe(false);
+    expect(fixture.nativeElement.querySelector('[role="alert"]')?.textContent).toContain(
+      'correo electrónico válido',
+    );
+  });
+
   it('does not submit twice while a request is in progress', () => {
     auth.register.mockReturnValue(
       of({
