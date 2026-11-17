@@ -329,6 +329,7 @@ app-root {
 }
 
 .panel {
+  padding: 26px;
   h2 { margin: 17px 0 10px; font-size: 21px; letter-spacing: -.7px; }
   p { color: var(--muted); font-size: 13px; line-height: 1.8; }
 }
@@ -463,6 +464,7 @@ app-root {
   display: flex;
   gap: 17px;
   margin-top: 32px;
+  padding: 23px;
   h2 { margin: 2px 0 8px; font-size: 16px; }
   p { color: var(--muted); font-size: 12px; line-height: 1.8; }
 }
@@ -680,6 +682,7 @@ app-root {
   .hero-actions { align-items: stretch; flex-direction: column; }
   .feature-grid { grid-template-columns: 1fr; }
   .page-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .panel { padding: 21px; }
   .footer {
     flex-wrap: wrap;
     justify-content: flex-start;
