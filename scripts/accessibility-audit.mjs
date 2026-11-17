@@ -42,12 +42,16 @@ if (!serverReady) {
 
 const browser = await chromium.launch({ headless: true });
 const failures = [];
+let syntheticSessionRequests = 0;
 
 try {
   const context = await browser.newContext();
 
   await context.route('**/api/auth/me', async (route) => {
     if (route.request().method() === 'GET') {
+      syntheticSessionRequests += 1;
+      console.log('Sesión sintética interceptada por Playwright.');
+
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
@@ -65,15 +69,55 @@ try {
     const url = `${baseUrl}${route.path}`;
 
     try {
-      await page.goto(url, {
-        waitUntil: 'domcontentloaded',
-        timeout: 30000,
-      });
+      if (route.requiresDirector) {
+        // Primero se carga una ruta pública para completar el arranque
+        // del navegador y la hidratación SSR.
+        await page.goto(`${baseUrl}/ingresar`, {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
 
-      await page.waitForURL((currentUrl) => currentUrl.pathname === route.path, { timeout: 15000 });
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+
+        const requestsBeforeNavigation = syntheticSessionRequests;
+
+        // Navegación del lado del cliente: evita ejecutar el guard
+        // durante el renderizado SSR del servidor.
+        await page.evaluate((path) => {
+          window.history.pushState({}, '', path);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, route.path);
+
+        // La respuesta debe proceder de la interceptación del navegador.
+        await page.waitForResponse(
+          (response) =>
+            response.request().method() === 'GET' &&
+            new URL(response.url()).pathname === '/api/auth/me',
+          { timeout: 15000 },
+        );
+
+        await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
+        await page.waitForTimeout(300);
+
+        if (syntheticSessionRequests <= requestsBeforeNavigation) {
+          throw new Error('No se interceptó la petición de sesión sintética.');
+        }
+
+        const currentPath = new URL(page.url()).pathname;
+
+        if (currentPath !== route.path) {
+          throw new Error(
+            `La ruta protegida redirigió a ${currentPath} en lugar de ${route.path}.`,
+          );
+        }
+      } else {
+        await page.goto(url, {
+          waitUntil: 'domcontentloaded',
+          timeout: 30000,
+        });
+      }
 
       await page.waitForLoadState('networkidle', { timeout: 5000 }).catch(() => {});
-
       await page.addScriptTag({ path: axePath });
 
       const results = await page.evaluate(async () => {
@@ -87,7 +131,9 @@ try {
 
       console.log(`\nPantalla: ${route.path}`);
       console.log(
-        route.requiresDirector ? 'Acceso: sesión sintética de auditoría' : 'Acceso: ruta pública',
+        route.requiresDirector
+          ? 'Acceso: sesión sintética interceptada en navegador'
+          : 'Acceso: ruta pública',
       );
 
       if (route.requiresDirector) {

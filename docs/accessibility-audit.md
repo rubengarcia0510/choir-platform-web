@@ -292,3 +292,20 @@ pantalla como una revisión válida de la ruta solicitada.
 
 Esta ejecución no sustituye pruebas de flujos exitosos, teclado físico
 ni tecnologías de asistencia.
+
+### 9.2 Navegación de rutas protegidas con SSR
+
+La aplicación utiliza renderizado del lado del servidor. Una navegación
+directa a una ruta protegida puede ejecutar `directorGuard` en el servidor,
+antes de que Playwright pueda interceptar las peticiones del navegador.
+
+Para evitar confundir ese comportamiento SSR con una sesión de navegador,
+la auditoría carga primero `/ingresar` y navega después a las rutas privadas
+mediante el Router del navegador.
+
+El script espera la petición `GET /api/auth/me` y comprueba que Playwright
+la haya interceptado antes de considerar válida la navegación. Si no se
+intercepta o la ruta redirige, la auditoría falla explícitamente.
+
+Este mecanismo es exclusivo del entorno de pruebas y no modifica la
+configuración SSR ni el guard de producción.
