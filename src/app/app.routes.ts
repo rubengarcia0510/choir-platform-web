@@ -16,7 +16,7 @@ export const routes: Routes = [
   {
     path: 'registro',
     loadComponent: () =>
-      import('./pages').then((m) => m.RegisterPage)
+      import('./auth/register.page').then((m) => m.RegisterPage)
   },
   {
     path: 'app',

@@ -110,26 +110,7 @@ export class HomePage {}
 })
 export class LoginPage {}
 
-@Component({
-  standalone: true,
-  template: `
-    <section class="page-wrap narrow-page">
-      <a class="back-link" href="/">← Volver al inicio</a>
-      <span class="eyebrow">NUEVO ESPACIO DE DIRECCIÓN</span>
-      <h1>Empezá a organizar tu coro.</h1>
-      <p class="page-lead">Un espacio pensado para que la planificación musical y la organización convivan.</p>
-      <div class="notice-card">
-        <span class="notice-icon">＋</span>
-        <div>
-          <h2>Registro en preparación</h2>
-          <p>El formulario de alta se incorporará cuando estén definidos e integrados los flujos de registro, verificación de correo y autenticación.</p>
-        </div>
-      </div>
-      <a class="button button-primary full-button" href="/ingresar">Ir a ingresar</a>
-    </section>
-  `
-})
-export class RegisterPage {}
+
 
 
 @Component({
