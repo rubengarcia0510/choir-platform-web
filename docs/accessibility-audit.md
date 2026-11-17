@@ -272,3 +272,23 @@ solo conformidad WCAG 2.2 AA.
 
 Las pruebas manuales pendientes de esta auditoría continúan pendientes
 hasta que exista evidencia de su ejecución.
+
+### 9.1 Acceso automatizado a rutas protegidas
+
+Playwright intercepta `GET /api/auth/me` y devuelve una sesión sintética
+de director, exclusivamente dentro del navegador de auditoría. No utiliza
+credenciales reales ni modifica el mecanismo de autenticación de la aplicación.
+
+Esto permite atravesar `directorGuard` y cargar las rutas privadas.
+
+Las API de dominio no se simulan. Por lo tanto, las pantallas privadas
+se inspeccionan con el backend de dominio no disponible y únicamente se
+pueden evaluar los estados que la aplicación presenta en esas condiciones.
+No se consideran auditados los estados exitosos que requieren datos reales.
+
+El script comprueba la URL final de cada ruta. Si una ruta protegida
+redirige a otra pantalla, la auditoría falla en lugar de contar esa
+pantalla como una revisión válida de la ruta solicitada.
+
+Esta ejecución no sustituye pruebas de flujos exitosos, teclado físico
+ni tecnologías de asistencia.
