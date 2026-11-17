@@ -63,6 +63,23 @@ describe('ChoirPage', () => {
     });
     expect(component.choirs().some(item => item.id === 3)).toBe(true);
     expect(component.name()).toBe('');
+    expect(component.successMessage()).toBe('Coro creado correctamente.');
+    fixture.detectChanges();
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent).toContain('Coro creado correctamente.');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('no anuncia éxito cuando falla la creación', () => {
+    api.create.mockReturnValue(throwError(() => new Error('offline')));
+    component.name.set('Coro Nuevo');
+
+    component.save();
+    fixture.detectChanges();
+
+    expect(component.successMessage()).toBeNull();
+    expect(component.formError()).toContain('No pudimos guardar');
+    expect((fixture.nativeElement as HTMLElement).querySelector('[role="status"]')).toBeNull();
   });
 
   it('rechaza un nombre vacío', () => {
@@ -88,6 +105,11 @@ describe('ChoirPage', () => {
       name: 'Coro actualizado', description: 'Nueva descripción'
     });
     expect(component.choirs().find(item => item.id === 1)?.name).toBe('Coro actualizado');
+    expect(component.successMessage()).toBe('Coro actualizado correctamente.');
+    fixture.detectChanges();
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent).toContain('Coro actualizado correctamente.');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
   });
 
   it('requiere confirmación antes de archivar', () => {
