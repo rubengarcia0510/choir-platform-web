@@ -210,6 +210,9 @@ export class FormationStageComponent {
           event.preventDefault();
           this.confirmKeyboardMove();
           return;
+        case 'Tab':
+          this.cancelKeyboardMove();
+          return;
         case 'Escape':
           event.preventDefault();
           this.cancelKeyboardMove();
