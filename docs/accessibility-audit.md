@@ -1,144 +1,68 @@
-# CHOIR — Auditoría preliminar de accesibilidad
+# Auditoría de accesibilidad CHOIR-128
 
-Estado: revisión estática de código. No constituye certificación WCAG.
+## 1. Objetivo
 
-Referencia: WCAG 2.2 nivel AA.
+Documentar el inventario estático de rutas y estados, los hallazgos de accesibilidad y los resultados de las pruebas automatizadas de la aplicación CHOIR.
 
-## 1. Alcance
+Este informe refleja únicamente las comprobaciones efectivamente realizadas. No declara conformidad global WCAG 2.2 AA.
 
-Se revisaron los componentes y estilos disponibles en `main`:
+## 2. Cobertura automatizada
 
-- `src/app/app.html`
-- `src/app/app.ts`
-- `src/app/app.scss`
-- `src/styles.scss`
-- `src/app/app.routes.ts`
-- `src/app/pages.ts`
-- `src/app/auth/login.page.ts`
-- `src/app/formations/formation-stage.component.html`
-- `src/app/formations/formation-stage.component.scss`
+La auditoría automatizada contempla:
 
-No se realizaron modificaciones de código ni pruebas manuales sobre
-un navegador o dispositivo.
+- Tests frontend.
+- Build Angular.
+- axe-core.
+- Playwright con Chromium.
+- Revisión de las rutas y estados renderizados disponibles.
 
-## 2. Hallazgos
+El último CI registrado para esta rama completó correctamente tests, build y auditoría de accesibilidad.
 
-### A11Y-01 — Enlace para saltar al contenido
+Las pruebas automatizadas no sustituyen la validación manual con teclado y tecnologías de asistencia.
 
-Prioridad: P1.
+## 3. Hallazgos y correcciones
 
-Observación:
-El layout contiene un elemento `main` con identificador `main-content`,
-pero no se identificó un enlace inicial para saltar la navegación.
+- A11Y-01: corrección del enlace para saltar al contenido principal, integrada mediante CHOIR-134.
+- A11Y-02: corrección del tratamiento del foco global, integrada.
+- A11Y-03: alternativa de teclado para las interacciones correspondientes, integrada mediante CHOIR-135.
+- A11Y-04: semántica del escenario de Formaciones. Su validación manual se separó en CHOIR-138.
+- A11Y-05: evaluación del nombre accesible de la ilustración de Inicio, separada en CHOIR-139.
+- A11Y-06: anuncio accesible de operaciones sobre coros, integrado mediante CHOIR-136 y validado manualmente con NVDA.
 
-Recomendación:
-Incorporar un enlace accesible al comienzo de la página que lleve a
-`#main-content`, visible al recibir foco.
+## 4. Validaciones manuales confirmadas
 
-Validación:
-Comprobar navegación por teclado desde el inicio de cada ruta.
+- [x] NVDA anuncia correctamente el éxito al crear un coro.
+- [x] NVDA anuncia correctamente el éxito al editar un coro.
 
-### A11Y-02 — Foco global de controles
+No se extrapolan estos resultados a otras pantallas o interacciones.
 
-Prioridad: P1.
+## 5. Trabajo separado
 
-Observación:
-La regla global `:focus-visible` contempla enlaces, botones e inputs,
-pero no incluye explícitamente `select` ni `textarea`.
+Las validaciones manuales que no forman parte del alcance cerrado de CHOIR-128 tienen seguimiento independiente:
 
-Recomendación:
-Definir un indicador de foco consistente para todos los controles
-interactivos y comprobar que no quede oculto por contenedores.
+- CHOIR-137: navegación por teclado, foco y formularios en pantallas públicas y Mi coro.
+- CHOIR-138: semántica y operación accesible del escenario de Formaciones, cuando existan pantalla y datos operativos de prueba.
+- CHOIR-139: evaluación del nombre accesible de la ilustración de Inicio.
+- CHOIR-140: medición manual de contraste de texto, controles y estados visuales.
 
-Validación:
-Recorrer formularios y selectores mediante teclado.
+Las mediciones responsive, zoom/reflow y objetivos táctiles se gestionan por separado en CHOIR-129.
 
-### A11Y-03 — Edición de posiciones mediante teclado
+## 6. Limitaciones
 
-Prioridad: P1.
+- Las pruebas automatizadas cubren los estados que pueden renderizarse en el entorno de test.
+- No se consideran verificadas las pantallas o interacciones que requieren datos de dominio no disponibles.
+- No se declara conformidad WCAG 2.2 AA.
+- La ausencia de un hallazgo automatizado no demuestra por sí sola que una interacción sea accesible.
 
-Observación:
-Los integrantes del escenario reciben eventos de puntero para iniciar,
-mover y finalizar el arrastre. No se identificó en el template revisado
-un mecanismo alternativo para cambiar posiciones mediante teclado.
+## 7. Criterio de aceptación de CHOIR-128
 
-Recomendación:
-Diseñar una alternativa operable por teclado para seleccionar un
-integrante y modificar su posición, conservando las reglas existentes.
+El alcance de CHOIR-128 queda satisfecho con:
 
-Validación:
-Completar la operación sin utilizar mouse ni gestos táctiles.
+1. Inventario estático de rutas y estados documentado.
+2. Hallazgos A11Y-01 a A11Y-06 reconciliados con sus correcciones y evidencias.
+3. Resultados y limitaciones de las pruebas automatizadas documentados.
+4. Validaciones manuales efectivamente confirmadas identificadas sin extrapolar resultados.
+5. Validaciones manuales pendientes trasladadas a tickets independientes.
+6. Informe integrado mediante PR a `124-integradora`.
 
-### A11Y-04 — Semántica del escenario
-
-Prioridad: P2.
-
-Observación:
-El escenario utiliza contenedores `div` con atributos `aria-label`.
-Debe verificarse que la información y su jerarquía se expongan
-correctamente a tecnologías de asistencia.
-
-Recomendación:
-Evaluar una estructura semántica y nombres accesibles adecuados para
-el escenario, sus integrantes y sus acciones.
-
-Validación:
-Inspeccionar el árbol de accesibilidad con lector de pantalla.
-
-### A11Y-05 — Ilustración de Inicio
-
-Prioridad: P2.
-
-Observación:
-La ilustración abstracta de Inicio tiene un `aria-label` en un
-contenedor genérico.
-
-Recomendación:
-Determinar si es decorativa o informativa. Si es decorativa, evitar
-anunciarla innecesariamente; si aporta información, utilizar semántica
-accesible apropiada.
-
-Validación:
-Comprobar el anuncio con lector de pantalla.
-
-## 3. Aspectos positivos observados
-
-- El layout utiliza un elemento `main`.
-- La navegación principal tiene etiquetas `aria-label`.
-- El login asocia etiquetas a los campos mediante `for` e `id`.
-- Los errores del login y de varios flujos utilizan `role="alert"`.
-- Existen estados de carga identificados mediante `role="status"`.
-- Algunos controles de Formaciones tienen nombres accesibles explícitos.
-- Hay estilos `:focus-visible` para enlaces y botones.
-- Se contempla `prefers-reduced-motion`.
-- Existen adaptaciones responsive para distintos anchos.
-
-Estos puntos no equivalen a una validación completa de conformidad.
-
-## 4. Pruebas pendientes
-
-- [ ] Recorrido completo por teclado en todas las rutas.
-- [ ] Verificación de orden de foco y ausencia de trampas.
-- [ ] Prueba de lector de pantalla.
-- [ ] Medición de contraste de texto, controles y estados.
-- [ ] Verificación de zoom y reflow.
-- [ ] Validación de tamaños de objetivos táctiles.
-- [ ] Prueba de la alternativa de teclado en Formaciones.
-- [ ] Revisión de anuncios dinámicos y mensajes de estado.
-- [ ] Prueba en móvil y escritorio.
-
-## 5. Criterio de cierre
-
-La auditoría se considerará completa cuando los hallazgos tengan
-resolución documentada, las pruebas pendientes se hayan ejecutado
-y exista evidencia de validación.
-
-No se declara conformidad WCAG 2.2 AA a partir de esta revisión estática.
-
-## 6. Fuera de alcance
-
-Este documento no autoriza cambios de CSS, templates, componentes,
-comportamiento funcional ni contratos backend.
-
-Cada corrección debe contar con un ticket y criterios de aceptación
-propios en Jira.
+Este cierre no implica que las tareas trasladadas estén completadas ni que exista conformidad global WCAG 2.2 AA.
