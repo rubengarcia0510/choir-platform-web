@@ -108,3 +108,11 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - Observaciones: se distinguen navegación, encabezado y contenido en dos columnas, además del estado vacío «Todavía no hay coros». No se aprecia overflow horizontal evidente. La definición y perspectiva no permiten evaluar con precisión espaciados ni tamaños.
 - Resultado: revisión visual parcial; no certifica responsive para un viewport concreto.
 
+
+### Ingresar (/ingresar)
+
+- Evidencia: fotografía de la aplicación en navegador, aportada durante la validación manual.
+- Viewport CSS: no confirmado.
+- Observaciones: formulario centrado, con título destacado, campos de correo electrónico y contraseña alineados y botón de ingreso a ancho completo. No se aprecia overflow horizontal. El botón aparece atenuado con los campos vacíos, comportamiento compatible con una acción deshabilitada hasta completar los datos. Hay espacio libre amplio alrededor del formulario, sin evidencia suficiente para clasificarlo como defecto.
+- Resultado: revisión visual parcial; no certifica responsive para un viewport concreto.
+
