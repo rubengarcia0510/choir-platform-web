@@ -116,3 +116,11 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - Observaciones: formulario centrado, con título destacado, campos de correo electrónico y contraseña alineados y botón de ingreso a ancho completo. No se aprecia overflow horizontal. El botón aparece atenuado con los campos vacíos, comportamiento compatible con una acción deshabilitada hasta completar los datos. Hay espacio libre amplio alrededor del formulario, sin evidencia suficiente para clasificarlo como defecto.
 - Resultado: revisión visual parcial; no certifica responsive para un viewport concreto.
 
+
+### Registro (/registro)
+
+- Evidencia: fotografía de la aplicación en navegador, aportada durante la validación manual.
+- Viewport CSS: no confirmado.
+- Observaciones: composición en dos columnas, con panel oscuro de identidad visual a la izquierda y formulario de registro a la derecha. Se distinguen los campos de nombre, correo electrónico y contraseña, la indicación de mínimo 12 caracteres, el botón «Crear cuenta» y el enlace para usuarios existentes. No se aprecia solapamiento entre columnas ni overflow horizontal evidente.
+- Resultado: revisión visual parcial; no certifica responsive para un viewport concreto. La adaptación a tablet y móvil queda pendiente.
+
