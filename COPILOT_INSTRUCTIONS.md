@@ -114,8 +114,6 @@ Do not invent or change a release version without explicit confirmation.
 When preparing a release, keep the frontend version synchronized in:
 
 - `package.json`
-- `package-lock.json`
-- `angular.json`, using an appropriate application-version field without changing Angular CLI's schema version.
 
 Do not update the release version for every feature.
 
@@ -158,7 +156,7 @@ Do not publish releases, create release tags, or merge release pull requests wit
 
 Install dependencies:
 
-    npm ci
+    npm install
 
 Run unit tests:
 

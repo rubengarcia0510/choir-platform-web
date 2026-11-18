@@ -38,11 +38,12 @@ La numeración sigue SemVer:
 1. Confirmar que el alcance previsto para la versión está integrado y revisado.
 2. Crear `release/X.Y.Z` en el frontend desde `124-integradora`.
 3. Crear `release/X.Y.Z` en el backend desde `main`.
-4. Actualizar la versión del frontend en `package.json` y `package-lock.json`.
+4. Actualizar la versión del frontend en `package.json`.
 5. Actualizar `version` en `build.gradle` del backend, sin sufijo `-SNAPSHOT`.
 6. Verificar que ambos repositorios declaren exactamente la misma versión.
-7. Ejecutar las validaciones completas de ambos proyectos.
-8. Corregir cualquier fallo en las ramas release y volver a validar.
+7. Instalar dependencias del frontend con `npm install`.
+8. Ejecutar las validaciones completas de ambos proyectos.
+9. Corregir cualquier fallo en las ramas release y volver a validar.
 
 ### Publicación
 
