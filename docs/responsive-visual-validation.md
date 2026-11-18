@@ -91,3 +91,20 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - No se auditó semántica, lector de pantalla ni conformidad WCAG.
 - No se certifica responsive integral hasta completar las comprobaciones manuales.
 - Rediseños y cambios funcionales se derivarán a tickets separados.
+
+## 6. Evidencia visual parcial
+
+### Inicio (/)
+
+- Evidencia: fotografía de la aplicación en navegador, aportada durante la validación manual.
+- Viewport CSS: no confirmado; no se asigna a ninguno de los tamaños previstos.
+- Observaciones: hero en dos columnas; texto y acciones a la izquierda e ilustración a la derecha. En la captura no se aprecia overflow horizontal ni solapamiento entre ambos bloques. Título y acciones mantienen jerarquía visual legible. Se observa espacio vertical amplio entre navegación y contenido, sin evidencia suficiente para clasificarlo como defecto. Hay scrollbar vertical.
+- Resultado: revisión visual parcial; no certifica responsive para un viewport concreto.
+
+### Mi coro (/app/coro)
+
+- Evidencia: fotografía aportada durante la validación manual.
+- Viewport CSS: no confirmado.
+- Observaciones: se distinguen navegación, encabezado y contenido en dos columnas, además del estado vacío «Todavía no hay coros». No se aprecia overflow horizontal evidente. La definición y perspectiva no permiten evaluar con precisión espaciados ni tamaños.
+- Resultado: revisión visual parcial; no certifica responsive para un viewport concreto.
+
