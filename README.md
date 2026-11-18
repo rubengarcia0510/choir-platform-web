@@ -60,11 +60,11 @@ For more information on using the Angular CLI, including detailed command refere
 
 ## CI y documentación estática
 
-El workflow de GitHub Actions `.github/workflows/angular-ci.yml` valida la aplicación Angular en cada pull request dirigido a `main` y en cada push a `main`.
+El workflow de GitHub Actions `.github/workflows/angular-ci.yml` valida la aplicación Angular en cada pull request y en cada push, independientemente de la rama.
 
 La validación incluye:
 
-- Instalación reproducible de dependencias mediante `npm ci`.
+- Instalación de dependencias mediante `npm install`.
 - Ejecución de pruebas unitarias mediante `npx ng test --watch=false`.
 - Compilación de la aplicación mediante `npx ng build`.
 

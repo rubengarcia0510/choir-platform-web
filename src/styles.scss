@@ -1,21 +1,111 @@
+@use './shared-patterns' as *;
+@use './app/pages';
+
+/* ==========================================================================
+   CHOIR — Design System Foundations & Tokens (CHOIR-125 / DS-01)
+   ========================================================================== */
+
 :root {
   color-scheme: light;
-  --ink: #252b25;
-  --muted: #747a70;
-  --accent: #456b4c;
-  --accent-dark: #34533a;
-  --accent-soft: #edf2eb;
-  --line: #e9e8e1;
-  --surface: #fff;
-  --page: #fcfbf8;
+
+  /* ------------------------------------------------------------------------
+     Tokens Canónicos (CHOIR-124 / CHOIR-125)
+     ------------------------------------------------------------------------ */
+
+  /* Ambiente artístico */
+  --choir-night: #00102a; /* Fondo azul profundo */
+  --choir-night-secondary: #142747; /* Superficie oscura secundaria */
+  --choir-gold: #d8b879; /* Acento dorado */
+  --choir-ivory: #f5f1e8; /* Texto o superficies claras */
+  --choir-white: #ffffff; /* Texto / superficie de alto contraste */
+
+  /* Ambiente operativo */
+  --choir-page: #fcfbf8; /* Fondo general operativo */
+  --choir-surface: #ffffff; /* Superficie de tarjetas y paneles */
+  --choir-ink: #252b25; /* Texto principal */
+  --choir-muted: #6b7168; /* Texto secundario (ajustado para cumplir WCAG AA >= 4.5:1) */
+  --choir-line: #e9e8e1; /* Bordes y separadores */
+  --choir-accent: #456b4c; /* Acento operativo primario */
+  --choir-accent-dark: #34533a; /* Acento operativo oscuro para hover/active */
+  --choir-accent-soft: #edf2eb; /* Superficie suave para realces/badges */
+
+  /* Escala de espaciado basada en múltiplos de 4 */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Tipografía */
+  --font-family-base:
+    'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family-serif: Georgia, serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-base: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 20px;
+  --line-height-base: 1.5;
+
+  /* Radios de borde */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Elevaciones */
+  --elevation-1: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  --elevation-2: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  --elevation-3: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+
+  /* Colores semánticos */
+  --color-success: #28a745;
+  --color-warning: #ffc107;
+  --color-danger: #c82333;
+  --color-info: #17a2b8;
+
+  /* Foco accesible: #34533A, 6.99:1 a 8.59:1 sobre las superficies operativas (ver CHOIR-125-review-notes.md) */
+  --focus-ring: 3px solid var(--choir-accent-dark);
+
+  /* Movimiento reducido */
+  --transition-duration: 200ms;
+
+  /* ------------------------------------------------------------------------
+     Compatibilidad retroactiva: variables heredadas mapeadas a los tokens canónicos
+     Permite que cualquier componente que aún consuma --ink, --muted, etc.
+     reciba de forma transparente los tokens canónicos del sistema de diseño.
+     ------------------------------------------------------------------------ */
+  --ink: var(--choir-ink);
+  --muted: var(--choir-muted);
+  --accent: var(--choir-accent);
+  --accent-dark: var(--choir-accent-dark);
+  --accent-soft: var(--choir-accent-soft);
+  --line: var(--choir-line);
+  --surface: var(--choir-surface);
+  --page: var(--choir-page);
 }
 
-* { box-sizing: border-box; }
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-duration: 0ms;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
 
 html {
   min-width: 320px;
   min-height: 100%;
-  background: var(--page);
+  background: var(--choir-page);
   scroll-behavior: smooth;
 }
 
@@ -23,21 +113,51 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  color: var(--ink);
-  background: var(--page);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--choir-ink);
+  background: var(--choir-page);
+  font-family: var(--font-family-base);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
-button, input, textarea, select { font: inherit; }
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
 
-a:focus-visible, button:focus-visible, input:focus-visible {
-  outline: 3px solid #91aa91;
+/* Indicador de foco visible y accesible para todos los controles interactivos */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: var(--focus-ring);
   outline-offset: 3px;
 }
 
+/* Enlace de salto al contenido principal (A11Y-01): oculto hasta recibir foco */
+.skip-link {
+  position: absolute;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: 1000;
+  padding: var(--space-3) var(--space-4);
+  color: var(--choir-white);
+  background: var(--choir-accent-dark);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-bold);
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 ::selection {
-  color: #fff;
-  background: var(--accent);
+  color: var(--choir-white);
+  background: var(--choir-accent);
 }

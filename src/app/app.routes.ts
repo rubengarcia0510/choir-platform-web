@@ -5,18 +5,19 @@ import { directorGuard } from './auth/director.guard';
 export const routes: Routes = [
   {
     path: '',
-    loadComponent: () =>
-      import('./pages').then((m) => m.HomePage)
+    loadComponent: () => import('./pages').then((m) => m.HomePage),
   },
   {
     path: 'ingresar',
-    loadComponent: () =>
-      import('./auth/login.page').then((m) => m.LoginPage)
+    loadComponent: () => import('./auth/login.page').then((m) => m.LoginPage),
   },
   {
     path: 'registro',
-    loadComponent: () =>
-      import('./pages').then((m) => m.RegisterPage)
+    loadComponent: () => import('./auth/register.page').then((m) => m.RegisterPage),
+  },
+  {
+    path: 'registro/verificar',
+    loadComponent: () => import('./auth/verify-email.page').then((m) => m.VerifyEmailPage),
   },
   {
     path: 'app',
@@ -25,28 +26,24 @@ export const routes: Routes = [
       {
         path: '',
         pathMatch: 'full',
-        redirectTo: 'coro'
+        redirectTo: 'coro',
       },
       {
         path: 'coro',
-        loadComponent: () =>
-          import('./pages').then((m) => m.ChoirPage)
+        loadComponent: () => import('./pages').then((m) => m.ChoirPage),
       },
       {
         path: 'conciertos',
-        loadComponent: () =>
-          import('./pages').then((m) => m.ConcertsPage)
+        loadComponent: () => import('./pages').then((m) => m.ConcertsPage),
       },
       {
         path: 'formaciones',
-        loadComponent: () =>
-          import('./pages').then((m) => m.FormationsPage)
-      }
-    ]
+        loadComponent: () => import('./pages').then((m) => m.FormationsPage),
+      },
+    ],
   },
   {
     path: '**',
-    loadComponent: () =>
-      import('./pages').then((m) => m.NotFoundPage)
-  }
+    loadComponent: () => import('./pages').then((m) => m.NotFoundPage),
+  },
 ];
