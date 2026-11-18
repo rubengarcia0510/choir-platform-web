@@ -133,3 +133,12 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - Observaciones: mensaje «No pudimos verificar tu correo» con explicación de que el enlace no contiene un token y recomendación de revisar el enlace completo. Botón «Ir a ingresar» visible y con buen contraste. Contenido centrado; no se aprecia overflow horizontal.
 - Resultado: revisión visual parcial del estado de error. No valida el flujo exitoso de verificación ni el comportamiento responsive en viewports concretos.
 
+
+### No encontrado (ruta inexistente)
+
+- Evidencia: fotografía de la aplicación en navegador, utilizando /ruta-inexistente.
+- Estado observado: página 404.
+- Viewport CSS: no confirmado.
+- Observaciones: mensaje «Esta página no existe», identificación del error 404 y botón «Ir al inicio». Se conserva la navegación superior y el pie de página de CHOIR. No se aprecia overflow horizontal ni solapamiento.
+- Resultado: revisión visual parcial del estado 404; no certifica responsive para un viewport concreto.
+
