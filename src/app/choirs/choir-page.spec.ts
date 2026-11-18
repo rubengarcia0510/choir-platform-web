@@ -41,6 +41,17 @@ describe('ChoirPage', () => {
     fixture.detectChanges();
   });
 
+  it('mantiene la región accesible de éxito presente y vacía inicialmente', () => {
+    const announcement = (fixture.nativeElement as HTMLElement)
+      .querySelector('[role="status"]');
+
+    expect(announcement).not.toBeNull();
+    expect(announcement?.textContent?.trim()).toBe('');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
+    expect(announcement?.getAttribute('aria-atomic')).toBe('true');
+    expect(announcement?.classList.contains('choir-success-announcement')).toBe(true);
+  });
+
   it('lista los coros activos antes que los archivados', () => {
     expect(api.list).toHaveBeenCalledWith(true);
     expect(component.choirs().map(item => item.id)).toEqual([1, 2]);
@@ -63,6 +74,24 @@ describe('ChoirPage', () => {
     });
     expect(component.choirs().some(item => item.id === 3)).toBe(true);
     expect(component.name()).toBe('');
+    expect(component.successMessage()).toBe('Coro creado correctamente.');
+    fixture.detectChanges();
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent).toContain('Coro creado correctamente.');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
+  });
+
+  it('no anuncia éxito cuando falla la creación', () => {
+    api.create.mockReturnValue(throwError(() => new Error('offline')));
+    component.name.set('Coro Nuevo');
+
+    component.save();
+    fixture.detectChanges();
+
+    expect(component.successMessage()).toBeNull();
+    expect(component.formError()).toContain('No pudimos guardar');
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent?.trim()).toBe('');
   });
 
   it('rechaza un nombre vacío', () => {
@@ -88,6 +117,11 @@ describe('ChoirPage', () => {
       name: 'Coro actualizado', description: 'Nueva descripción'
     });
     expect(component.choirs().find(item => item.id === 1)?.name).toBe('Coro actualizado');
+    expect(component.successMessage()).toBe('Coro actualizado correctamente.');
+    fixture.detectChanges();
+    const announcement = (fixture.nativeElement as HTMLElement).querySelector('[role="status"]');
+    expect(announcement?.textContent).toContain('Coro actualizado correctamente.');
+    expect(announcement?.getAttribute('aria-live')).toBe('polite');
   });
 
   it('requiere confirmación antes de archivar', () => {
