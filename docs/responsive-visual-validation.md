@@ -142,3 +142,14 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - Observaciones: mensaje «Esta página no existe», identificación del error 404 y botón «Ir al inicio». Se conserva la navegación superior y el pie de página de CHOIR. No se aprecia overflow horizontal ni solapamiento.
 - Resultado: revisión visual parcial del estado 404; no certifica responsive para un viewport concreto.
 
+
+### Evidencia técnica complementaria — modelo de caja
+
+- Evidencia: captura del panel Box Model de DevTools.
+- Elemento seleccionado: contenido de 1180 × 407,083 px.
+- Padding: 28 px superior y 86 px inferior.
+- Border: 0 px.
+- Margin: 30 px izquierdo y derecho; 0 px superior e inferior.
+- Alcance: medidas del elemento seleccionado, no del viewport completo.
+- Resultado: evidencia complementaria para analizar dimensiones y espaciado; no constituye por sí sola una validación responsive.
+
