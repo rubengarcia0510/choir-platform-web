@@ -1,13 +1,11 @@
-# Copilot Instructions
+# Copilot Instructions – choir-platform-web
 
 ## Project overview
-
-This repository contains the CHOIR frontend application.
 
 - Framework: Angular 22.
 - Language: TypeScript.
 - Package manager: npm.
-- Tests: Angular testing tools.
+- Tests: Vitest through Angular CLI.
 - CI: GitHub Actions.
 - Deployment: GitHub Pages.
 
@@ -15,32 +13,35 @@ Follow the existing project conventions and architecture. Before introducing a d
 
 ## Branching and integration workflow
 
-The active integration branch is `124-integradora`.
-
-- `main` contains stable, reviewed code.
-- `124-integradora` is the active frontend integration branch.
-- Feature branches must be created from the latest `124-integradora`.
-- Feature pull requests must target `124-integradora`.
-- Release branches must be created from `124-integradora` using `release/X.Y.Z`.
-- Release pull requests must target `main`.
-- Hotfix branches must be created from `main` and merged into `main`. Afterward, synchronize the fix into `124-integradora`.
-- Do not use `develop` as part of the active workflow.
-- Do not merge directly into `main` or `124-integradora`.
+- `main` contains stable, published production code.
+- `develop` is the pre-release integration branch.
+- `124-integradora` is the active integration branch for CHOIR-124 Design Discovery.
+- CHOIR-124 feature branches must be created from the latest `124-integradora` and target `124-integradora`.
+- Do not redirect CHOIR-124 feature work to `develop`.
+- Other feature branches must use the integration branch explicitly assigned to their work. Do not assume every feature starts from `develop`.
+- Do not work directly on `main`, `develop`, or `124-integradora`.
 - Do not delete or repurpose existing branches without explicit authorization.
 
-The backend currently uses `main` as its integration base. Do not assume that the backend has a permanent integration branch equivalent to `124-integradora`.
+### CHOIR-124 release flow
 
-### Branch protection
+The release of the current state of CHOIR-124 does not close the Jira issue.
 
-The following protections are recommended for `main` and `124-integradora`:
+1. Integrate `124-integradora` into `develop` through a pull request.
+2. Validate the integrated state and CI on `develop`.
+3. Create the release branch from `develop`.
+4. Update and verify the release version.
+5. Run the required tests and build validations.
+6. Promote the release branch to `main` through a pull request.
+7. Create the version tag on the published commit in `main`.
 
-- Require pull requests before merging.
-- Require successful CI checks.
-- Require review before merging when reviewers are available.
-- Prevent force pushes.
-- Prevent deletion of protected branches.
+Do not close CHOIR-124 as part of an intermediate release. Its remaining tasks and final integration requirements remain in force.
 
-Do not change repository protection settings without authorization.
+### Other branch rules
+
+- Hotfix branches must be created from `main` and integrated into `main` through a pull request.
+- After a hotfix is published, synchronize it into the relevant integration branch.
+- Do not merge directly into protected branches.
+- Do not merge a pull request unless explicitly authorized.
 
 ## Commit conventions
 
@@ -63,35 +64,23 @@ Common types:
 - `ci`: continuous integration changes.
 - `chore`: maintenance tasks.
 
-Use a concise description in imperative form.
-
-Include the corresponding CHOIR ticket reference in the commit body or footer whenever applicable.
-
-Example:
-
-    feat(registration): add registration form
-
-    Implements the registration flow.
-    Refs CHOIR-127
+Use a concise description in imperative form. Include the corresponding CHOIR ticket reference in the commit body or footer whenever applicable.
 
 ## Pull request checklist
 
 Before opening a pull request:
 
 1. Confirm that the source branch is based on the correct integration branch.
-2. Review the complete diff.
-3. Remove unrelated changes and temporary files.
-4. Run the relevant tests.
-5. Run the available lint and formatting checks.
-6. Verify that the application builds successfully.
-7. Include the corresponding CHOIR ticket reference.
-8. Describe the changes and validations in the pull request.
+2. Confirm that the target branch is correct for the ticket or release.
+3. Review the complete diff.
+4. Remove unrelated changes and temporary files.
+5. Run the relevant tests.
+6. Run the available lint and formatting checks.
+7. Verify that the application builds successfully.
+8. Include the corresponding CHOIR ticket reference.
+9. Describe the changes and validations in the pull request.
 
-Pull requests for features must target `124-integradora`, not `main`.
-
-Release pull requests must target `main`.
-
-Do not merge a pull request unless explicitly authorized.
+Do not merge before required checks pass and explicit authorization is given.
 
 ## Testing and quality
 
@@ -120,21 +109,15 @@ Use Semantic Versioning:
 - MINOR: backward-compatible functionality.
 - PATCH: backward-compatible fixes.
 
-Do not use a `v` prefix in version numbers or Git tags.
+Do not invent or change a release version without explicit confirmation.
 
-Example version: `0.1.0`.
+When preparing a release, keep the frontend version synchronized in:
 
-Update the frontend version in `package.json` and `package-lock.json` when preparing a release, not for every feature.
+- `package.json`
+- `package-lock.json`
+- `angular.json`, using an appropriate application-version field without changing Angular CLI's schema version.
 
-The frontend release process is:
-
-1. Create `release/X.Y.Z` from the latest `124-integradora`.
-2. Update the frontend version.
-3. Run tests and build validations.
-4. Open a pull request targeting `main`.
-5. Coordinate the release with the backend so both repositories use the same version.
-6. After approval and merge, create the matching Git tag and GitHub Release.
-7. Synchronize `main` back into `124-integradora`.
+Do not update the release version for every feature.
 
 The backend has its own release pull request and version update. Do not assume that a frontend release alone completes the coordinated release.
 
@@ -171,21 +154,21 @@ Do not publish releases, create release tags, or merge release pull requests wit
 - Keep dependencies and configuration consistent with the existing project.
 - Do not modify unrelated backend files or backend behavior from this repository.
 
-## Development commands and additional safeguards
+## Development commands
 
-Install dependencies with:
+Install dependencies:
 
     npm ci
 
-Run unit tests with:
+Run unit tests:
 
     npx ng test --watch=false
 
-Build the application with:
+Build the application:
 
     npx ng build
 
-Run lint and formatting checks with:
+Run lint checks when configured:
 
     npm run lint
 
@@ -193,10 +176,9 @@ Use Playwright for end-to-end tests when the change requires them and the reposi
 
 Keep project documentation under `docs/`. The complete branching and release procedure is documented in `docs/development-workflow.md`.
 
-Additional branch and pull request rules:
+## Additional safeguards
 
 - Do not reuse a feature branch for a different CHOIR ticket.
-- Do not work directly on `main` or `124-integradora`.
 - Review the complete diff before committing or opening a pull request.
 - Do not include temporary files, backups, generated artifacts, or unrelated changes in commits.
 - Never report tests, builds, lint checks, or other validations as successful unless they were actually executed and passed.
