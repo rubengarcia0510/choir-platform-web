@@ -126,6 +126,10 @@ export class LoginPage {}
         <span class="pill-status">GESTIÓN DE COROS</span>
       </div>
 
+      <p class="choir-success-announcement" role="status" aria-live="polite" aria-atomic="true">
+        {{ successMessage() }}
+      </p>
+
       @if (loading()) {
         <div class="panel" role="status"><h2>Cargando tus coros…</h2></div>
               } @else {
@@ -236,6 +240,7 @@ export class ChoirPage {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly name = signal('');
   readonly description = signal('');
   readonly editingId = signal<number | null>(null);
@@ -249,11 +254,13 @@ export class ChoirPage {
   setName(event: Event): void {
     this.name.set((event.target as HTMLInputElement).value);
     this.formError.set(null);
+    this.successMessage.set(null);
   }
 
   setDescription(event: Event): void {
     this.description.set((event.target as HTMLTextAreaElement).value);
     this.formError.set(null);
+    this.successMessage.set(null);
   }
 
   loadChoirs(): void {
@@ -277,6 +284,7 @@ export class ChoirPage {
   beginEdit(choir: Choir): void {
     if (choir.archived) return;
     this.editingId.set(choir.id);
+    this.successMessage.set(null);
     this.name.set(choir.name);
     this.description.set(choir.description ?? '');
     this.formError.set(null);
@@ -287,6 +295,7 @@ export class ChoirPage {
     this.name.set('');
     this.description.set('');
     this.formError.set(null);
+    this.successMessage.set(null);
   }
 
   save(event?: Event): void {
@@ -306,6 +315,7 @@ export class ChoirPage {
 
     this.saving.set(true);
     this.formError.set(null);
+    this.successMessage.set(null);
 
     const request = { name, description: description || null };
     const id = this.editingId();
@@ -319,9 +329,12 @@ export class ChoirPage {
           .sort((a, b) => Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)));
         this.saving.set(false);
         this.cancelEdit();
+        this.successMessage.set(id === null
+          ? 'Coro creado correctamente.' : 'Coro actualizado correctamente.');
       },
       error: () => {
         this.saving.set(false);
+        this.successMessage.set(null);
         this.formError.set('No pudimos guardar los datos. Intentá nuevamente.');
       }
     });
