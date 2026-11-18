@@ -142,3 +142,10 @@ La columna de inspección visual resume las capturas revisadas en la ventana nor
 - Las capturas permiten revisar los estados visibles, pero no certifican responsive en tamaños distintos.
 - No se afirma que el producto completo sea responsive a partir de esta inspección parcial.
 - Rediseños y cambios funcionales se derivarán a tickets separados.
+
+## 9. Aclaración de evidencia de viewport
+
+La captura compartida durante la revisión registra una ventana de 1240 × 262 px. Esta medida se conserva como referencia de la evidencia visual recibida y no debe confundirse con las dimensiones del elemento inspeccionado en DevTools (1180 × 407,083 px).
+
+No se solicitarán nuevas mediciones de configuración del navegador para repetir esta evidencia.
+
