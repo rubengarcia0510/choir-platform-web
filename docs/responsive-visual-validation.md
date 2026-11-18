@@ -124,3 +124,12 @@ En Formaciones solo se validarán estados que puedan abrirse con datos reales di
 - Observaciones: composición en dos columnas, con panel oscuro de identidad visual a la izquierda y formulario de registro a la derecha. Se distinguen los campos de nombre, correo electrónico y contraseña, la indicación de mínimo 12 caracteres, el botón «Crear cuenta» y el enlace para usuarios existentes. No se aprecia solapamiento entre columnas ni overflow horizontal evidente.
 - Resultado: revisión visual parcial; no certifica responsive para un viewport concreto. La adaptación a tablet y móvil queda pendiente.
 
+
+### Verificación de cuenta (/registro/verificar)
+
+- Evidencia: fotografía de la aplicación en navegador, aportada durante la validación manual.
+- Estado observado: error por ausencia de token de verificación.
+- Viewport CSS: no confirmado.
+- Observaciones: mensaje «No pudimos verificar tu correo» con explicación de que el enlace no contiene un token y recomendación de revisar el enlace completo. Botón «Ir a ingresar» visible y con buen contraste. Contenido centrado; no se aprecia overflow horizontal.
+- Resultado: revisión visual parcial del estado de error. No valida el flujo exitoso de verificación ni el comportamiento responsive en viewports concretos.
+
