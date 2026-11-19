@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1000" viewBox="0 0 1440 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Propuesta conceptual de Transiciones para escritorio</title>
+  <desc id="desc">Composición conceptual con dos paneles vacíos para representar la relación entre una formación de origen y una de destino. No es una pantalla implementada.</desc>
+  <defs>
+    <linearGradient id="hero" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00102A"/>
+      <stop offset="1" stop-color="#142747"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#D8B879" stop-opacity=".35"/>
+      <stop offset="1" stop-color="#D8B879" stop-opacity=".9"/>
+    </linearGradient>
+  </defs>
+  <rect width="1440" height="1000" fill="#FCFBF8"/>
+  <rect width="1440" height="76" fill="#FFFFFF"/>
+  <path d="M0 75.5H1440" stroke="#E9E8E1"/>
+  <g font-family="Inter,Arial,sans-serif">
+    <text x="76" y="47" font-size="23" font-weight="700" fill="#252B25">ChoirStage</text>
+    <text x="310" y="46" font-size="14" fill="#747A70">Inicio</text>
+    <text x="390" y="46" font-size="14" fill="#747A70">Mi coro</text>
+    <text x="478" y="46" font-size="14" fill="#747A70">Conciertos</text>
+    <text x="590" y="46" font-size="14" fill="#747A70">Formaciones</text>
+    <rect x="700" y="19" width="112" height="38" rx="10" fill="#F5F1E8"/>
+    <text x="756" y="43" font-size="14" font-weight="600" text-anchor="middle" fill="#252B25">Transiciones</text>
+    <text x="1360" y="46" font-size="13" text-anchor="end" fill="#747A70">Propuesta visual</text>
+
+    <rect x="76" y="112" width="1288" height="190" rx="22" fill="url(#hero)"/>
+    <circle cx="1260" cy="205" r="105" fill="none" stroke="#D8B879" stroke-opacity=".18" stroke-width="1.5"/>
+    <circle cx="1260" cy="205" r="72" fill="none" stroke="#D8B879" stroke-opacity=".25" stroke-width="1.5"/>
+    <path d="M1165 205 Q1210 145 1260 205 T1355 205" fill="none" stroke="url(#gold)" stroke-width="2"/>
+    <text x="120" y="160" font-size="12" font-weight="700" letter-spacing="2.2" fill="#D8B879">ORGANIZACIÓN ARTÍSTICA</text>
+    <text x="120" y="211" font-family="Georgia,serif" font-size="39" fill="#F5F1E8">Transiciones</text>
+    <text x="120" y="248" font-size="16" fill="#FFFFFF" opacity=".82">Una mirada comparativa al movimiento entre formaciones.</text>
+    <rect x="120" y="265" width="242" height="24" rx="12" fill="#FFFFFF" fill-opacity=".12"/>
+    <text x="241" y="282" font-size="11" font-weight="700" letter-spacing="1" text-anchor="middle" fill="#F5F1E8">CONCEPTO FUTURO · NO IMPLEMENTADO</text>
+
+    <text x="76" y="356" font-size="13" font-weight="700" letter-spacing="1.5" fill="#747A70">RELACIÓN ENTRE FORMACIONES</text>
+    <text x="76" y="392" font-family="Georgia,serif" font-size="27" fill="#252B25">Origen y destino</text>
+    <text x="1364" y="389" font-size="13" text-anchor="end" fill="#747A70">Composición exploratoria · sin datos reales</text>
+
+    <rect x="76" y="420" width="574" height="390" rx="18" fill="#FFFFFF" stroke="#E9E8E1"/>
+    <rect x="790" y="420" width="574" height="390" rx="18" fill="#FFFFFF" stroke="#E9E8E1"/>
+
+    <rect x="104" y="448" width="112" height="28" rx="14" fill="#F5F1E8"/>
+    <text x="160" y="467" font-size="11" font-weight="700" letter-spacing="1" text-anchor="middle" fill="#747A70">PUNTO A</text>
+    <text x="104" y="515" font-family="Georgia,serif" font-size="25" fill="#252B25">Formación de origen</text>
+    <text x="104" y="541" font-size="13" fill="#747A70">Referencia visual inicial</text>
+    <rect x="104" y="568" width="518" height="207" rx="13" fill="#FCFBF8" stroke="#E9E8E1"/>
+    <rect x="143" y="592" width="440" height="159" rx="8" fill="none" stroke="#D7D8D0" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <path d="M363 592V751 M143 671.5H583" stroke="#E9E8E1" stroke-dasharray="4 6"/>
+    <circle cx="363" cy="671" r="35" fill="none" stroke="#D8B879" stroke-opacity=".7" stroke-width="2"/>
+    <text x="363" y="677" text-anchor="middle" font-size="12" fill="#747A70">A</text>
+    <text x="363" y="737" text-anchor="middle" font-size="11" fill="#747A70">Esquema vacío · sin posiciones</text>
+
+    <rect x="818" y="448" width="112" height="28" rx="14" fill="#EAF0E9"/>
+    <text x="874" y="467" font-size="11" font-weight="700" letter-spacing="1" text-anchor="middle" fill="#456B4C">PUNTO B</text>
+    <text x="818" y="515" font-family="Georgia,serif" font-size="25" fill="#252B25">Formación de destino</text>
+    <text x="818" y="541" font-size="13" fill="#747A70">Referencia visual final</text>
+    <rect x="818" y="568" width="518" height="207" rx="13" fill="#FCFBF8" stroke="#E9E8E1"/>
+    <rect x="857" y="592" width="440" height="159" rx="8" fill="none" stroke="#D7D8D0" stroke-width="1.5" stroke-dasharray="6 6"/>
+    <path d="M1077 592V751 M857 671.5H1297" stroke="#E9E8E1" stroke-dasharray="4 6"/>
+    <circle cx="1077" cy="671" r="35" fill="none" stroke="#456B4C" stroke-opacity=".65" stroke-width="2"/>
+    <text x="1077" y="677" text-anchor="middle" font-size="12" fill="#747A70">B</text>
+    <text x="1077" y="737" text-anchor="middle" font-size="11" fill="#747A70">Esquema vacío · sin posiciones</text>
+
+    <path d="M674 613H766" stroke="#D8B879" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M754 601L766 613L754 625" fill="none" stroke="#D8B879" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="720" y="589" text-anchor="middle" font-size="10" font-weight="700" letter-spacing="1" fill="#747A70">CAMBIO</text>
+
+    <rect x="76" y="840" width="1288" height="88" rx="15" fill="#F5F1E8"/>
+    <circle cx="112" cy="884" r="15" fill="#D8B879" fill-opacity=".28"/>
+    <text x="112" y="889" text-anchor="middle" font-size="15" font-weight="700" fill="#252B25">i</text>
+    <text x="144" y="876" font-size="14" font-weight="700" fill="#252B25">Propuesta conceptual</text>
+    <text x="144" y="900" font-size="13" fill="#747A70">La comparación, los datos y las operaciones se definirán y validarán en etapas futuras. Esta imagen no representa funcionalidad disponible.</text>
+    <text x="76" y="970" font-size="11" fill="#747A70">CHOIR-144 · Propuesta estática de diseño · Escritorio</text>
+    <text x="1364" y="970" font-size="11" text-anchor="end" fill="#747A70">No constituye una especificación funcional</text>
+  </g>
+</svg>
