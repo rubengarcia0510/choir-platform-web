@@ -710,3 +710,29 @@ Las imágenes son propuestas conceptuales estáticas, no implementaciones funcio
 La propuesta toma como referencia las capacidades identificadas en el código existente. La validación operativa con datos reales y la comprobación de todos los estados del editor siguen pendientes. Por lo tanto, las imágenes no certifican esos comportamientos ni introducen reglas de negocio nuevas.
 
 Este trabajo no modifica componentes Angular, estilos funcionales, servicios, API, persistencia ni algoritmos de formación. Tampoco depende de la finalización de CHOIR-124.
+
+## CHOIR-144 — Propuesta conceptual de Transiciones
+
+Propuesta visual independiente de CHOIR-124 para explorar la relación entre una formación de origen y una formación de destino.
+
+### Material visual
+
+- Escritorio: `docs/assets/choir-144/transitions-desktop.svg`
+- Móvil: `docs/assets/choir-144/transitions-mobile.svg`
+
+### Criterios de diseño
+
+- Organizar la composición alrededor de dos referencias visuales diferenciadas: formación de origen y formación de destino.
+- En escritorio, presentar ambas referencias en paralelo para facilitar su lectura comparativa.
+- En móvil, disponerlas en una única columna y conectar visualmente el origen con el destino.
+- Utilizar una dirección visual sobria: superficies operativas claras, acentos artísticos moderados y jerarquía tipográfica consistente.
+- Mantener la relación entre ambos paneles como recurso conceptual, sin atribuirle reglas de negocio ni resultados.
+- Identificar de forma visible el carácter futuro y no implementado de la propuesta.
+
+### Alcance y límites
+
+Las imágenes son propuestas conceptuales estáticas. No representan una pantalla, flujo ni funcionalidad frontend actualmente implementados. Los paneles son esquemáticos y permanecen vacíos deliberadamente: no contienen nombres, integrantes, posiciones, conciertos, obras, métricas ni transiciones simuladas.
+
+La composición comunica únicamente el concepto de comparar una formación de origen con una de destino. No define cómo se seleccionan, evalúan, comparan, modifican o publican las transiciones, ni establece estados operativos, algoritmos o reglas de negocio.
+
+Este trabajo no modifica componentes Angular, estilos funcionales, servicios, API, backend ni persistencia. Es independiente de CHOIR-124 y no condiciona su cierre.
