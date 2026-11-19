@@ -37,7 +37,7 @@ import {
         <p class="hero-note">Un espacio de trabajo para organizar tu próximo ensayo.</p>
       </div>
 
-      <div class="hero-art" aria-label="Ilustración abstracta de voces y música">
+      <div class="hero-art" aria-hidden="true">
         <div class="art-orbit orbit-one"></div>
         <div class="art-orbit orbit-two"></div>
         <div class="art-center">
