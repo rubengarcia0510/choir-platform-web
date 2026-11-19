@@ -640,19 +640,23 @@ La ruta carga `src/app/auth/register.page.ts`, con estilos en `src/app/auth/regi
 
 ### 5.5 Alcance de esta validación
 
-Esta revisión contrasta las propuestas con rutas, templates, lógica y estilos de `develop`.
+La revisión combina el contraste estático de rutas, templates, lógica y estilos de `develop` con la inspección visual de las capturas reales compartidas para las cuatro pantallas: Inicio, Ingresar, Registro y Mi coro.
 
-No constituye una certificación visual en navegador ni una prueba manual de todos los tamaños y estados. Las capturas solo deberán incorporarse cuando correspondan a pantallas reales y hayan sido verificadas.
+La validación visual se realizó en Chrome para Android con la opción «Sitio para computadoras» desactivada. Se registran las diferencias entre la propuesta y la interfaz observada, sin presentar elementos conceptuales como funcionalidades existentes.
+
+Esta revisión no constituye una certificación de accesibilidad ni una prueba exhaustiva de todos los tamaños, navegadores y estados posibles.
 
 No se realizaron cambios de Angular, CSS, contratos API ni reglas de negocio.
 
-### 5.6 Hallazgo visual móvil — Inicio
+### 5.6 Aclaración del comportamiento móvil — Inicio
 
-Durante la revisión visual móvil se observó que:
+La observación inicial de espacio vacío debajo del contenido se produjo con Chrome para Android en modo «Sitio para computadoras». Al desactivar esa opción, la vista responsive de `main` se presenta correctamente y el problema no se reproduce como defecto de distribución vertical de la aplicación.
 
-- La página ocupa algo más de la mitad de la altura visible.
-- Queda un espacio vacío considerable debajo del contenido.
-- El comportamiento queda pendiente de análisis; todavía no se atribuye a un componente o regla CSS específica.
-- No se considera resuelto ni se propone un cambio de estilos sin verificar primero el contenedor principal y la ubicación del pie de página.
+Por lo tanto:
 
-Este hallazgo no modifica funcionalidades ni amplía el alcance de CHOIR-141.
+- No se registra un defecto responsive pendiente en Inicio.
+- No se requieren cambios de CSS por esta observación.
+- La aplicación mantiene el comportamiento responsive basado en el viewport; no debe forzar un modo móvil o escritorio por detección del dispositivo.
+- La preferencia «Sitio para computadoras» pertenece al navegador y no puede ser anulada por la aplicación web.
+
+La observación inicial queda cerrada como incidencia de configuración del navegador, no como defecto de CHOIR.
