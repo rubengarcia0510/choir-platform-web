@@ -21,7 +21,5 @@
   <text x="720" y="552" text-anchor="middle" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700">Estamos preparando este espacio</text>
   <text x="720" y="588" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="16">Próximamente vas a poder consultar y organizar los conciertos de tu coro.</text>
   <text x="720" y="616" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="16">La información todavía no está conectada.</text>
-  <rect x="568" y="656" width="304" height="38" rx="9" fill="#FFFFFF" stroke="#E9E8E1"/>
-  <text x="720" y="680" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="13">No hay conciertos disponibles para mostrar</text>
   <text x="112" y="765" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="13">Propuesta visual · Estado actual del módulo</text>
 </svg>
