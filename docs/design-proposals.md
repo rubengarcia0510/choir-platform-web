@@ -532,3 +532,131 @@ implementarse.
 
 Estas propuestas complementan la auditoría inicial. No representan
 diseños aprobados ni una certificación de accesibilidad.
+
+## 5. Validación de propuestas existentes — CHOIR-141
+
+Estado: revisión estática de rutas, templates y estilos de `develop`.
+No implica implementación visual ni cambios funcionales.
+
+### 5.1 Inicio
+
+**Correspondencia verificada**
+
+- La página contiene el mensaje institucional, descripción, acciones Comenzar y Explorar la plataforma.
+- Presenta accesos a Mi coro, Conciertos y Formaciones.
+- La ilustración `.hero-art` es decorativa y está marcada `aria-hidden="true"`.
+- El encabezado y el pie institucional pertenecen al shell general de la aplicación.
+
+**Decisiones**
+
+- Aceptar la estructura de hero y los tres accesos como base de la propuesta.
+- Aceptar la ilustración como recurso decorativo.
+- Descartar que el menú público incluya accesos directos a Mi coro, Conciertos y Formaciones: esos módulos pertenecen al espacio autenticado.
+- Mantener diferenciados los accesos públicos y los enlaces del espacio de trabajo.
+
+**Responsive observado**
+
+- Hero en dos columnas en escritorio y una columna hasta 850 px.
+- Tarjetas en tres columnas, dos columnas en tamaños intermedios y una columna hasta 560 px.
+- La navegación del espacio de trabajo permite desplazamiento horizontal cuando necesita acomodar sus enlaces.
+
+### 5.2 Ingresar
+
+**Correspondencia verificada**
+
+- La ruta `/ingresar` carga `src/app/auth/login.page.ts`.
+- El formulario funcional contiene correo electrónico y contraseña.
+- Incluye estado de carga, errores anunciados mediante `role="alert"`, acción para ingresar y enlace a Registro.
+- Incluye navegación para volver al inicio.
+- El acceso exitoso conduce a `/app/coro`.
+
+**Diferencias respecto de la propuesta**
+
+- La implementación actual utiliza una composición operativa de una columna.
+- No existe el panel artístico lateral propuesto para escritorio.
+- La propuesta de dos ambientes visuales representa una reorganización futura, no el estado actual.
+
+**Decisiones**
+
+- Aceptar los campos, acciones y comportamiento existentes como restricciones obligatorias.
+- Mantener el enlace a Registro y el retorno al inicio.
+- Conservar la propuesta dividida como alternativa de rediseño, identificándola expresamente como futura.
+- No incorporar recuperación de contraseña, autenticación social ni otras operaciones no implementadas.
+
+### 5.3 Registro
+
+**Corrección de documentación**
+
+La descripción anterior que identificaba `/registro` como placeholder está desactualizada.
+
+La ruta carga `src/app/auth/register.page.ts`, con estilos en `src/app/auth/register.page.scss`.
+
+**Correspondencia verificada**
+
+- Composición dividida entre panel artístico y contenido operativo.
+- Campos funcionales: nombre para mostrar, correo electrónico y contraseña.
+- Validaciones de longitud y formato.
+- Estado de envío y botón deshabilitado durante la operación.
+- Mensajes de error anunciados mediante `role="alert"`.
+- Confirmación mediante `role="status"`.
+- Enlace a Ingresar.
+- En móvil, el panel artístico se convierte en una banda compacta y el contenido pasa a una columna.
+
+**Decisiones**
+
+- Aceptar la composición general de dos ambientes visuales.
+- Aceptar la estructura de tres campos y sus restricciones verificadas.
+- Aceptar el estado de confirmación como estado de la misma pantalla, no como una ruta independiente.
+- Mantener el mensaje neutral de confirmación y la posibilidad de indisponibilidad del registro.
+- No agregar reenvío de correo ni acciones que el backend no ofrece.
+- No considerar la propuesta de Ingresar y Registro como dos implementaciones visuales idénticas: sus composiciones actuales son diferentes.
+
+### 5.4 Mi coro
+
+**Correspondencia verificada**
+
+- La pantalla permite consultar coros, crear, editar y archivar.
+- La interfaz separa el formulario de gestión y el listado.
+- Los registros muestran nombre, descripción y acciones disponibles.
+- Los coros archivados tienen una etiqueta explícita.
+- La confirmación de archivado se presenta en el contexto del registro.
+- Existen estados de carga, error, reintento, éxito y lista vacía.
+- En tamaños reducidos, el formulario y el listado pasan a una columna.
+- Las acciones pueden distribuirse en varias líneas.
+
+**Diferencias respecto de la propuesta**
+
+- La implementación utiliza filas separadas por bordes, no tarjetas independientes para cada coro.
+- El formulario ocupa la primera columna y el listado la segunda; el listado tiene mayor proporción.
+- La propuesta móvil de tarjetas puede conservarse como alternativa, pero no debe documentarse como comportamiento ya implementado.
+
+**Decisiones**
+
+- Aceptar la jerarquía general entre formulario y listado.
+- Aceptar la identificación textual de coros archivados.
+- Aceptar la confirmación contextual y los estados existentes.
+- Mantener como fuera de alcance la gestión de coreutas, búsqueda, filtros y detalle de coro: no están implementados en esta pantalla.
+- Registrar las tarjetas móviles como una opción de diseño futuro, no como una característica actual.
+
+### 5.5 Alcance de esta validación
+
+La revisión combina el contraste estático de rutas, templates, lógica y estilos de `develop` con la inspección visual de las capturas reales compartidas para las cuatro pantallas: Inicio, Ingresar, Registro y Mi coro.
+
+La validación visual se realizó en Chrome para Android con la opción «Sitio para computadoras» desactivada. Se registran las diferencias entre la propuesta y la interfaz observada, sin presentar elementos conceptuales como funcionalidades existentes.
+
+Esta revisión no constituye una certificación de accesibilidad ni una prueba exhaustiva de todos los tamaños, navegadores y estados posibles.
+
+No se realizaron cambios de Angular, CSS, contratos API ni reglas de negocio.
+
+### 5.6 Aclaración del comportamiento móvil — Inicio
+
+La observación inicial de espacio vacío debajo del contenido se produjo con Chrome para Android en modo «Sitio para computadoras». Al desactivar esa opción, la vista responsive de `main` se presenta correctamente y el problema no se reproduce como defecto de distribución vertical de la aplicación.
+
+Por lo tanto:
+
+- No se registra un defecto responsive pendiente en Inicio.
+- No se requieren cambios de CSS por esta observación.
+- La aplicación mantiene el comportamiento responsive basado en el viewport; no debe forzar un modo móvil o escritorio por detección del dispositivo.
+- La preferencia «Sitio para computadoras» pertenece al navegador y no puede ser anulada por la aplicación web.
+
+La observación inicial queda cerrada como incidencia de configuración del navegador, no como defecto de CHOIR.
