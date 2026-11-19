@@ -660,3 +660,27 @@ Por lo tanto:
 - La preferencia «Sitio para computadoras» pertenece al navegador y no puede ser anulada por la aplicación web.
 
 La observación inicial queda cerrada como incidencia de configuración del navegador, no como defecto de CHOIR.
+
+## CHOIR-142 — Propuesta visual de Conciertos
+
+Esta propuesta documenta la presentación del módulo actual en escritorio y móvil. Es una tarea independiente de CHOIR-124.
+
+### Escritorio
+
+![Propuesta de Conciertos para escritorio](assets/choir-142/concerts-desktop.svg)
+
+### Móvil
+
+![Propuesta de Conciertos para móvil](assets/choir-142/concerts-mobile.svg)
+
+### Criterios de diseño
+
+- Mantener el encabezado y la identidad visual del espacio Mi coro.
+- Comunicar de forma visible que el módulo está en preparación.
+- Explicar que la información todavía no está conectada.
+- No representar conciertos ficticios ni una lista vacía que pueda confundirse con una funcionalidad operativa.
+- No incorporar filtros, calendario, creación, edición, detalle ni acciones que todavía no existen.
+- En móvil, priorizar lectura vertical, panel de ancho disponible y ausencia de desplazamiento horizontal.
+- Mantener colores, tipografía, bordes, espaciado y estados coherentes con `docs/design-system.md`.
+
+Estas imágenes son propuestas estáticas de presentación del estado actual; no implican implementación funcional ni cambios de API.

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844" role="img" aria-labelledby="title desc">
+  <title id="title">Propuesta de Conciertos para móvil</title>
+  <desc id="desc">Versión móvil de Conciertos, con contenido apilado, estado en preparación y panel informativo.</desc>
+  <rect width="390" height="844" fill="#FCFBF8"/>
+  <rect width="390" height="66" fill="#FFFFFF"/>
+  <path d="M0 65.5H390" stroke="#E9E8E1"/>
+  <circle cx="28" cy="33" r="17" fill="#456B4C"/>
+  <path d="M20 38V28L28 23L36 28V38M24 38V32H32V38" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="56" y="39" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="18" font-weight="700">Mi coro</text>
+  <text x="24" y="124" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="29" font-weight="700">Conciertos</text>
+  <text x="24" y="157" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="14">Organizá las presentaciones de tu coro.</text>
+  <rect x="24" y="183" width="205" height="34" rx="17" fill="#EEF3ED"/>
+  <circle cx="42" cy="200" r="4.5" fill="#456B4C"/>
+  <text x="54" y="205" fill="#456B4C" font-family="Inter,Arial,sans-serif" font-size="11" font-weight="700" letter-spacing=".35">MÓDULO EN PREPARACIÓN</text>
+  <rect x="24" y="249" width="342" height="448" rx="16" fill="#FFFFFF" stroke="#E9E8E1"/>
+  <circle cx="195" cy="347" r="43" fill="#EEF3ED"/>
+  <rect x="176" y="328" width="38" height="34" rx="4" fill="none" stroke="#456B4C" stroke-width="2.2"/>
+  <path d="M176 338H214M185 323V332M205 323V332M185 347H192M199 347H206M185 355H192" fill="none" stroke="#456B4C" stroke-width="2.2" stroke-linecap="round"/>
+  <text x="195" y="425" text-anchor="middle" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700">Estamos preparando</text>
+  <text x="195" y="451" text-anchor="middle" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="20" font-weight="700">este espacio</text>
+  <text x="195" y="493" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="14">Próximamente vas a poder</text>
+  <text x="195" y="516" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="14">consultar y organizar los</text>
+  <text x="195" y="539" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="14">conciertos de tu coro.</text>
+  <text x="195" y="580" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="13">La información todavía</text>
+  <text x="195" y="601" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="13">no está conectada.</text>
+  <rect x="48" y="632" width="294" height="42" rx="9" fill="#FCFBF8" stroke="#E9E8E1"/>
+  <text x="195" y="658" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="11">No hay conciertos para mostrar</text>
+  <text x="24" y="744" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="12">Propuesta visual · Estado actual del módulo</text>
+</svg>
