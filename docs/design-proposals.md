@@ -684,3 +684,29 @@ Esta propuesta documenta la presentación del módulo actual en escritorio y mó
 - Mantener colores, tipografía, bordes, espaciado y estados coherentes con `docs/design-system.md`.
 
 Estas imágenes son propuestas estáticas de presentación del estado actual; no implican implementación funcional ni cambios de API.
+
+## CHOIR-143 — Propuesta conceptual de Formaciones
+
+Propuesta visual independiente de CHOIR-124 para las vistas de escritorio y móvil del editor de Formaciones.
+
+### Material visual
+
+- Escritorio: `docs/assets/choir-143/formations-desktop.svg`
+- Móvil: `docs/assets/choir-143/formations-mobile.svg`
+
+### Criterios de diseño
+
+- Presentar el contexto de trabajo en una secuencia clara: coro, concierto, obra del repertorio y formación.
+- Dar prioridad visual a la disposición de integrantes en el escenario.
+- Mantener el listado de integrantes próximo al escenario en escritorio y debajo de este en móvil.
+- En pantallas pequeñas, organizar el contenido en una única columna y priorizar la lectura vertical.
+- Representar visualmente las capacidades existentes del editor: selección de contexto y formación, visualización y edición de posiciones, bloqueo de posiciones, incorporación y eliminación de integrantes y guardado de borradores.
+- Mantener la paleta, tipografía, espaciado, contraste y criterios de accesibilidad definidos en el sistema de diseño.
+
+### Alcance y límites
+
+Las imágenes son propuestas conceptuales estáticas, no implementaciones funcionales. Los nombres, identificadores y posiciones que aparecen son datos ficticios de maqueta; no representan coros, conciertos, obras ni personas reales.
+
+La propuesta toma como referencia las capacidades identificadas en el código existente. La validación operativa con datos reales y la comprobación de todos los estados del editor siguen pendientes. Por lo tanto, las imágenes no certifican esos comportamientos ni introducen reglas de negocio nuevas.
+
+Este trabajo no modifica componentes Angular, estilos funcionales, servicios, API, persistencia ni algoritmos de formación. Tampoco depende de la finalización de CHOIR-124.
