@@ -645,3 +645,14 @@ Esta revisión contrasta las propuestas con rutas, templates, lógica y estilos 
 No constituye una certificación visual en navegador ni una prueba manual de todos los tamaños y estados. Las capturas solo deberán incorporarse cuando correspondan a pantallas reales y hayan sido verificadas.
 
 No se realizaron cambios de Angular, CSS, contratos API ni reglas de negocio.
+
+### 5.6 Hallazgo visual móvil — Inicio
+
+Durante la revisión visual móvil se observó que:
+
+- La página ocupa algo más de la mitad de la altura visible.
+- Queda un espacio vacío considerable debajo del contenido.
+- El comportamiento queda pendiente de análisis; todavía no se atribuye a un componente o regla CSS específica.
+- No se considera resuelto ni se propone un cambio de estilos sin verificar primero el contenedor principal y la ubicación del pie de página.
+
+Este hallazgo no modifica funcionalidades ni amplía el alcance de CHOIR-141.
