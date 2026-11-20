@@ -1,52 +1,68 @@
-# CHOIR — Sistema de diseño propuesto
+# CHOIR — Sistema de diseño
 
-Estado: propuesta inicial para CHOIR-124.
+Estado: sistema de diseño consolidado (CHOIR-125 / CHOIR-145).
 
-Este documento define una dirección visual y un conjunto inicial de criterios. Los valores son una propuesta de diseño, no una descripción de los estilos actualmente implementados.
+Este documento define la dirección visual canónica, los tokens de diseño, las pautas de accesibilidad y los criterios de consistencia entre los dominios operativos y artísticos de CHOIR. Los valores reflejan la implementación real en `src/styles.scss` y `src/shared-patterns.scss`, alineados con las propuestas validadas en CHOIR-141 y las propuestas conceptuales de CHOIR-142 a CHOIR-144.
 
 ## 1. Principios
 
-1. Identidad artística: transmitir música, armonía y dirección coral.
-2. Claridad operativa: facilitar las tareas cotidianas del director.
-3. Consistencia: mantener patrones reconocibles entre módulos.
-4. Accesibilidad: priorizar contraste, legibilidad y navegación.
-5. Responsividad: contemplar escritorio, tablet y móvil.
-6. Moderación: reservar los recursos decorativos para momentos donde aporten valor.
+1. Identidad artística: transmitir música, armonía y dirección coral mediante la sobriedad del azul nocturno y detalles dorados.
+2. Claridad operativa: facilitar las tareas cotidianas del director coral sobre superficies limpias, claras y de alto contraste.
+3. Consistencia: mantener patrones y tokens compartidos reconocibles y reutilizables entre todos los módulos.
+4. Accesibilidad integral: garantizar contraste (WCAG 2.2 AA), foco visible en todos los controles, navegación multimodal (puntero y teclado) y respeto estricto por movimiento reducido.
+5. Responsividad: diseñar composiciones específicas para escritorio, tablet y móvil con soporte táctil y sin desbordamientos horizontales.
+6. Moderación y legibilidad: reservar los recursos decorativos para momentos que aporten valor sin interferir en la lectura prolongada ni en la gestión técnica.
 
-## 2. Ambientes visuales
+## 2. Ambientes visuales y tokens de color
+
+El sistema articula dos ambientes coordinados que comparten la misma escala de espaciado, tipografía base y componentes:
 
 ### 2.1 Ambiente artístico
 
-Se utilizará en presentaciones, destacados y experiencias visuales.
+Se utiliza en presentaciones, destacados, cabecera/hero de Inicio y experiencias visuales.
 
-Paleta propuesta:
-
-| Token | Valor | Uso |
-|---|---|---|
-| `--choir-night` | `#00102A` | Fondo azul profundo |
-| `--choir-night-secondary` | `#142747` | Superficies oscuras secundarias |
-| `--choir-gold` | `#D8B879` | Acentos y detalles |
-| `--choir-ivory` | `#F5F1E8` | Texto o superficies claras |
-| `--choir-white` | `#FFFFFF` | Texto de alto contraste |
+| Token Canónico | Valor | Ratio vs Superficie | Uso Principal |
+|---|---|:---:|---|
+| `--choir-night` | `#00102A` | Base | Fondo azul profundo para áreas artísticas |
+| `--choir-night-secondary` | `#142747` | — | Superficies oscuras secundarias y tarjetas artísticas |
+| `--choir-gold` | `#D8B879` | 9.98:1 vs night | Acentos dorados, detalles musicales y realces |
+| `--choir-ivory` | `#F5F1E8` | 16.82:1 vs night | Texto o superficies claras sobre fondos nocturnos |
+| `--choir-white` | `#FFFFFF` | 18.96:1 vs night | Texto y contraste máximo sobre azul nocturno |
 
 ### 2.2 Ambiente operativo
 
-Se utilizará en formularios, gestión, tablas y tareas frecuentes.
+Se utiliza en formularios, gestión de agrupaciones, administración de integrantes, tablas, escenografía y tareas cotidianas.
 
-Paleta propuesta:
+| Token Canónico | Valor | Ratio de Contraste | Uso Principal |
+|---|---|:---:|---|
+| `--choir-page` | `#FCFBF8` | Base | Fondo general operativo de la aplicación |
+| `--choir-surface` | `#FFFFFF` | Base | Fondo de tarjetas, paneles y modales |
+| `--choir-ink` | `#252B25` | 13.99:1 vs page / 14.47:1 vs surface | Texto principal (WCAG AA $\ge 4.5:1$) |
+| `--choir-muted` | `#6B7168` | 4.85:1 vs page / 5.02:1 vs surface | Texto secundario y etiquetas auxiliares (WCAG AA $\ge 4.5:1$) |
+| `--choir-line` | `#E9E8E1` | — | Bordes y líneas divisorias |
+| `--choir-accent` | `#456B4C` | 5.86:1 vs page / 6.07:1 vs surface | Acento operativo primario y botones primarios |
+| `--choir-accent-dark` | `#34533A` | 8.30:1 vs page / 8.59:1 vs surface | Hover y active de acentos; color base del indicador de foco |
+| `--choir-accent-soft` | `#EDF2EB` | — | Fondos suaves para badges, píldoras de estado y selecciones |
+
+### 2.3 Colores semánticos
 
 | Token | Valor | Uso |
 |---|---|---|
-| `--choir-page` | `#FCFBF8` | Fondo general |
-| `--choir-surface` | `#FFFFFF` | Tarjetas y paneles |
-| `--choir-ink` | `#252B25` | Texto principal |
-| `--choir-muted` | `#747A70` | Texto secundario |
-| `--choir-line` | `#E9E8E1` | Bordes y separadores |
-| `--choir-accent` | `#456B4C` | Acento operativo actual |
+| `--color-success` | `#28A745` | Confirmación y operaciones exitosas |
+| `--color-warning` | `#FFC107` | Advertencias de estado o atención requerida |
+| `--color-danger` | `#C82333` | Errores críticos y acciones destructivas (`.button-danger`) |
+| `--color-info` | `#17A2B8` | Mensajes informativos y notas contextuales |
 
-La paleta operativa se conserva como punto de partida para evitar una sustitución visual innecesaria.
+### 2.4 Foco visible accesible
 
-La convivencia entre ambos ambientes deberá mantener contraste suficiente y una identidad reconocible.
+| Token | Definición | Ratio de Contraste | Cobertura |
+|---|---|:---:|---|
+| `--focus-ring` | `3px solid var(--choir-accent-dark)` (`#34533A`) | 6.99:1 a 8.59:1 | Enlaces, botones, inputs, selects y textareas con `outline-offset: 3px` |
+
+### 2.5 Variables de compatibilidad retroactiva
+
+Para garantizar la interoperabilidad con componentes existentes sin regresiones, las variables heredadas se mapean directamente a los tokens canónicos en `src/styles.scss`:
+`--ink: var(--choir-ink);`, `--muted: var(--choir-muted);`, `--accent: var(--choir-accent);`, `--accent-dark: var(--choir-accent-dark);`, `--accent-soft: var(--choir-accent-soft);`, `--line: var(--choir-line);`, `--surface: var(--choir-surface);`, `--page: var(--choir-page);`.
 
 ## 3. Tipografía
 
@@ -90,32 +106,31 @@ Reglas:
 - No depender de imágenes para transmitir información funcional.
 - Mantener los recursos gráficos fuera del área principal de interacción cuando puedan distraer.
 
-## 5. Componentes base
+## 5. Componentes base y patrones compartidos
 
-El sistema deberá definir criterios compartidos para:
+Los patrones base se centralizan globalmente en `src/shared-patterns.scss` para su aplicación consistente en todos los componentes:
 
-### Botones
+### Botones (`.button`)
 
-Variantes:
-- Primario.
-- Secundario.
-- Terciario o de texto.
-- Peligro.
+Variantes autorizadas:
+- Primario (`.button-primary`): fondo `--choir-accent`, texto blanco, hover `--choir-accent-dark`.
+- Secundario (`.button-secondary`): borde `--choir-line`, fondo `--choir-surface`, texto `--choir-ink`.
+- Peligro (`.button-danger`): fondo `--color-danger`, texto blanco para acciones destructivas confirmadas.
 
-Estados:
-- Normal.
-- Hover.
-- Focus.
-- Disabled.
-- Loading.
+Estados interactivos completos:
+- `Default`: dimensiones base, padding uniforme (`var(--space-4)`), min-height 47px y radio `var(--radius-sm)`.
+- `Hover`: elevación sutil `translateY(-2px)` protegida para no activarse en controles deshabilitados ni en carga (`:hover:not(:disabled):not([aria-disabled="true"]):not([aria-busy="true"])`).
+- `Active`: presión `translateY(0)` con oscurecimiento de superficie.
+- `Focus-visible`: anillo accesible `outline: var(--focus-ring)` con `outline-offset: 3px`.
+- `Disabled`: `opacity: 0.55`, `cursor: not-allowed` y `transform: none !important`.
+- `Loading / Carga`: soporte semántico para `[aria-busy="true"]` y `[data-loading="true"]`, con cursor `wait` e inhibición de eventos de puntero para evitar reenvíos accidentales.
 
-### Tarjetas y paneles
+*Nota de alcance:* El modificador `.full-button` se reserva para bloques de layout específicos de autenticación y no forma parte de los patrones compartidos de DS-01.
 
-Deben mantener:
-- Espaciado consistente.
-- Bordes y superficies coherentes.
-- Jerarquía clara entre título, descripción y acciones.
-- Comportamiento responsive.
+### Tarjetas y paneles (`.panel`, `.notice-card`)
+
+- `.panel`: contenedor multipropósito con borde `--choir-line`, fondo `--choir-surface`, radio `--radius-md` y padding `--space-4`.
+- `.notice-card`: tarjeta de notificación o estado contextual con borde `--choir-line`, fondo `--choir-surface`, radio `--radius-sm` y padding `--space-3`.
 
 ### Formularios
 
@@ -191,27 +206,23 @@ La interfaz deberá contemplar:
 
 La adaptación debe validarse por pantalla y no solamente por la existencia de breakpoints.
 
-## 9. Aplicación por módulo
+## 9. Aplicación por módulo y estado de implementación
 
-| Módulo | Ambiente predominante | Consideraciones |
-|---|---|---|
-| Inicio | Artístico | Identidad, presentación y accesos |
-| Mi coro | Operativo | Gestión clara y estados consistentes |
-| Conciertos | Mixto | Presentación artística y gestión operativa |
-| Formaciones | Operativo con detalles artísticos | Escenario, posiciones y controles |
-| Transiciones | Mixto | Comparación visual de origen y destino con información disponible |
-| Ingresar y registro | Operativo | Simplicidad y legibilidad |
+| Módulo | Ambiente | Estado de Implementación | Criterios y Propuestas Asociadas |
+|---|---|---|---|
+| **Inicio** | Artístico con accesos operativos | **Implementada y validada** | Hero azul profundo, ilustración abstracta accesible, navegación clara y accesos directos (CHOIR-141). |
+| **Ingresar y Registro** | Operativo | **Implementada y validada** | Formulario funcional de login y registro integrado con verificación de correo (`register.page.ts`, `verify-email.page.ts`). |
+| **Mi coro** | Operativo | **Implementada y validada** | Administración de coros y gestión completa de coreutas con asignación de cuerdas (`ChoirSingersComponent` / CHOIR-151). |
+| **Conciertos** | Mixto | **Módulo en preparación** | Presentación honesta sin datos ficticios con propuesta visual CHOIR-142. |
+| **Formaciones** | Operativo con escenario interactivo | **Implementada con propuesta conceptual** | Escenario funcional con soporte multimodal (puntero + teclado CHOIR-37). Propuesta conceptual CHOIR-143 para iteraciones de layout. |
+| **Transiciones** | Mixto | **Propuesta conceptual** | Exploración estática de origen y destino (CHOIR-144). No implementada en frontend. |
 
-## 10. Reglas de implementación futura
+## 10. Reglas de consistencia entre dominios
 
-- No duplicar tokens entre componentes.
-- Centralizar los valores compartidos.
-- Evitar estilos globales específicos de una sola pantalla.
-- Mantener estilos propios cerca del componente cuando corresponda.
-- No introducir dependencias visuales sin justificación.
-- Mantener compatibilidad con la arquitectura Angular existente.
-- No modificar contratos backend desde una tarea de diseño.
-- Incorporar pruebas visuales o de componentes cuando el alcance lo requiera.
+- Reutilización de tokens canónicos: todo componente debe utilizar `--choir-*` o sus alias estándar.
+- Separación de ambientes: las áreas de trabajo continuo y lectura de datos extensos (coreutas, configuración, formularios) deben utilizar el ambiente operativo claro; el azul nocturno y dorado se reservan para presentación, hero y momentos artísticos.
+- Jerarquía de interacción: los botones primarios denotan avance (`.button-primary`), los secundarios mantienen la neutralidad sobre fondo blanco (`.button-secondary`) y las acciones destructivas requieren advertencia y confirmación antes de aplicar `.button-danger`.
+- Accesibilidad multimodal: ninguna interacción crítica en ningún dominio debe depender exclusivamente de eventos táctiles o de ratón. Todo control debe ser operable por teclado.
 
 ## 11. Estado de aprobación
 

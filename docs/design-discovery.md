@@ -14,12 +14,13 @@ La aplicación utiliza Angular y dispone de las siguientes rutas:
 
 | Ruta | Pantalla | Estado observado |
 |---|---|---|
-| `/` | Inicio | Implementada; propuesta visual documentada, pendiente de validación |
-| `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); propuesta de reorganización visual documentada, pendiente de validación |
-| `/registro` | Registro | Placeholder informativo; backend con endpoints de registro y verificación, sujetos a configuración y disponibilidad del servicio de correo |
-| `/app/coro` | Gestión del coro | Implementada |
-| `/app/conciertos` | Conciertos | Pendiente de completar |
-| `/app/formaciones` | Formaciones | Implementada parcialmente |
+| `/` | Inicio | Implementada (propuesta visual CHOIR-141 validada en desktop y móvil) |
+| `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); propuesta visual CHOIR-141 validada |
+| `/registro` | Registro | Formulario funcional de alta e integración de verificación (`src/app/auth/register.page.ts`); propuesta visual CHOIR-141 validada |
+| `/verificar-correo` | Verificación de correo | Funcional (`src/app/auth/verify-email.page.ts`) |
+| `/app/coro` | Gestión del coro | Implementada con administración de agrupaciones e integrantes (`ChoirSingersComponent` / CHOIR-151) |
+| `/app/conciertos` | Conciertos | Módulo en preparación con propuesta visual CHOIR-142 documentada |
+| `/app/formaciones` | Formaciones | Editor visual interactivo con soporte de puntero y teclado (CHOIR-21 / CHOIR-37); propuesta conceptual CHOIR-143 documentada |
 | `**` | No encontrado | Implementada |
 
 Las rutas privadas se encuentran protegidas mediante `directorGuard`.
@@ -84,16 +85,13 @@ Es uno de los flujos de mayor complejidad funcional y necesita una evaluación e
 
 ### 3.4 Accesibilidad
 
-La hoja global define foco visible para enlaces, botones e inputs. Se deberá revisar la cobertura de otros controles, especialmente `select` y `textarea`.
+La hoja global (`src/styles.scss`) define foco visible accesible para enlaces, botones, inputs, `select` y `textarea` mediante `--focus-ring: 3px solid var(--choir-accent-dark)` (`#34533A`), garantizando contraste superior a 3:1 sobre todas las superficies operativas.
 
-También se deberá validar:
-
-- Contraste de texto y controles.
-- Navegación por teclado.
-- Nombres accesibles para botones de icono.
-- Estados que no dependan exclusivamente del color.
-- Movimiento reducido.
-- Legibilidad en dispositivos móviles.
+Asimismo, se han incorporado:
+- Enlace de salto al contenido principal (`.skip-link` a `#main-content`).
+- Alternativa completa por teclado en el escenario de Formaciones (`Enter`/`Espacio` para seleccionar, flechas para mover con pasos grandes vía `Shift`, `Enter` para confirmar, `Escape` o `Tab` para cancelar y anuncios `aria-live`).
+- Estados de foco y hover sin transformaciones no deseadas en controles deshabilitados.
+- Respeto estricto por `prefers-reduced-motion` anulando duraciones de transición y traslaciones.
 
 ### 3.5 Responsive
 
@@ -202,29 +200,24 @@ Las futuras implementaciones deberán contar con alcance y criterios de aceptaci
 - `docs/design-proposals.md`: propuestas conceptuales de Inicio, Ingresar y Registro.
 - `docs/assets/choir-design-reference.png`: referencia conceptual general de identidad visual.
 
-### Propuestas visuales disponibles
+### Propuestas visuales y validación disponible
 
-En `docs/assets/choir-124/` se encuentran recursos de escritorio y móvil para:
+En `docs/assets/choir-124/`, `docs/assets/choir-142/`, `docs/assets/choir-143/` y `docs/assets/choir-144/` se encuentran los recursos visuales para:
 
-- Inicio.
-- Ingresar.
-- Registro.
-- Estado de éxito de Registro.
-- Estados de interacción de formularios.
+- Inicio (propuesta CHOIR-141 validada en desktop y móvil).
+- Ingresar y Registro (propuestas CHOIR-141 validadas con formularios funcionales).
+- Mi coro (propuesta CHOIR-141 validada, incorporando gestión de elenco vía CHOIR-151).
+- Conciertos (propuesta visual CHOIR-142 para módulo en preparación).
+- Formaciones (propuesta conceptual CHOIR-143 para el editor visual).
+- Transiciones (propuesta conceptual CHOIR-144 para comparación de origen y destino).
 
-Las propuestas de Ingresar y Registro son conceptuales. Ingresar ya dispone de un formulario funcional; Registro continúa siendo un placeholder en el frontend. Las propuestas no equivalen a pantallas implementadas ni implican que el registro esté habilitado en los entornos desplegados.
+### Estado de validación por dominio
 
-### Pendiente de validación
-
-- Contrastar las propuestas visuales de Inicio, Ingresar y Registro con las pantallas y flujos reales.
-- Validar la dirección artística y operativa.
-- Confirmar la configuración efectiva de Registro en los entornos donde se utilizará.
-- Confirmar la ruta frontend de destino del enlace de verificación.
-- Verificar la integración CSRF en el cliente.
-- Preparar propuestas visuales diferenciadas para escritorio y móvil de Mi coro, Conciertos, Formaciones y transiciones.
-- Ejecutar las pruebas manuales de accesibilidad y responsive indicadas en `accessibility-audit.md`.
-- Confirmar las decisiones finales de diseño y actualizar el backlog si la validación modifica prioridades o dependencias.
-- Crear tickets Jira independientes únicamente después de validar el alcance y evitar solapamientos.
+- **Pantallas operativas validadas con código real:** Inicio, Ingresar, Registro, Verificación de correo y Mi coro (incluyendo coros y gestión de integrantes).
+- **Módulos con propuesta visual de estado en preparación:** Conciertos.
+- **Módulos operativos con propuesta conceptual documentada:** Formaciones (escenario operativo interactivo con soporte de puntero y teclado implementado; propuesta conceptual estática documentada para futuras iteraciones de layout).
+- **Módulos conceptuales no implementados en frontend:** Transiciones (propuesta estrictamente conceptual sin funcionalidad ni persistencia asociada).
+- **Auditoría visual y responsive:** Validación responsive documentada en `docs/responsive-visual-validation.md` y auditoría de accesibilidad registrada en `docs/accessibility-audit.md`.
 
 La documentación y las propuestas constituyen un Discovery preliminar. No representan una aprobación definitiva del sistema visual ni una certificación de accesibilidad.
 
@@ -235,15 +228,15 @@ Discovery y en `accessibility-audit.md`. Las prioridades expresan impacto
 potencial y necesidad de resolución; no representan una certificación
 ni sustituyen las pruebas manuales pendientes.
 
-| ID | Área | Evidencia observada | Impacto | Prioridad |
+| ID | Área | Evidencia observada | Impacto | Prioridad / Estado |
 |---|---|---|---|---|
-| UX-01 | Ingresar y Registro | `/ingresar` dispone de un formulario funcional y `/registro` es un placeholder informativo. Hay propuestas visuales para ambos flujos, todavía pendientes de validación. | La experiencia visual de autenticación necesita validación e implementación; Registro también requiere completar su integración frontend conforme al contrato y configuración disponibles. | P1 |
-| UX-02 | Conciertos | La ruta `/app/conciertos` está identificada como pendiente de completar. | La gestión de conciertos carece de una experiencia visual terminada. | P1 |
-| UX-03 | Estilos compartidos | `src/app/app.scss` concentra estilos de navegación, presentación, formularios, estados y layouts. | La concentración puede dificultar la evolución y consistencia de los patrones compartidos. | P2 |
-| UX-04 | Formaciones | El escenario utiliza interacciones de puntero para mover integrantes; no se identificó una alternativa de teclado en el template revisado. | Algunas operaciones pueden no estar disponibles para usuarios que navegan con teclado. | P1 |
-| UX-05 | Foco de controles | `src/styles.scss` contempla foco visible para enlaces, botones e inputs, pero no incluye explícitamente `select` y `textarea`. | La indicación de foco puede ser inconsistente entre controles. | P1 |
-| UX-06 | Responsive | Existen reglas responsive, pero no se realizaron pruebas manuales completas en móvil, tablet y escritorio. | La existencia de breakpoints no garantiza que los flujos sean utilizables en todos los tamaños. | P2 |
-| UX-07 | Semántica y contenido accesible | La auditoría identifica aspectos pendientes en el escenario de Formaciones y en la ilustración de Inicio. | La información puede no comunicarse correctamente mediante tecnologías de asistencia. | P2 |
+| UX-01 | Ingresar y Registro | `/ingresar` y `/registro` cuentan con componentes y formularios funcionales (`login.page.ts`, `register.page.ts`). Propuestas CHOIR-141 validadas. | Resuelto en código y diseño; validado en desktop y móvil. | Resuelto (P1) |
+| UX-02 | Conciertos | La ruta `/app/conciertos` es un placeholder del módulo en preparación con propuesta CHOIR-142 documentada. | Módulo identificado claramente como en preparación sin datos simulados. | Propuesta documentada (P1) |
+| UX-03 | Estilos compartidos | Se migraron patrones a `src/shared-patterns.scss` y `src/styles.scss`, desacoplándolos del encapsulamiento de `app.scss`. | Resuelto mediante tokens globales canónicos y patrones reutilizables. | Resuelto (P2) |
+| UX-04 | Formaciones | El escenario cuenta con soporte nativo de puntero y navegación/edición por teclado con anuncios accesibles (CHOIR-37). | Resuelto en código de componente y verificado mediante suites de tests. | Resuelto (P1) |
+| UX-05 | Foco de controles | `src/styles.scss` define `--focus-ring: 3px solid var(--choir-accent-dark)` para `a`, `button`, `input`, `select` y `textarea`. | Resuelto con contraste superior a 3:1 sobre todas las superficies operativas. | Resuelto (P1) |
+| UX-06 | Responsive | Validación visual exhaustiva ejecutada y documentada en `docs/responsive-visual-validation.md` en viewports de 320px a 1440px. | Comprobado sin desbordamientos ni pérdida de legibilidad en los flujos principales. | Validado (P2) |
+| UX-07 | Semántica y contenido accesible | Skip link implementado, anuncios dinámicos de éxito y error con `aria-live`, y textos alternativos revisados. | Cobertura integrada en componentes interactivos y documentada en la auditoría. | Resuelto (P2) |
 
 ### Evidencia y límites
 

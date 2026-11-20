@@ -30,16 +30,12 @@ La pantalla permite:
 - Consultar los coros disponibles.
 - Crear un coro.
 - Editar un coro.
-- Archivar un coro mediante confirmación.
-- Visualizar estados de carga, error y ausencia de coros.
-- Diferenciar visualmente los coros archivados.
+- Archivar un coro mediante confirmación contextual.
+- Gestionar integrantes del coro activo mediante `ChoirSingersComponent` (incorporado en CHOIR-151): listar coreutas, agregar integrantes, asignar sección vocal (`vocal-sections`), editar datos y dar de baja.
+- Visualizar estados de carga, error y ausencia de coros o integrantes.
+- Diferenciar visualmente los coros archivados sin depender exclusivamente del color.
 
-No se debe representar:
-- Un listado de integrantes.
-- Un resumen de integrantes.
-- Búsqueda o filtros.
-- Una vista de detalle del coro.
-- Acciones que no estén disponibles en la pantalla actual.
+La composición integra la administración de agrupaciones y el elenco de voces manteniendo la jerarquía operativa sin sobrecargar el espacio visual.
 
 ### Referencia de escritorio
 
@@ -176,20 +172,21 @@ el orden de lectura y la relación entre escenario, elenco y controles.
 
 ### Interacción y accesibilidad
 
-El arrastre no debe ser la única forma de modificar posiciones.
-La futura implementación deberá ofrecer una alternativa operable
-por teclado y controles accesibles para ajustar posiciones.
+El escenario cuenta con soporte multimodal completo para interactuar con las posiciones:
+- Modificación de posiciones mediante arrastre con puntero (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`).
+- Alternativa por teclado completa (implementada en CHOIR-37):
+  - `Enter` o `Espacio` en el botón del cantante activa la sesión de movimiento por teclado.
+  - Teclas de dirección (`ArrowLeft`, `ArrowRight`, `ArrowUp`, `ArrowDown`) desplazan la posición con límites confinados al escenario (pasos estándar o pasos de precisión ampliada con `Shift`).
+  - `Enter` confirma la nueva posición emitiendo el cambio y notificando mediante anuncios `aria-live`.
+  - `Escape` o `Tab` cancelan el movimiento restaurando la posición original sin mutaciones.
 
-Esta referencia es un requisito de diseño futuro, no una afirmación
-de que esa alternativa ya exista.
-
-Verificar:
-- Foco visible en integrantes y controles.
+Verificaciones comprobadas en código:
+- Foco visible en integrantes y controles (`--focus-ring`).
 - Nombres accesibles para bloquear y quitar integrantes.
 - Identificación textual de selección y bloqueo.
-- Anuncios comprensibles de errores y resultados.
-- Compatibilidad con movimiento reducido.
-- Uso mediante teclado sin depender de pointer events.
+- Anuncios comprensibles de estado y confirmaciones (`aria-live`).
+- Compatibilidad con movimiento reducido (`prefers-reduced-motion`).
+- Operatividad sin depender exclusivamente de eventos de puntero.
 
 ### Estados
 
