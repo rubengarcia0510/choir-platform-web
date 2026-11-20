@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
+import { ChoirSingersComponent } from './singers/choir-singers.component';
 import { SingersStore } from './singers/singers.store';
 import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
 import { FormationStageComponent } from './formations/formation-stage.component';
@@ -115,6 +116,7 @@ export class LoginPage {}
 
 @Component({
   standalone: true,
+  imports: [ChoirSingersComponent],
   template: `
     <section class="page-wrap">
       <span class="eyebrow">ESPACIO DE DIRECCIÓN / 01</span>
@@ -220,6 +222,18 @@ export class LoginPage {}
                             (click)="requestArchive(choir.id)">Archivar</button>
                         }
                       </div>
+
+                      <button class="button button-secondary" type="button"
+                        [attr.aria-expanded]="managingChoirId() === choir.id"
+                        (click)="toggleMembers(choir.id)">
+                        {{ managingChoirId() === choir.id ? 'Ocultar integrantes' : 'Gestionar integrantes' }}
+                      </button>
+
+                      @if (managingChoirId() === choir.id) {
+                        <app-choir-singers
+                          [choirId]="choir.id"
+                          [choirName]="choir.name" />
+                      }
                     }
                   </li>
                 }
@@ -246,6 +260,7 @@ export class ChoirPage {
   readonly editingId = signal<number | null>(null);
   readonly archiveConfirmationId = signal<number | null>(null);
   readonly archivingId = signal<number | null>(null);
+  readonly managingChoirId = signal<number | null>(null);
 
   constructor() {
     this.loadChoirs();
@@ -261,6 +276,12 @@ export class ChoirPage {
     this.description.set((event.target as HTMLTextAreaElement).value);
     this.formError.set(null);
     this.successMessage.set(null);
+  }
+
+  toggleMembers(choirId: number): void {
+    this.managingChoirId.update(current =>
+      current === choirId ? null : choirId
+    );
   }
 
   loadChoirs(): void {
