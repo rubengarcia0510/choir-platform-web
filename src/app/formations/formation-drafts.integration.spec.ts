@@ -9,6 +9,8 @@ import { Singer } from '../singers/singer.model';
 import { SingersStore } from '../singers/singers.store';
 import { FormationDraftsApiService } from './formation-drafts-api.service';
 import { FormationDraft } from './formation-draft.model';
+import { OptimizationPreferencesApiService } from '../optimization/optimization-preferences-api.service';
+import { DEFAULT_OPTIMIZATION_PREFERENCES } from '../optimization/optimization-preferences.model';
 
 describe('FormationsPage - integración de borradores CHOIR-21', () => {
   const singers: Singer[] = [
@@ -133,6 +135,13 @@ describe('FormationsPage - integración de borradores CHOIR-21', () => {
             unlockPosition
           }
         },
+          {
+            provide: OptimizationPreferencesApiService,
+            useValue: {
+              get: vi.fn().mockReturnValue(of(DEFAULT_OPTIMIZATION_PREFERENCES)),
+              update: vi.fn().mockReturnValue(of({ distance: 40, crossings: 20, compactness: 20, sectionContinuity: 20 }))
+            }
+          },
         {
           provide: SingersStore,
           useValue: {
