@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, inject, signal } from '@angular/core';
 
+import { SingersStore } from './singers.store';
 import { Singer } from './singer.model';
 import { SingersApiService, SingerRequest } from './singers-api.service';
 import { VocalSection } from './vocal-section.model';
@@ -295,6 +296,7 @@ export class ChoirSingersComponent implements OnInit {
   @Input() choirName = '';
 
   private readonly singersApi = inject(SingersApiService);
+  private readonly singersStore = inject(SingersStore);
   private readonly sectionsApi = inject(VocalSectionsApiService);
 
   readonly singers = signal<Singer[]>([]);
@@ -338,6 +340,10 @@ export class ChoirSingersComponent implements OnInit {
       next: sections => this.sections.set(sections),
       error: () => this.error.set('No pudimos cargar las secciones vocales del coro.')
     });
+  }
+
+  private refreshFormationRoster(): void {
+    this.singersStore.loadSingers(this.choirId, true);
   }
 
   sectionName(sectionId: number | null): string {
@@ -431,6 +437,7 @@ export class ChoirSingersComponent implements OnInit {
         this.success.set(id === null
           ? 'Integrante agregado correctamente.'
           : 'Integrante actualizado correctamente.');
+        this.refreshFormationRoster();
         this.load();
       },
       error: () => {
@@ -451,6 +458,7 @@ export class ChoirSingersComponent implements OnInit {
         this.saving.set(false);
         this.deactivationId.set(null);
         this.success.set('Integrante dado de baja. Su historial se conserva.');
+        this.refreshFormationRoster();
         this.load();
       },
       error: () => {
@@ -470,6 +478,7 @@ export class ChoirSingersComponent implements OnInit {
       next: () => {
         this.saving.set(false);
         this.success.set('Integrante reactivado correctamente.');
+        this.refreshFormationRoster();
         this.load();
       },
       error: () => {
