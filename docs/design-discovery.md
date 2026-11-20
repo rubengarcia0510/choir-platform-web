@@ -16,10 +16,10 @@ La aplicación utiliza Angular y dispone de las siguientes rutas:
 |---|---|---|
 | `/` | Inicio | Implementada; propuesta visual documentada, pendiente de validación |
 | `/ingresar` | Iniciar sesión | Formulario funcional (`src/app/auth/login.page.ts`); propuesta de reorganización visual documentada, pendiente de validación |
-| `/registro` | Registro | Placeholder informativo; backend con endpoints de registro y verificación, sujetos a configuración y disponibilidad del servicio de correo |
-| `/app/coro` | Gestión del coro | Implementada |
-| `/app/conciertos` | Conciertos | Pendiente de completar |
-| `/app/formaciones` | Formaciones | Implementada parcialmente |
+| `/registro` | Registro | Formulario funcional en `src/app/auth/register.page.ts`; la disponibilidad del alta depende de la configuración del backend y del servicio de verificación por correo |
+| `/app/coro` | Gestión del coro | Implementada; incluye gestión de coros e integrantes |
+| `/app/conciertos` | Conciertos | Módulo informativo en preparación; sin operaciones de gestión disponibles |
+| `/app/formaciones` | Formaciones | Editor funcional con selección de contexto, integrantes, posiciones y guardado; validación manual pendiente |
 | `**` | No encontrado | Implementada |
 
 Las rutas privadas se encuentran protegidas mediante `directorGuard`.
@@ -59,7 +59,7 @@ La paleta actual utiliza verde como color de acento y superficies claras.
 
 ### 3.2 Estructura general
 
-Archivo: `src/app/app.scss`
+Archivos: `src/styles.scss` y `src/shared-patterns.scss`
 
 Se identifican estilos compartidos para:
 
@@ -84,7 +84,7 @@ Es uno de los flujos de mayor complejidad funcional y necesita una evaluación e
 
 ### 3.4 Accesibilidad
 
-La hoja global define foco visible para enlaces, botones e inputs. Se deberá revisar la cobertura de otros controles, especialmente `select` y `textarea`.
+La hoja global define foco visible para enlaces, botones, inputs, `select` y `textarea`, mediante `:focus-visible`.
 
 También se deberá validar:
 
@@ -237,11 +237,11 @@ ni sustituyen las pruebas manuales pendientes.
 
 | ID | Área | Evidencia observada | Impacto | Prioridad |
 |---|---|---|---|---|
-| UX-01 | Ingresar y Registro | `/ingresar` dispone de un formulario funcional y `/registro` es un placeholder informativo. Hay propuestas visuales para ambos flujos, todavía pendientes de validación. | La experiencia visual de autenticación necesita validación e implementación; Registro también requiere completar su integración frontend conforme al contrato y configuración disponibles. | P1 |
-| UX-02 | Conciertos | La ruta `/app/conciertos` está identificada como pendiente de completar. | La gestión de conciertos carece de una experiencia visual terminada. | P1 |
-| UX-03 | Estilos compartidos | `src/app/app.scss` concentra estilos de navegación, presentación, formularios, estados y layouts. | La concentración puede dificultar la evolución y consistencia de los patrones compartidos. | P2 |
-| UX-04 | Formaciones | El escenario utiliza interacciones de puntero para mover integrantes; no se identificó una alternativa de teclado en el template revisado. | Algunas operaciones pueden no estar disponibles para usuarios que navegan con teclado. | P1 |
-| UX-05 | Foco de controles | `src/styles.scss` contempla foco visible para enlaces, botones e inputs, pero no incluye explícitamente `select` y `textarea`. | La indicación de foco puede ser inconsistente entre controles. | P1 |
+| UX-01 | Ingresar y Registro | `/ingresar` y `/registro` disponen de formularios funcionales; las propuestas visuales siguen pendientes de validación. | La experiencia visual necesita validación e implementación; el alta depende además de la configuración del backend. | P1 |
+| UX-02 | Conciertos | La ruta `/app/conciertos` muestra un módulo informativo en preparación, sin operaciones de gestión disponibles. | La gestión de conciertos todavía no dispone de operaciones funcionales; su evolución requiere completar el módulo. | P1 |
+| UX-03 | Estilos compartidos | Los estilos globales están en `src/styles.scss` y los patrones reutilizables en `src/shared-patterns.scss`. | Mantener ambas fuentes documentadas y evitar duplicaciones futuras. | P2 |
+| UX-04 | Formaciones | El escenario permite mover integrantes mediante arrastre con puntero y teclado: Enter o Espacio inicia el movimiento, las flechas cambian la posición, Shift más una flecha permite pasos mayores, Enter confirma y Escape cancela. | La alternativa de teclado está implementada; resta validar manualmente la semántica, los anuncios y la operación con tecnologías de asistencia (CHOIR-138). | P2 |
+| UX-05 | Foco de controles | `src/styles.scss` contempla foco visible para enlaces, botones, inputs, `select` y `textarea`. | La cobertura está implementada; resta validarla manualmente en los flujos reales. | P1 |
 | UX-06 | Responsive | Existen reglas responsive, pero no se realizaron pruebas manuales completas en móvil, tablet y escritorio. | La existencia de breakpoints no garantiza que los flujos sean utilizables en todos los tamaños. | P2 |
 | UX-07 | Semántica y contenido accesible | La auditoría identifica aspectos pendientes en el escenario de Formaciones y en la ilustración de Inicio. | La información puede no comunicarse correctamente mediante tecnologías de asistencia. | P2 |
 
@@ -251,7 +251,7 @@ ni sustituyen las pruebas manuales pendientes.
   `accessibility-audit.md`, con observaciones, recomendaciones y pruebas
   pendientes.
 - Los estados de implementación de las rutas se registran en la sección 2.
-- La concentración de estilos se observa en `src/app/app.scss`.
+- Los estilos globales y patrones reutilizables se encuentran separados entre `src/styles.scss` y `src/shared-patterns.scss`.
 - Los hallazgos responsive requieren validación manual antes de confirmar
   su alcance real.
 - No se atribuyen problemas visuales específicos a pantallas que no hayan

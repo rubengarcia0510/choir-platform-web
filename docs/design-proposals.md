@@ -92,12 +92,12 @@ Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
 
 - `/ingresar` carga `src/app/auth/login.page.ts`, que contiene un formulario
   funcional con correo, contraseña, estado de carga y mensajes de error.
-  El `LoginPage` placeholder de `src/app/pages.ts` no es la pantalla
+  El `LoginPage` placeholder de `src/app/pages.ts` corresponde a una implementación anterior y no es la pantalla
   enrutada. La propuesta de Ingresar es una reorganización visual del
   formulario existente y debe conservar sus campos, acciones y
   comportamiento.
-- `/registro` carga `RegisterPage` de `src/app/pages.ts`, que actualmente
-  es un placeholder informativo. El backend sí dispone de un endpoint de
+- `/registro` carga `RegisterPage` de `src/app/auth/register.page.ts`, que implementa
+  un formulario funcional. El backend dispone de un endpoint de
   registro, pero su disponibilidad depende de configuración y de que exista
   un mecanismo de envío de correo de verificación.
 - Los mensajes de error de Ingresar reutilizan el texto existente, que ya
@@ -227,25 +227,29 @@ Los textos de validación y el copy visual son propuestas. No deben
 presentarse como mensajes exactos del backend salvo los códigos y respuestas
 confirmados en esta sección.
 
-### Ajustes de tokens sugeridos (a validar en `design-system.md`)
+### Estado de contraste y tokens (auditoría pendiente)
 
-Contrastes calculados, sin pruebas manuales:
+Los valores de contraste de análisis anteriores no deben interpretarse como
+validación de los tokens actuales:
+- `--choir-muted` tiene actualmente el valor `#6B7168`. El cálculo histórico
+  de `#747A70` y el candidato `#5F655C` no representan una decisión vigente.
+  El contraste del token actual debe medirse nuevamente.
+- `--choir-line` tiene el valor `#E9E8E1`. Además de utilizarse en líneas y separadores, se aplica a los bordes de `.panel`, `.notice-card` y `.button-secondary`, y como fondo hover de este último en `src/shared-patterns.scss`. Estos usos están implementados, pero su contraste no está validado; no debe considerarse un borde accesible universal.
+- `#8A9086` continúa siendo un candidato para bordes de controles, no un
+  token aprobado ni una decisión implementada.
+- El foco vigente utiliza `--focus-ring: 3px solid var(--choir-accent-dark)`
+  con un desplazamiento de 3 px. La cobertura está definida en los estilos
+  globales; su contraste y comportamiento requieren validación manual.
 
-- `--choir-muted` `#747A70`: 4.41:1 sobre blanco y 4.26:1 sobre `#FCFBF8`;
-  no alcanza 4.5:1 para texto pequeño. Candidato: `#5F655C` (5.79:1 sobre
-  `#FCFBF8`).
-- `--choir-line` `#E9E8E1` sobre blanco: 1.23:1; sirve para separadores y
-  bordes de tarjeta, pero no para delimitar campos (referencia 1.4.11,
-  3:1). Candidato para campos: `#8A9086` (3.27:1 sobre blanco).
-- El foco actual de `login.page.ts` usa `--accent-soft`; verificar que
-  cumpla 3:1 o adoptar el borde de 2 px en verde de la propuesta.
+La auditoría de contraste y accesibilidad continúa pendiente en CHOIR-140.
+No declarar conformidad WCAG 2.2 AA hasta completar las mediciones y pruebas.
 
 ### Recomendaciones para incorporar al flujo de revisión
 
 - Mantener esta sección y registrar aquí las decisiones aceptadas o
   descartadas tras la revisión.
-- Mantener diferenciados el formulario funcional de Ingresar y el
-  placeholder actual de Registro.
+- Mantener diferenciados los formularios funcionales de Ingresar y Registro, y sus
+  respectivos estados de implementación.
 - Contrastar la propuesta de Registro con el contrato backend documentado
   en esta sección antes de implementar.
 - Confirmar la ruta frontend de verificación y la configuración efectiva
@@ -355,8 +359,8 @@ solo para el mockup; los textos y estados provienen de la pantalla actual.
 
 Decisiones y salvedades:
 
-- El móvil omite «Sitio público» y la etiqueta «GESTIÓN DE COROS» para
-  ganar espacio; ambos existen en la pantalla actual y deben decidirse.
+- La referencia visual usa `#E9E8E1` en bordes de campo; no debe tomarse
+  como decisión de implementación. La auditoría de controles sigue pendiente.
 - Se subraya el ítem activo de la navegación y los banners de error
   incluyen ícono, para no depender solo del color.
 - Los botones del listado miden 40 px en escritorio y 44 px en móvil.
