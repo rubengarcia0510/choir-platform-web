@@ -53,7 +53,7 @@ Base visual implementada para formularios, gestión y tareas frecuentes.
 | `--choir-surface` | `#FFFFFF` | Tarjetas y paneles |
 | `--choir-ink` | `#252B25` | Texto principal |
 | `--choir-muted` | `#6B7168` | Texto secundario |
-| `--choir-line` | `#E9E8E1` | Líneas y separadores tenues |
+| `--choir-line` | `#E9E8E1` | Líneas, separadores y bordes de patrones compartidos; contraste pendiente de validación |
 | `--choir-accent` | `#456B4C` | Acento operativo |
 | `--choir-accent-dark` | `#34533A` | Acento oscuro para interacción |
 | `--choir-accent-soft` | `#EDF2EB` | Superficies suaves y realces |
@@ -424,7 +424,7 @@ Toda implementación debe contar con alcance, dependencias y criterios de acepta
 | Tokens de color, tipografía, espaciado y radios | Implementados en `src/styles.scss` |
 | Patrones de botones, paneles y avisos | Implementados en `src/shared-patterns.scss` |
 | Foco global para enlaces, botones, inputs, `textarea` y `select` | Implementado; validación por pantalla pendiente |
-| Bordes decorativos y separadores | Implementados mediante `--choir-line` |
+| Bordes de paneles, avisos, botones secundarios y separadores | Implementados mediante `--choir-line`; contraste pendiente de validación |
 | Borde de control con contraste validado para todos los contextos | Pendiente de auditoría |
 | `#8A9086` como token de borde de control | Candidato no aprobado |
 | Ambientes artístico y operativo | Dirección visual documentada; aplicación integral pendiente |

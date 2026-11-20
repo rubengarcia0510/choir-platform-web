@@ -234,8 +234,7 @@ validación de los tokens actuales:
 - `--choir-muted` tiene actualmente el valor `#6B7168`. El cálculo histórico
   de `#747A70` y el candidato `#5F655C` no representan una decisión vigente.
   El contraste del token actual debe medirse nuevamente.
-- `--choir-line` tiene el valor `#E9E8E1` y se reserva para separadores
-  decorativos. No debe utilizarse como borde universal de campos o controles.
+- `--choir-line` tiene el valor `#E9E8E1`. Además de utilizarse en líneas y separadores, se aplica a los bordes de `.panel`, `.notice-card` y `.button-secondary`, y como fondo hover de este último en `src/shared-patterns.scss`. Estos usos están implementados, pero su contraste no está validado; no debe considerarse un borde accesible universal.
 - `#8A9086` continúa siendo un candidato para bordes de controles, no un
   token aprobado ni una decisión implementada.
 - El foco vigente utiliza `--focus-ring: 3px solid var(--choir-accent-dark)`
