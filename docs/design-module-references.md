@@ -1,6 +1,6 @@
 # CHOIR — Referencias visuales de los módulos operativos
 
-Estado: propuesta conceptual de CHOIR-124. Pendiente de validación.
+Estado: referencias conceptuales de CHOIR-124, contrastadas con las capacidades actuales. La validación visual y manual sigue pendiente.
 
 Este documento complementa `design-proposals.md` y concreta la jerarquía
 visual de Mi coro, Conciertos y Formaciones a partir de las capacidades
