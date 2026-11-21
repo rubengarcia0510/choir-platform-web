@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Noche de los Templos 2026 – Formaciones</title>
+<style>
+:root{--bg:#fff;--fg:#222;--mut:#666;--card:#f1f1f5;--line:#2a4bd7;--btn:#e3e6f4;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#16161a;--fg:#eee;--mut:#aaa;--card:#24242a;--line:#7f98ff;--btn:#33364a}}
+:root[data-theme="dark"]{--bg:#16161a;--fg:#eee;--mut:#aaa;--card:#24242a;--line:#7f98ff;--btn:#33364a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:12px;background:var(--bg);color:var(--fg);font:15px system-ui,sans-serif}
+h1{font-size:19px;margin:0 0 2px}h1 span{color:var(--line);font-style:italic;font-size:15px;display:block}
+.stage{overflow-x:auto;background:var(--card);border-radius:10px;margin:10px 0}
+svg{display:block;width:100%;height:auto}
+.p{transition:transform 1.6s ease-in-out,opacity .3s}
+.p circle{transition:stroke-width .2s}
+.p.sel circle{stroke:#e11;stroke-width:8}
+.dim .p:not(.sel){opacity:.3}
+button{font:inherit;color:var(--fg);background:var(--btn);border:0;border-radius:8px;padding:8px 12px;margin:2px}
+button.on{outline:2px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:2px;margin:6px 0}
+.chip{min-width:40px;text-align:center;color:#111;padding:8px 6px}
+#st{color:var(--mut);margin:6px 0;min-height:20px}
+#info{margin:6px 0;min-height:20px}
+h2{font-size:15px;margin:12px 0 2px}
+</style></head><body>
+<h1>Formaciones<span>Noche de los Templos 2026</span></h1>
+<div class="row">
+<button id="play">▶ Reproducir</button><button id="stop">⏸ Parar</button><button id="prev">◀</button><button id="next">▶</button><button id="home">⟲ Inicio</button>
+</div>
+<div id="st">Tocá Reproducir para ver la entrada del coro.</div>
+<div class="stage"><svg id="s" viewBox="70 60 1070 610" aria-label="Escenario">
+
+<line x1="15" x2="1195" y1="179" y2="179" stroke="var(--line)" stroke-width="3"/>
+<line x1="15" x2="1195" y1="234" y2="234" stroke="var(--line)" stroke-width="3"/>
+<line x1="604" x2="604" y1="76" y2="440" stroke="#e11" stroke-dasharray="6 5"/>
+<text x="300" y="540" text-anchor="middle" fill="var(--mut)" font-size="18">Púlpito</text>
+<text x="604" y="625" text-anchor="middle" fill="var(--mut)" font-size="18">Atril</text>
+<g id="people"></g></svg></div>
+<h2>Temas</h2><div class="row" id="songs"></div>
+<h2>Coreutas (tocá para resaltar)</h2><div class="row" id="ppl"></div>
+<div id="info"></div>
+<script>
+const P=[['M','M','','#9fc5e8',309,143],['Pe','Pe','Pedro','#9fc5e8',409,143],['Ru','Ru','Rubén','#9fc5e8',509,143],['G','G','Gus','#93c47d',605,143],['Ji','Ji','Jiho','#93c47d',703,143],['C','C','Clau','#6aa84f',811,143],['Da1','Da','Dani','#6aa84f',918,143],
+['So','So','Sofi','#ff00ff',180,201],['Ro','Ro','','#ff00ff',262,201],['Pa','Pa','','#ea9999',368,203],['Ch','Ch','','#ea9999',460,200],['Mc','Mc','','#dd7e6b',559,201],['Va','Va','','#ff9900',659,203],['Ju','Ju','','#ff9900',765,203],['Mr','Mr','','#ff9900',872,201],['Li','Li','','#ffd966',979,201],
+['An','An','Ani','#ff00ff',218,268],['As','As','','#ff00ff',313,268],['Vi','Vi','','#dd7e6b',417,268],['Lu','Lu','','#dd7e6b',510,268],['Cl','Cl','','#dd7e6b',604,267],['Cy','Cy','','#ff9900',711,268],['Sa','Sa','','#ff9900',815,268],['Da2','Da','Daniela','#ffd966',932,268],['Mt','Mt','','#ffd966',1036,268]];
+// [tema, formación (G general, L Lux, J Jardinera/Zamba, P Pescador 2°), ¿canta Daniela?]
+const S=[['Diez Mil Razones','G',1],['Pescador de Hombres','P',1],['Lux Aeterna','L',0],['La Jardinera','J',0],['Zamba por Vos','J',0],['Mariposa Tecknicolor','G',0],['Candombe','G',1],['(BIS) Thank You','G',1],['Misa Criolla: Gloria','G',0]];
+const NS='http://www.w3.org/2000/svg',$=id=>document.getElementById(id),E={};
+const base={};P.forEach(p=>base[p[0]]=[p[4],p[5]]);
+const mk=(id,l,c,dash)=>{const e=document.createElementNS(NS,'g');e.setAttribute('class','p');
+e.innerHTML=`<circle r="40" fill="${c}" stroke="${dash?'#d00':'#555'}" stroke-width="2" ${dash?'stroke-dasharray="5 4"':''}/><text text-anchor="middle" dy=".35em" font-size="30" fill="#111">${l}</text>`;$('people').append(e);E[id]=e;return e};
+P.forEach(([id,l,n,c])=>{mk(id,l,c,id=='Da2').style.transform='translate(604px,720px)'});
+const W=mk('W','W','#fff');W.style.transform='translate(604px,720px)';W.style.transitionDuration='1.4s';
+const sup=P.slice(0,7),med=P.slice(7,16),pis=P.slice(16);
+const inOrder=[...sup.slice().reverse(),...med.slice().reverse(),...pis.slice().reverse()].map(p=>p[0]);
+const outOrder=[...pis.slice().reverse(),...med.slice().reverse(),...sup.slice().reverse()].map(p=>p[0]);
+function form(t){const f=JSON.parse(JSON.stringify(base));
+if(t=='L')[f.Pe,f.Ru]=[f.Ru,f.Pe];
+if(t=='J')Object.assign(f,{Da1:[703,143],C:[811,143],G:[918,143],Ji:[1020,143],Ro:[180,201],Pa:[262,201],Ch:[368,203],Mc:[460,200],Va:[765,203],Ju:[872,201],Mr:[979,201],Li:[1085,201],So:[123,268]});
+if(t=='P')Object.assign(f,{Mr:[459,144],Va:[556,145],Cy:[654,145],Ju:[752,148],Sa:[385,202],Li:[830,202],Mc:[293,262],Vi:[457,268],Ch:[556,269],M:[653,268],Lu:[752,269],Da2:[915,267],Cl:[367,304],Pa:[850,304],Ro:[277,339],As:[932,341],So:[264,416],An:[951,416]});
+return f}
+function target(i){const [,t,d]=S[i],f=form(t),o={};
+P.forEach(([id,,,,,y])=>{let p=f[id];
+if(id=='Da2'&&!d)p=[1300,y];
+if(t=='P'&&(id=='Pe'||id=='Ru'))p=[-90,110];
+if(t=='P'&&['G','Ji','C','Da1','Mt'].includes(id))p=[1300,110];
+o[id]=p});return o}
+const put=(id,p,d)=>{E[id].style.transitionDelay=d+'ms';E[id].style.transform=`translate(${p[0]}px,${p[1]}px)`};
+const setW=(x,y)=>put('W',[x,y],0);
+const ay=i=>S[i][1]=='P'?570:486;
+let tok=0,cur=-1,sel=null;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const wait=async(ms,t)=>{await sleep(ms);if(t!==tok)throw 0};
+const say=t=>$('st').textContent=t;
+function place(o,order,step){order.forEach((id,k)=>put(id,o[id],k*step))}
+function show(i){cur=i;[...$('songs').children].forEach((b,k)=>b.classList.toggle('on',k==i));info()}
+function info(){if(sel===null){$('info').textContent='';return}
+const p=P.find(q=>q[0]==sel),n=(p[2]||p[1]);let s='';
+if(cur>=0){const x=target(cur)[sel][0];s=(x>-1&&x<1210)?' · en escena en este tema':' · no está en este tema'}
+if(sel=='Pe'&&cur==2)s+=' · pasa a T2 (cambia con Rubén)';
+$('info').textContent=n+s}
+async function playFrom(i){const t=++tok;
+try{for(let k=i;k<S.length;k++){
+if(cur<0){say('Entrada del coro por el centro: primero la fila de atrás');place(target(k),inOrder,150);await wait(5500,t);
+say('Entra el director');setW(300,486);await wait(3000,t);}
+else{say('El director saluda');setW(70,486);await wait(1800,t);
+say('Va al púlpito y presenta: '+S[k][0]);setW(300,486);await wait(1800,t);
+place(target(k),P.map(p=>p[0]),90);}
+show(k);await wait(3500,t);
+setW(604,ay(k));say('Cantando: '+S[k][0]+' (10 s hasta el próximo)');await wait(10000,t);}
+say('Salida: director, fila de adelante, medio y atrás');setW(604,720);await wait(1500,t);
+const o={};P.forEach(([id,,,,,y])=>o[id]=[604,720]);place(o,outOrder,150);await wait(5000,t);cur=-1;show(-1);say('Fin.');}catch(e){}}
+function go(i){tok++;i=Math.max(0,Math.min(S.length-1,i));place(target(i),P.map(p=>p[0]),0);setW(604,ay(i));show(i);say(S[i][0])}
+function home(){tok++;const o={};P.forEach(([id,,,,,y])=>o[id]=[604,720]);place(o,P.map(p=>p[0]),0);setW(604,720);show(-1);say('Tocá Reproducir para ver la entrada del coro.')}
+$('play').onclick=()=>playFrom(cur<0?0:cur);
+$('stop').onclick=()=>{tok++;say('Pausado')};
+$('prev').onclick=()=>go(cur-1);$('next').onclick=()=>go(cur+1);$('home').onclick=home;
+S.forEach(([n],i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+n;b.onclick=()=>go(i);$('songs').append(b)});
+P.forEach(([id,l,n,c])=>{const b=document.createElement('button');b.className='chip';b.style.background=c;b.textContent=l;b.title=n;
+b.onclick=()=>{const was=sel==id;sel=was?null:id;Object.entries(E).forEach(([k,e])=>e.classList.toggle('sel',k==sel));
+$('people').classList.toggle('dim',sel!==null);info()};$('ppl').append(b)});
+</script></body></html>
