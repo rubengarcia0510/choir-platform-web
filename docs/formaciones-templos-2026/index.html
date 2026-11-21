@@ -57,13 +57,13 @@ const outOrder=[...pis.slice().reverse(),...med.slice().reverse(),...sup.slice()
 function form(t){const f=JSON.parse(JSON.stringify(base));
 if(t=='L')[f.Pe,f.Ru]=[f.Ru,f.Pe];
 if(t=='J')Object.assign(f,{Da1:[703,143],C:[811,143],G:[918,143],Ji:[1020,143],Ro:[180,201],Pa:[262,201],Ch:[368,203],Mc:[460,200],Va:[765,203],Ju:[872,201],Mr:[979,201],Li:[1085,201],So:[123,268]});
-if(t=='P')Object.assign(f,{Mr:[459,144],Va:[556,145],Cy:[654,145],Ju:[752,148],Sa:[385,202],Li:[830,202],Mc:[293,262],Vi:[457,268],Ch:[556,269],M:[653,268],Lu:[752,269],Da2:[915,267],Cl:[367,304],Pa:[850,304],Ro:[277,339],As:[932,341],So:[264,416],An:[951,416]});
+if(t=='P')Object.assign(f,{Mr:[459,144],Va:[556,145],Cy:[654,145],Ju:[752,148],Sa:[385,202],Li:[830,202],Mc:[293,262],Vi:[457,268],Ch:[556,269],Mt:[653,268],Lu:[752,269],Da2:[915,267],Cl:[367,304],Pa:[850,304],Ro:[277,339],As:[932,341],So:[264,416],An:[951,416]});
 return f}
 function target(i){const [,t,d]=S[i],f=form(t),o={};
 P.forEach(([id,,,,,y])=>{let p=f[id];
 if(id=='Da2'&&!d)p=[1300,y];
-if(t=='P'&&(id=='Pe'||id=='Ru'))p=[-90,110];
-if(t=='P'&&['G','Ji','C','Da1','Mt'].includes(id))p=[1300,110];
+if(t=='P'&&(id=='M'||id=='Pe'||id=='Ru'))p=[-90,110];
+if(t=='P'&&['G','Ji','C','Da1'].includes(id))p=[1300,110];
 o[id]=p});return o}
 const put=(id,p,d)=>{E[id].style.transitionDelay=d+'ms';E[id].style.transform=`translate(${p[0]}px,${p[1]}px)`};
 const setW=(x,y)=>put('W',[x,y],0);

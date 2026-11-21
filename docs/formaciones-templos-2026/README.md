@@ -16,7 +16,7 @@ No forma parte de la app Angular ni toca CSS/SCSS ni backend.
 ## Repertorio (sujeto a confirmación de los organizadores)
 
 1. Diez Mil Razones
-2. Pescador de Hombres (formación 2°)
+2. Pescador de Hombres (formación 2°, solo voces femeninas: salen los 7 varones)
 3. Lux Aeterna (Pedro cambia con Rubén y pasa a T2)
 4. La Jardinera (BBs: Dani - Clau - Gus - Jiho)
 5. Zamba por Vos (igual que Jardinera)
