@@ -9,6 +9,7 @@ import { ChoirSingersComponent } from './singers/choir-singers.component';
 import { SingersStore } from './singers/singers.store';
 import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
 import { FormationStageComponent } from './formations/formation-stage.component';
+import { OptimizationPreferencesComponent } from './optimization/optimization-preferences.component';
 import { FormationStageSinger } from './formations/formation-stage.model';
 import { mapFormationStageSingers } from './formations/formation-stage.mapper';
 import {
@@ -419,7 +420,7 @@ export class ConcertsPage {}
 
 @Component({
   standalone: true,
-  imports: [FormationStageComponent],
+  imports: [FormationStageComponent, OptimizationPreferencesComponent],
   template: `
     <section class="page-wrap">
       <span class="eyebrow">ESPACIO DE DIRECCIÓN / 03</span>
@@ -518,6 +519,12 @@ export class ConcertsPage {}
               </select>
             </label>
           </div>
+
+          @if (selectedChoirId() !== null && selectedConcertId() !== null) {
+            <app-optimization-preferences
+              [choirId]="selectedChoirId()!"
+              [concertId]="selectedConcertId()!" />
+          }
 
           @if (concertsLoading() || repertoireLoading() || formationsLoading() || draftLoading()) {
             <p role="status">Cargando datos de planificación…</p>
