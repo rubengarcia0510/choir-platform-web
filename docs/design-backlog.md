@@ -444,3 +444,44 @@ No incluye:
 
 Cada tarea futura deberá contar con un ticket Jira propio y una rama/PR
 independiente.
+
+## 8. Estado real de ejecución — 21/11/2026
+
+Esta sección prevalece sobre las prioridades y secuencias propuestas
+en las secciones anteriores. El estado de cada trabajo se verifica
+contra Jira; los identificadores DS organizan el diseño, no sustituyen
+a los tickets.
+
+### Unidades completadas
+
+| Unidad | Ticket Jira | Estado |
+|---|---|---|
+| DS-01 — Fundamentos visuales | CHOIR-125 | Finalizada |
+| DS-02 Etapa A — Diseño del flujo de registro | CHOIR-126 | Finalizada |
+| DS-02 Etapa B — Integración de Registro | CHOIR-127 | Finalizada |
+| DS-08 — Estados globales y consistencia visual | CHOIR-128 | Finalizada |
+| DS-09 — Validación responsive y accesibilidad | CHOIR-129 | Finalizada |
+
+### Trabajo de accesibilidad todavía pendiente
+
+| Ticket Jira | Alcance |
+|---|---|
+| CHOIR-138 | Validar semántica y operación accesible del escenario de Formaciones |
+| CHOIR-140 | Medir contraste de texto, controles y estados visuales |
+| CHOIR-148 | Mejorar contraste de bordes de campos y foco en Ingresar |
+| CHOIR-149 | Conservar contraste del contenido de coros archivados |
+| CHOIR-150 | Reforzar límites visuales de controles del escenario |
+
+Estos tickets son trabajo pendiente registrado en Jira. No deben
+duplicarse como nuevas unidades DS.
+
+### Criterio para continuar
+
+- No reabrir unidades DS que ya tienen su ticket en estado Finalizada.
+- No crear tickets duplicados para los hallazgos que ya tienen
+  identificadores CHOIR.
+- Antes de implementar una corrección, verificar su alcance y sus
+  dependencias en Jira.
+- Mantener separados los trabajos de auditoría, corrección y validación.
+- No considerar una propuesta visual como una implementación terminada
+  sin evidencia en el código y sus pruebas.
