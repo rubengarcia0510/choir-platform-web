@@ -279,8 +279,11 @@ ni sustituyen las pruebas manuales pendientes.
 | 1. Dirección visual única y consistente documentada | Cumplido (documental) | `docs/design-system.md` es la referencia central. Los tokens citados se contrastaron con `src/styles.scss` y los ratios de contraste se recalcularon. |
 | 2. Diferencias entre dominios corregidas o justificadas | Cumplido | El ambiente artístico se documenta como implementado solo en Registro. Se corrigieron las contradicciones sobre integrantes de Mi coro, alternativa de teclado de Formaciones, ruta de verificación y pendientes ya cubiertos por CHOIR-141 a CHOIR-144. |
 | 3. Decisiones reflejadas en `design-discovery.md` y `design-system.md` | Cumplido | Secciones 2, 3.4, 8, 9 y 10 de este documento; secciones iniciales, 2, 5, 6, 9 y 11 de `design-system.md`. |
-| 4. Distinción entre lo validado en pantallas reales y lo conceptual | Cumplido en la documentación | Tabla «Evidencia de validación por tipo» y estados por módulo. La validación en dispositivo real y con datos reales sigue pendiente y no bloquea el cierre documental. |
-| 5. Sin contradicciones documentales comprobables | Cumplido según la verificación textual realizada | Se contrastaron las afirmaciones sobre rutas, integrantes, teclado, foco y archivos citados con el código y entre los cuatro documentos. No es una revisión semántica exhaustiva. |
-| 6. Verificación final satisfactoria | Cumplido | `git diff --check` sin errores y cambios limitados a `docs/`. |
+| 4. Distinción entre lo validado en pantallas reales y lo conceptual | Cumplido en la documentación | Tabla «Evidencia de validación por tipo» y estados por módulo. La validación en dispositivo real y con datos reales sigue pendiente y debe registrarse como trabajo pendiente. |
 
-Dependen de una validación manual real, sin bloquear el cierre documental: medición de contraste con herramienta (CHOIR-140), validación con tecnologías de asistencia (CHOIR-137, CHOIR-138, CHOIR-139), validación en dispositivo real (CHOIR-129) y validación con datos reales de Mi coro, Conciertos y Formaciones.
+Quedan pendientes de validación manual real: medición de contraste con herramienta (CHOIR-140), validación con tecnologías de asistencia (CHOIR-137, CHOIR-138, CHOIR-139), validación en dispositivo real (CHOIR-129) y validación con datos reales de Mi coro, Conciertos y Formaciones.
+
+### Verificaciones internas (no son criterios oficiales de CHOIR-145)
+
+- **Sin contradicciones documentales comprobables:** se contrastaron las afirmaciones sobre rutas, integrantes, teclado, foco y archivos citados con el código y entre los cuatro documentos. Esta comprobación no constituye una revisión semántica exhaustiva.
+- **Verificación técnica del cambio documental:** `git diff --check` debe finalizar sin errores y los cambios de este ajuste deben limitarse a la documentación.

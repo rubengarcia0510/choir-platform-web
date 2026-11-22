@@ -1,6 +1,6 @@
 # CHOIR — Referencias visuales de los módulos operativos
 
-Estado: referencias conceptuales de CHOIR-124, contrastadas con las capacidades actuales. La validación visual y manual sigue pendiente.
+Estado: referencias de los módulos operativos con distinto nivel de evidencia. Mi coro se contrastó parcialmente mediante CHOIR-141; Conciertos cuenta con la propuesta visual CHOIR-142; Formaciones tiene una propuesta conceptual CHOIR-143. Las validaciones manuales y con datos reales pendientes se detallan por módulo.
 
 Este documento complementa `design-proposals.md` y concreta la jerarquía
 visual de Mi coro, Conciertos y Formaciones a partir de las capacidades

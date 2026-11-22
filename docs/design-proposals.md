@@ -1,6 +1,6 @@
 # CHOIR — Propuestas visuales
 
-Estado: propuestas conceptuales de CHOIR-124. Pendientes de validación.
+Estado: propuestas con distintos niveles de contraste: CHOIR-141 contrastada con la implementación en las pantallas relevadas; CHOIR-142 documentada para Conciertos; CHOIR-143 y CHOIR-144 conceptuales.
 
 Este documento registra las propuestas visuales de escritorio y móvil.
 No representa una implementación ni autoriza cambios en Angular o CSS.
@@ -70,7 +70,7 @@ con las rutas y capacidades reales antes de aprobar el diseño.
 
 ## 2. Ingresar y Registro
 
-Estado: propuesta conceptual pendiente de validación. No representa pantallas
+Estado: propuesta visual de CHOIR-141 contrastada con los formularios implementados; las validaciones manuales siguen pendientes. Esta propuesta no reemplaza las pantallas
 implementadas ni autoriza cambios en Angular, CSS ni backend.
 
 Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
