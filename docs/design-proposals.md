@@ -1,6 +1,6 @@
 # CHOIR — Propuestas visuales
 
-Estado: propuestas conceptuales de CHOIR-124. Pendientes de validación.
+Estado: propuestas con distintos niveles de contraste: CHOIR-141 contrastada con la implementación en las pantallas relevadas; CHOIR-142 documentada para Conciertos; CHOIR-143 y CHOIR-144 conceptuales.
 
 Este documento registra las propuestas visuales de escritorio y móvil.
 No representa una implementación ni autoriza cambios en Angular o CSS.
@@ -70,7 +70,7 @@ con las rutas y capacidades reales antes de aprobar el diseño.
 
 ## 2. Ingresar y Registro
 
-Estado: propuesta conceptual pendiente de validación. No representa pantallas
+Estado: propuesta visual de CHOIR-141 contrastada con los formularios implementados; las validaciones manuales siguen pendientes. Esta propuesta no reemplaza las pantallas
 implementadas ni autoriza cambios en Angular, CSS ni backend.
 
 Recursos visuales (fuente SVG y vista previa PNG en `docs/assets/choir-124/`):
@@ -271,19 +271,24 @@ No declarar conformidad WCAG 2.2 AA hasta completar las mediciones y pruebas.
 
 ## 3. Otras pantallas
 
-Pendientes de propuesta visual:
-- Mi coro y gestión de coreutas.
-- Conciertos.
-- Formaciones y transiciones.
+Estado: las propuestas de Mi coro (sección 5.4 y CHOIR-141), Conciertos
+(CHOIR-142), Formaciones (CHOIR-143) y Transiciones (CHOIR-144) ya están
+documentadas en las secciones 4 a 5 y en las secciones propias de cada
+ticket. Esta sección ya no contiene pendientes de propuesta visual.
 
-Cada pantalla deberá documentarse para escritorio y móvil, respetando
-los datos, permisos, rutas y operaciones existentes.
+Cada pantalla se documenta para escritorio y móvil, respetando los datos,
+permisos, rutas y operaciones existentes. Son documentos de diseño: no
+representan pantallas implementadas ni validadas con datos reales, salvo
+lo que cada sección indique expresamente.
 
 ## 4. Mi coro, Conciertos y Formaciones
 
-Estado: auditoría estática de las pantallas y componentes existentes en
-`main`. Las propuestas siguientes son conceptuales y requieren validación
-visual y manual. No autorizan cambios funcionales ni de estilos.
+Estado: auditoría estática de las pantallas y componentes existentes al
+momento de la auditoría inicial. Las secciones 4.1 y 4.3 incluyen notas de
+actualización donde el código posterior incorporó capacidades (gestión de
+integrantes en Mi coro y alternativa de teclado en Formaciones). Las
+propuestas siguientes son conceptuales y requieren validación visual y
+manual. No autorizan cambios funcionales ni de estilos.
 
 ### 4.1 Mi coro
 
@@ -297,9 +302,16 @@ La pantalla permite:
 - Distinguir visualmente los coros archivados.
 - Reconocer estados de carga, error y ausencia de resultados.
 
-La pantalla no implementa en este flujo un listado de coreutas, búsqueda,
-filtros ni una vista de detalle del coro. Esas capacidades no deben
-incorporarse a la propuesta como si ya existieran.
+> **Actualización (CHOIR-145):** la lista anterior corresponde al estado
+> auditado. Desde CHOIR-151, `ChoirPage` incorpora la gestión de integrantes
+> (`ChoirSingersComponent`, `src/app/singers/choir-singers.component.ts`):
+> por cada coro se abre un panel para listar integrantes, agregarlos,
+> editarlos, darlos de baja con confirmación y reactivarlos, con estados de
+> carga, error y éxito. Esa gestión no está representada en la propuesta
+> visual de Mi coro de CHOIR-141.
+
+Siguen sin existir búsqueda, filtros y una vista de detalle del coro. Esas
+capacidades no deben incorporarse a la propuesta como si ya existieran.
 
 #### Problemas y oportunidades
 
@@ -458,9 +470,15 @@ acciones para quitar y bloquear posiciones.
   persistidas.
 - En móvil, el escenario requiere una reorganización específica: reducir
   el ancho de las tarjetas puede afectar la lectura de nombres y secciones.
-- El movimiento actual se basa en eventos de puntero. No se identificó
-  en el template una alternativa equivalente de teclado para cambiar
-  posiciones; debe tratarse como una necesidad de accesibilidad pendiente.
+- Auditoría inicial: el movimiento se basaba en eventos de puntero.
+  Actualización (CHOIR-145): el escenario ya incluye una alternativa de
+  teclado (`formation-stage.component.ts`, con pruebas en
+  `formation-stage.keyboard.spec.ts` y `formation-stage.keyboard-tab.spec.ts`).
+  Enter o Espacio sobre el botón del integrante inicia el movimiento, las
+  flechas desplazan la posición (con Shift, en pasos mayores), Enter o
+  Espacio confirman y Escape o Tab cancelan, con anuncios `aria-live`. Su
+  validación manual con teclado real y tecnologías de asistencia sigue
+  pendiente (CHOIR-138).
 
 #### Propuesta de escritorio
 
@@ -500,8 +518,9 @@ acciones para quitar y bloquear posiciones.
 
 #### Accesibilidad y validaciones pendientes
 
-- Definir una alternativa operable por teclado para modificar posiciones,
-  sin asumir que el arrastre por puntero es suficiente.
+- Validar manualmente la alternativa de teclado ya implementada (Enter o
+  Espacio, flechas, Escape o Tab) con teclado real y tecnologías de
+  asistencia. Las pruebas automatizadas no sustituyen esa validación.
 - Verificar nombres accesibles y orden de navegación de los integrantes.
 - Revisar cómo se anuncian selección, bloqueo, carga y cambios de posición.
 - Comprobar que los botones contextuales sean localizables y operables
@@ -517,9 +536,9 @@ No modificar algoritmos de distribución, reglas de negocio, contratos,
 persistencia ni operaciones del flujo. No agregar nuevas métricas ni
 nuevos modos de edición.
 
-La alternativa accesible al arrastre debe definirse en un ticket específico
-y validarse contra el comportamiento funcional existente antes de
-implementarse.
+La alternativa de teclado al arrastre ya existe en el código. Cualquier
+ajuste futuro debe validarse contra el comportamiento funcional existente y
+sus pruebas de teclado.
 
 ### 4.4 Criterios comunes de validación
 
@@ -639,7 +658,7 @@ La ruta carga `src/app/auth/register.page.ts`, con estilos en `src/app/auth/regi
 - Aceptar la jerarquía general entre formulario y listado.
 - Aceptar la identificación textual de coros archivados.
 - Aceptar la confirmación contextual y los estados existentes.
-- Mantener como fuera de alcance la gestión de coreutas, búsqueda, filtros y detalle de coro: no están implementados en esta pantalla.
+- Mantener fuera del alcance de la propuesta de CHOIR-141 la gestión de integrantes, que se implementó con posterioridad (CHOIR-151) y no está representada en ella, y la búsqueda, los filtros y el detalle de coro, que no están implementados.
 - Registrar las tarjetas móviles como una opción de diseño futuro, no como una característica actual.
 
 ### 5.5 Alcance de esta validación

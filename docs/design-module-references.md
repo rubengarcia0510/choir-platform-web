@@ -1,6 +1,6 @@
 # CHOIR — Referencias visuales de los módulos operativos
 
-Estado: referencias conceptuales de CHOIR-124, contrastadas con las capacidades actuales. La validación visual y manual sigue pendiente.
+Estado: referencias de los módulos operativos con distinto nivel de evidencia. Mi coro se contrastó parcialmente mediante CHOIR-141; Conciertos cuenta con la propuesta visual CHOIR-142; Formaciones tiene una propuesta conceptual CHOIR-143. Las validaciones manuales y con datos reales pendientes se detallan por módulo.
 
 Este documento complementa `design-proposals.md` y concreta la jerarquía
 visual de Mi coro, Conciertos y Formaciones a partir de las capacidades
@@ -30,16 +30,12 @@ La pantalla permite:
 - Consultar los coros disponibles.
 - Crear un coro.
 - Editar un coro.
-- Archivar un coro mediante confirmación.
-- Visualizar estados de carga, error y ausencia de coros.
-- Diferenciar visualmente los coros archivados.
+- Archivar un coro mediante confirmación contextual.
+- Gestionar integrantes del coro activo mediante `ChoirSingersComponent` (incorporado en CHOIR-151): listar coreutas, agregar integrantes, asignar sección vocal (`vocal-sections`), editar datos, dar de baja con confirmación y reactivar.
+- Visualizar estados de carga, error y ausencia de coros o integrantes.
+- Diferenciar visualmente los coros archivados sin depender exclusivamente del color.
 
-No se debe representar:
-- Un listado de integrantes.
-- Un resumen de integrantes.
-- Búsqueda o filtros.
-- Una vista de detalle del coro.
-- Acciones que no estén disponibles en la pantalla actual.
+La composición integra la administración de agrupaciones y el elenco de voces manteniendo la jerarquía operativa sin sobrecargar el espacio visual.
 
 ### Referencia de escritorio
 
@@ -133,7 +129,7 @@ La pantalla permite:
 - Seleccionar el concierto.
 - Seleccionar la obra del repertorio.
 - Seleccionar una formación.
-- Crear y editar una formación.
+- Crear una formación con nombre y descripción, y editar sus posiciones. La edición del nombre y la descripción de una formación existente no está implementada.
 - Consultar el escenario y los integrantes representados.
 - Agregar y quitar integrantes.
 - Visualizar y modificar posiciones mediante arrastre.
@@ -176,20 +172,21 @@ el orden de lectura y la relación entre escenario, elenco y controles.
 
 ### Interacción y accesibilidad
 
-El arrastre no debe ser la única forma de modificar posiciones.
-La futura implementación deberá ofrecer una alternativa operable
-por teclado y controles accesibles para ajustar posiciones.
+El escenario cuenta con soporte multimodal completo para interactuar con las posiciones:
+- Modificación de posiciones mediante arrastre con puntero (`pointerdown`, `pointermove`, `pointerup`, `pointercancel`).
+- Alternativa por teclado (implementada; integrada mediante CHOIR-135 según `accessibility-audit.md`):
+  - `Enter` o `Espacio` en el botón del cantante activa la sesión de movimiento por teclado.
+  - Teclas de dirección (`ArrowLeft`, `ArrowRight`, `ArrowUp`, `ArrowDown`) desplazan la posición con límites confinados al escenario (pasos estándar o pasos de precisión ampliada con `Shift`).
+  - `Enter` o `Espacio` confirman la nueva posición emitiendo el cambio y notificando mediante anuncios `aria-live`.
+  - `Escape` o `Tab` cancelan el movimiento restaurando la posición original sin mutaciones.
 
-Esta referencia es un requisito de diseño futuro, no una afirmación
-de que esa alternativa ya exista.
-
-Verificar:
-- Foco visible en integrantes y controles.
+Verificaciones comprobadas en código:
+- Foco visible: los controles estándar usan `--focus-ring`; los integrantes del escenario usan un contorno propio de 3 px con `--accent` definido en `formation-stage.component.scss`. Ninguno se midió con herramienta externa.
 - Nombres accesibles para bloquear y quitar integrantes.
 - Identificación textual de selección y bloqueo.
-- Anuncios comprensibles de errores y resultados.
-- Compatibilidad con movimiento reducido.
-- Uso mediante teclado sin depender de pointer events.
+- Anuncios comprensibles de estado y confirmaciones (`aria-live`).
+- Movimiento reducido: las reglas globales están en `styles.scss`, `shared-patterns.scss` y `pages.scss`; no se verificó su efecto sobre el escenario.
+- Operatividad sin depender exclusivamente de eventos de puntero, comprobada con pruebas automatizadas. La validación manual con tecnologías de asistencia sigue pendiente (CHOIR-138).
 
 ### Estados
 
