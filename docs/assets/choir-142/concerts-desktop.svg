@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Propuesta de Conciertos para escritorio</title>
+  <desc id="desc">Pantalla de Conciertos con encabezado, estado de módulo en preparación y panel informativo. No presenta datos ni acciones ficticias.</desc>
+  <rect width="1440" height="900" fill="#FCFBF8"/>
+  <rect width="1440" height="76" fill="#FFFFFF"/>
+  <path d="M0 75.5H1440" stroke="#E9E8E1"/>
+  <circle cx="76" cy="38" r="19" fill="#456B4C"/>
+  <path d="M67 43V32L76 27L85 32V43M72 43V36H80V43" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="110" y="45" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="21" font-weight="700">Mi coro</text>
+  <text x="1260" y="44" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="15">Espacio del director</text>
+  <rect x="64" y="126" width="1312" height="680" rx="20" fill="#FFFFFF" stroke="#E9E8E1"/>
+  <text x="112" y="196" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="34" font-weight="700">Conciertos</text>
+  <text x="112" y="232" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="17">Un espacio para organizar y consultar las presentaciones del coro.</text>
+  <rect x="112" y="270" width="205" height="36" rx="18" fill="#EEF3ED"/>
+  <circle cx="132" cy="288" r="5" fill="#456B4C"/>
+  <text x="146" y="294" fill="#456B4C" font-family="Inter,Arial,sans-serif" font-size="13" font-weight="700" letter-spacing=".5">MÓDULO EN PREPARACIÓN</text>
+  <rect x="112" y="350" width="1216" height="370" rx="16" fill="#FCFBF8" stroke="#E9E8E1"/>
+  <circle cx="720" cy="463" r="48" fill="#EEF3ED"/>
+  <rect x="698" y="442" width="44" height="39" rx="5" fill="none" stroke="#456B4C" stroke-width="2.5"/>
+  <path d="M698 453H742M709 437V447M731 437V447M708 464H717M724 464H733M708 473H717" fill="none" stroke="#456B4C" stroke-width="2.5" stroke-linecap="round"/>
+  <text x="720" y="552" text-anchor="middle" fill="#252B25" font-family="Inter,Arial,sans-serif" font-size="25" font-weight="700">Estamos preparando este espacio</text>
+  <text x="720" y="588" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="16">Próximamente vas a poder consultar y organizar los conciertos de tu coro.</text>
+  <text x="720" y="616" text-anchor="middle" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="16">La información todavía no está conectada.</text>
+  <text x="112" y="765" fill="#747A70" font-family="Inter,Arial,sans-serif" font-size="13">Propuesta visual · Estado actual del módulo</text>
+</svg>

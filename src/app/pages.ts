@@ -5,6 +5,7 @@ import { finalize } from 'rxjs';
 import { AuthService } from './auth/auth.service';
 import { Choir } from './choirs/choir.model';
 import { ChoirsApiService } from './choirs/choirs-api.service';
+import { ChoirSingersComponent } from './singers/choir-singers.component';
 import { SingersStore } from './singers/singers.store';
 import { FormationDraftsApiService } from './formations/formation-drafts-api.service';
 import { FormationStageComponent } from './formations/formation-stage.component';
@@ -38,7 +39,7 @@ import {
         <p class="hero-note">Un espacio de trabajo para organizar tu próximo ensayo.</p>
       </div>
 
-      <div class="hero-art" aria-label="Ilustración abstracta de voces y música">
+      <div class="hero-art" aria-hidden="true">
         <div class="art-orbit orbit-one"></div>
         <div class="art-orbit orbit-two"></div>
         <div class="art-center">
@@ -111,30 +112,12 @@ export class HomePage {}
 })
 export class LoginPage {}
 
-@Component({
-  standalone: true,
-  template: `
-    <section class="page-wrap narrow-page">
-      <a class="back-link" href="/">← Volver al inicio</a>
-      <span class="eyebrow">NUEVO ESPACIO DE DIRECCIÓN</span>
-      <h1>Empezá a organizar tu coro.</h1>
-      <p class="page-lead">Un espacio pensado para que la planificación musical y la organización convivan.</p>
-      <div class="notice-card">
-        <span class="notice-icon">＋</span>
-        <div>
-          <h2>Registro en preparación</h2>
-          <p>El formulario de alta se incorporará cuando estén definidos e integrados los flujos de registro, verificación de correo y autenticación.</p>
-        </div>
-      </div>
-      <a class="button button-primary full-button" href="/ingresar">Ir a ingresar</a>
-    </section>
-  `
-})
-export class RegisterPage {}
+
 
 
 @Component({
   standalone: true,
+  imports: [ChoirSingersComponent],
   template: `
     <section class="page-wrap">
       <span class="eyebrow">ESPACIO DE DIRECCIÓN / 01</span>
@@ -145,6 +128,10 @@ export class RegisterPage {}
         </div>
         <span class="pill-status">GESTIÓN DE COROS</span>
       </div>
+
+      <p class="choir-success-announcement" role="status" aria-live="polite" aria-atomic="true">
+        {{ successMessage() }}
+      </p>
 
       @if (loading()) {
         <div class="panel" role="status"><h2>Cargando tus coros…</h2></div>
@@ -236,6 +223,18 @@ export class RegisterPage {}
                             (click)="requestArchive(choir.id)">Archivar</button>
                         }
                       </div>
+
+                      <button class="button button-secondary" type="button"
+                        [attr.aria-expanded]="managingChoirId() === choir.id"
+                        (click)="toggleMembers(choir.id)">
+                        {{ managingChoirId() === choir.id ? 'Ocultar integrantes' : 'Gestionar integrantes' }}
+                      </button>
+
+                      @if (managingChoirId() === choir.id) {
+                        <app-choir-singers
+                          [choirId]="choir.id"
+                          [choirName]="choir.name" />
+                      }
                     }
                   </li>
                 }
@@ -256,11 +255,13 @@ export class ChoirPage {
   readonly saving = signal(false);
   readonly error = signal<string | null>(null);
   readonly formError = signal<string | null>(null);
+  readonly successMessage = signal<string | null>(null);
   readonly name = signal('');
   readonly description = signal('');
   readonly editingId = signal<number | null>(null);
   readonly archiveConfirmationId = signal<number | null>(null);
   readonly archivingId = signal<number | null>(null);
+  readonly managingChoirId = signal<number | null>(null);
 
   constructor() {
     this.loadChoirs();
@@ -269,11 +270,19 @@ export class ChoirPage {
   setName(event: Event): void {
     this.name.set((event.target as HTMLInputElement).value);
     this.formError.set(null);
+    this.successMessage.set(null);
   }
 
   setDescription(event: Event): void {
     this.description.set((event.target as HTMLTextAreaElement).value);
     this.formError.set(null);
+    this.successMessage.set(null);
+  }
+
+  toggleMembers(choirId: number): void {
+    this.managingChoirId.update(current =>
+      current === choirId ? null : choirId
+    );
   }
 
   loadChoirs(): void {
@@ -297,6 +306,7 @@ export class ChoirPage {
   beginEdit(choir: Choir): void {
     if (choir.archived) return;
     this.editingId.set(choir.id);
+    this.successMessage.set(null);
     this.name.set(choir.name);
     this.description.set(choir.description ?? '');
     this.formError.set(null);
@@ -307,6 +317,7 @@ export class ChoirPage {
     this.name.set('');
     this.description.set('');
     this.formError.set(null);
+    this.successMessage.set(null);
   }
 
   save(event?: Event): void {
@@ -326,6 +337,7 @@ export class ChoirPage {
 
     this.saving.set(true);
     this.formError.set(null);
+    this.successMessage.set(null);
 
     const request = { name, description: description || null };
     const id = this.editingId();
@@ -339,9 +351,12 @@ export class ChoirPage {
           .sort((a, b) => Number(a.archived) - Number(b.archived) || a.name.localeCompare(b.name)));
         this.saving.set(false);
         this.cancelEdit();
+        this.successMessage.set(id === null
+          ? 'Coro creado correctamente.' : 'Coro actualizado correctamente.');
       },
       error: () => {
         this.saving.set(false);
+        this.successMessage.set(null);
         this.formError.set('No pudimos guardar los datos. Intentá nuevamente.');
       }
     });

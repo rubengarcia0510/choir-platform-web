@@ -8,6 +8,14 @@ export interface DirectorSession {
   email: string;
 }
 
+export interface RegistrationResponse {
+  message: string;
+}
+
+export interface EmailVerificationResponse {
+  message: string;
+}
+
 interface CsrfResponse {
   token: string;
 }
@@ -25,34 +33,66 @@ export class AuthService {
   loadSession(): Observable<DirectorSession | null> {
     this.isLoading.set(true);
 
-    return this.http.get<DirectorSession>(`${this.apiUrl}/me`, {
-      withCredentials: true
-    }).pipe(
-      tap(director => this.setDirector(director)),
-      catchError((error: HttpErrorResponse) => {
-        this.setDirector(null);
-        return of(null);
-      }),
-      finalize(() => this.isLoading.set(false))
-    );
+    return this.http
+      .get<DirectorSession>(`${this.apiUrl}/me`, {
+        withCredentials: true,
+      })
+      .pipe(
+        tap((director) => this.setDirector(director)),
+        catchError((error: HttpErrorResponse) => {
+          this.setDirector(null);
+          return of(null);
+        }),
+        finalize(() => this.isLoading.set(false)),
+      );
   }
 
   login(email: string, password: string): Observable<DirectorSession> {
     this.isLoading.set(true);
 
     return this.getCsrfToken().pipe(
-      switchMap(token =>
+      switchMap((token) =>
         this.http.post<DirectorSession>(
           `${this.apiUrl}/login`,
           { email, password },
           {
             headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
-            withCredentials: true
-          }
-        )
+            withCredentials: true,
+          },
+        ),
       ),
-      tap(director => this.setDirector(director)),
-      finalize(() => this.isLoading.set(false))
+      tap((director) => this.setDirector(director)),
+      finalize(() => this.isLoading.set(false)),
+    );
+  }
+
+  register(displayName: string, email: string, password: string): Observable<RegistrationResponse> {
+    return this.getCsrfToken().pipe(
+      switchMap((token) =>
+        this.http.post<RegistrationResponse>(
+          `${this.apiUrl}/register`,
+          { displayName, email, password },
+          {
+            headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
+            withCredentials: true,
+          },
+        ),
+      ),
+    );
+  }
+
+  verifyEmail(token: string): Observable<EmailVerificationResponse> {
+    return this.getCsrfToken().pipe(
+      switchMap((csrfToken) =>
+        this.http.post<EmailVerificationResponse>(
+          `${this.apiUrl}/verify-email`,
+          { token },
+          {
+            headers: new HttpHeaders({ 'X-CSRF-TOKEN': csrfToken }),
+            withCredentials: true,
+          },
+        ),
+      ),
     );
   }
 
@@ -60,36 +100,38 @@ export class AuthService {
     this.isLoading.set(true);
 
     return this.getCsrfToken().pipe(
-      switchMap(token =>
+      switchMap((token) =>
         this.http.post<void>(
           `${this.apiUrl}/logout`,
           {},
           {
             headers: new HttpHeaders({ 'X-CSRF-TOKEN': token }),
-            withCredentials: true
-          }
-        )
+            withCredentials: true,
+          },
+        ),
       ),
       tap(() => this.setDirector(null)),
       finalize(() => this.isLoading.set(false)),
-      catchError(error => {
+      catchError((error) => {
         this.setDirector(null);
         return throwError(() => error);
-      })
+      }),
     );
   }
 
   getCsrfToken(): Observable<string> {
-    return this.http.get<CsrfResponse>(`${this.apiUrl}/csrf`, {
-      withCredentials: true
-    }).pipe(
-      map(response => {
-        if (!response.token) {
-          throw new Error('El backend no devolvió el token CSRF.');
-        }
-        return response.token;
+    return this.http
+      .get<CsrfResponse>(`${this.apiUrl}/csrf`, {
+        withCredentials: true,
       })
-    );
+      .pipe(
+        map((response) => {
+          if (!response.token) {
+            throw new Error('El backend no devolvió el token CSRF.');
+          }
+          return response.token;
+        }),
+      );
   }
 
   clearSession(): void {
